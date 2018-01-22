@@ -1,21 +1,62 @@
-# For PCBs designed using KiCad: http://www.kicad-pcb.org/
+## C git ignore template
+# Prerequisites
+*.d
 
-# Temporary files
-*.000
-*.bak
-*.bck
-*.kicad_pcb-bak
-*~
-_autosave-*
-*.tmp
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+*.slo
+*.lo
 
-# Netlist files (exported from Eeschema)
-*.net
+# Linker output
+*.ilk
+*.map
+*.exp
 
-# Autorouter files (exported from Pcbnew)
-*.dsn
-*.ses
+# Precompiled Headers
+*.gch
+*.pch
 
-# Exported BOM files
-*.xml
-*.csv
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.lai
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Fortran module files
+*.mod
+*.smod
+
+## CMAKE ignores
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
