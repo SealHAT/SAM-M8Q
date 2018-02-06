@@ -404,6 +404,10 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\ubxtypes.h">
+      <SubType>compile</SubType>
+      <Link>ubxtypes.h</Link>
+    </Compile>
     <Compile Include="atmel_start.c">
       <SubType>compile</SubType>
     </Compile>
