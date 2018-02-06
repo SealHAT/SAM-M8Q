@@ -30,15 +30,15 @@
     <EraseKey />
     <AsfFrameworkConfig>
       <framework-data xmlns="">
-  <options />
-  <configurations />
-  <files />
-  <documentation help="" />
-  <offline-documentation help="" />
-  <dependencies>
-    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.35.1" />
-  </dependencies>
-</framework-data>
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.35.1" />
+        </dependencies>
+      </framework-data>
     </AsfFrameworkConfig>
     <GpdscFilePath>.atmelstart\AtmelStart.gpdsc</GpdscFilePath>
     <atStartFilePath>.atmelstart\atmel_start_config.atstart</atStartFilePath>
