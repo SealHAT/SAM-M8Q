@@ -1,1 +1,0 @@
-/* UBX variable type definitions go here */
