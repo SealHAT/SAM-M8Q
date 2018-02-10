@@ -47,7 +47,7 @@
 /**
  * \brief Initialize RTC interface
  */
-int8_t CALENDAR_init()
+int8_t time_date_init()
 {
 
 	hri_rtcmode2_wait_for_sync(RTC);

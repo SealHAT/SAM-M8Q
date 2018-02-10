@@ -1,6 +1,6 @@
 #include <atmel_start.h>
-#include "driver_init.h"
-#include "utils.h"
+#include "minmea.h"
+#include "ubx.h"
 
 int main(void)
 {

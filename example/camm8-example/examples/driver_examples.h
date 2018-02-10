@@ -12,11 +12,11 @@
 extern "C" {
 #endif
 
-void ADC_example(void);
+void analog_in_example(void);
 
-void CRC_example(void);
+void hash_chk_example(void);
 
-void I2C_example(void);
+void wire_example(void);
 
 void delay_example(void);
 

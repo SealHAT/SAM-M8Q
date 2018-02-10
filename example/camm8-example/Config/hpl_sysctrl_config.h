@@ -84,7 +84,7 @@
 // <i> Default: No Prescaling
 // <id> osc8m_presc
 #ifndef CONF_OSC8M_PRESC
-#define CONF_OSC8M_PRESC SYSCTRL_OSC8M_PRESC_3_Val
+#define CONF_OSC8M_PRESC SYSCTRL_OSC8M_PRESC_0_Val
 #endif
 
 // <q> Overwrite Default Osc Calibration
@@ -142,7 +142,7 @@
 // <i> Enable 32 Khz Output
 // <id> osc32k_arch_en32k
 #ifndef CONF_OSC32K_EN32K
-#define CONF_OSC32K_EN32K 0
+#define CONF_OSC32K_EN32K 1
 #endif
 
 // <q> Enable 1K
@@ -197,7 +197,7 @@
 // <i> Indicates whether configuration for External 32K Osc is enabled or not
 // <id> enable_xosc32k
 #ifndef CONF_XOSC32K_CONFIG
-#define CONF_XOSC32K_CONFIG 0
+#define CONF_XOSC32K_CONFIG 1
 #endif
 
 // <h> 32kHz External Crystal Oscillator (XOSC32K) Control
@@ -205,7 +205,7 @@
 // <i> Indicates whether External 32K Oscillator is enabled or not
 // <id> xosc32k_arch_enable
 #ifndef CONF_XOSC32K_ENABLE
-#define CONF_XOSC32K_ENABLE 0
+#define CONF_XOSC32K_ENABLE 1
 #endif
 
 // <q> On Demand
@@ -237,14 +237,14 @@
 // <i> Enable 32 Khz Output
 // <id> xosc32k_arch_en32k
 #ifndef CONF_XOSC32K_EN32K
-#define CONF_XOSC32K_EN32K 0
+#define CONF_XOSC32K_EN32K 1
 #endif
 
 // <q> Enable XTAL
 // <i> Enable XTAL
 // <id> xosc32k_arch_xtalen
 #ifndef CONF_XOSC32K_XTALEN
-#define CONF_XOSC32K_XTALEN 0
+#define CONF_XOSC32K_XTALEN 1
 #endif
 
 // <q> Write Lock
@@ -274,7 +274,7 @@
 // <i> Default: 122 us
 // <id> xosc32k_arch_startup
 #ifndef CONF_XOSC32K_STARTUP
-#define CONF_XOSC32K_STARTUP CONF_XOSC32K_STARTUP_TIME_122MCS
+#define CONF_XOSC32K_STARTUP CONF_XOSC32K_STARTUP_TIME_125092MCS
 #endif
 
 // </h>
@@ -410,7 +410,7 @@
 // <i> Indicates whether configuration for DFLL is enabled or not
 // <id> enable_dfll48m
 #ifndef CONF_DFLL_CONFIG
-#define CONF_DFLL_CONFIG 0
+#define CONF_DFLL_CONFIG 1
 #endif
 
 // <y> Reference Clock Source
@@ -433,7 +433,7 @@
 // <i> Indicates whether DFLL is enabled or not
 // <id> dfll48m_arch_enable
 #ifndef CONF_DFLL_ENABLE
-#define CONF_DFLL_ENABLE 0
+#define CONF_DFLL_ENABLE 1
 #endif
 
 // <q> Wait Lock
@@ -447,7 +447,7 @@
 // <i> Indicates whether Bypass coarse lock is enabled or not
 // <id> dfll48m_arch_bplckc
 #ifndef CONF_DFLL_BPLCKC
-#define CONF_DFLL_BPLCKC 0
+#define CONF_DFLL_BPLCKC 1
 #endif
 
 // <q> Quick Lock Disable
@@ -461,7 +461,7 @@
 // <i> Chill Cycle Disable
 // <id> dfll48m_arch_ccdis
 #ifndef CONF_DFLL_CCDIS
-#define CONF_DFLL_CCDIS 0
+#define CONF_DFLL_CCDIS 1
 #endif
 
 // <q> On Demand
@@ -470,7 +470,7 @@
 // <i> If this bit is 1: the DFLL will only be running when requested by a peripheral.
 // <id> dfll48m_arch_ondemand
 #ifndef CONF_DFLL_ONDEMAND
-#define CONF_DFLL_ONDEMAND 1
+#define CONF_DFLL_ONDEMAND 0
 #endif
 
 // <q> Run In Standby
@@ -520,7 +520,7 @@
 // <i> Mode
 // <id> dfll48m_mode
 #ifndef CONF_DFLL_MODE
-#define CONF_DFLL_MODE CONF_DFLL_OPEN_LOOP_MODE
+#define CONF_DFLL_MODE CONF_DFLL_CLOSED_LOOP_MODE
 #endif
 
 // <o> Coarse Maximum Step <0x0-0x1F>
@@ -540,7 +540,7 @@
 //  <i> Default: 0
 //  <id> dfll48m_mul
 #ifndef CONF_DFLL_MUL
-#define CONF_DFLL_MUL 0
+#define CONF_DFLL_MUL 1464
 #endif
 
 // <e> DFLL Calibration Overwrite
