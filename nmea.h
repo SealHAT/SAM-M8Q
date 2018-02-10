@@ -86,6 +86,20 @@ typedef enum {
  */
 uint8_t nmea_checksum(const char *sentence);
 
+/**
+ * nmea_check
+ *
+ * Validates the NMEA sentance based on the length, the fact that
+ * it must start with a $ and end with a *, and the checksum if the
+ * "strict" option is enabled. If there is a checksum it WILL be checked.
+ * the strict option meerly allows sentances that have no checksum to pass.
+ *
+ * sentence - The buffer to validate. Must be the complete NMEA sentence
+ * strict   - Boolean, TRUE drops all nmea without checksum.
+ * RETURNS  - True if the sentence passes, false if it fails.
+ */
+bool nmea_check(const char *sentence, bool strict);
+
 #ifdef __cplusplus
 }
 #endif
