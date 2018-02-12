@@ -52,22 +52,22 @@
 //#endif
 //#endif
 
-typedef u_int8_t  UBXU1_t;
+typedef uint8_t  UBXU1_t;
 typedef int8_t    UBXI1_t;
-typedef u_int8_t  UBXX1_t;
-typedef u_int16_t UBXU2_t;
+typedef uint8_t  UBXX1_t;
+typedef uint16_t UBXU2_t;
 typedef int16_t   UBXI2_t;
-typedef u_int16_t UBXX2_t;
-typedef u_int32_t UBXU4_t;
+typedef uint16_t  UBXX2_t;
+typedef uint32_t  UBXU4_t;
 typedef int32_t   UBXI4_t;
-typedef u_int32_t UBXX4_t;
+typedef uint32_t  UBXX4_t;
 typedef float     UBXR4_t;
 typedef double    UBXR8_t;
 typedef char      UBXCH_t;
 
 static const int UBX_CHECKSUM_SIZE = 2;
 static const int UBX_HEADER_SIZE = 6;
-static const UBXU2_t UBX_PREAMBLE = 0xB562;
+static const UBXU2_t UBX_PREAMBLE = 0xB562u;
 
 typedef enum
 {
