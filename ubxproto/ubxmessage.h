@@ -67,7 +67,7 @@ typedef char      UBXCH_t;
 
 static const int UBX_CHECKSUM_SIZE = 2;
 static const int UBX_HEADER_SIZE = 6;
-static const UBXU2_t UBX_PREAMBLE = 0xB562u;
+static const UBXU2_t UBX_PREAMBLE = 0xB562;
 
 typedef enum
 {
@@ -1224,10 +1224,10 @@ typedef struct
 
 typedef union
 {
-    UBXCFG_PRTUARTMode UART;
-    UBXCFG_PRTSPIMode SPI;
-    UBXCFG_PRTDDCMode DDC;
-    UBXX4_t USB; //reserved
+    UBXCFG_PRTUARTMode UBX_UART;
+    UBXCFG_PRTSPIMode UBX_SPI;
+    UBXCFG_PRTDDCMode UBX_DDC;
+    UBXX4_t UBX_USB; //reserved
 } UBXCFG_PRTMode;
 
 typedef union
