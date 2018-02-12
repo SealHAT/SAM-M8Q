@@ -52,7 +52,6 @@
 //#endif
 //#endif
 
-#if defined (__linux__)
 typedef u_int8_t  UBXU1_t;
 typedef int8_t    UBXI1_t;
 typedef u_int8_t  UBXX1_t;
@@ -65,20 +64,6 @@ typedef u_int32_t UBXX4_t;
 typedef float     UBXR4_t;
 typedef double    UBXR8_t;
 typedef char      UBXCH_t;
-#else
-typedef unsigned char  UBXU1_t;
-typedef char           UBXI1_t;
-typedef unsigned char  UBXX1_t;
-typedef unsigned short UBXU2_t;
-typedef short          UBXI2_t;
-typedef unsigned short UBXX2_t;
-typedef unsigned int   UBXU4_t;
-typedef int            UBXI4_t;
-typedef unsigned int   UBXX4_t;
-typedef float          UBXR4_t;
-typedef double         UBXR8_t;
-typedef char           UBXCH_t;
-#endif
 
 static const int UBX_CHECKSUM_SIZE = 2;
 static const int UBX_HEADER_SIZE = 6;

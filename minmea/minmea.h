@@ -100,7 +100,8 @@ struct minmea_sentence_gll {
     struct minmea_float longitude;
     struct minmea_time time;
     char status;
-    
+    char mode;
+};
 
 struct minmea_sentence_gst {
     struct minmea_time time;
