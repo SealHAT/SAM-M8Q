@@ -407,6 +407,14 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\gnss.c">
+      <SubType>compile</SubType>
+      <Link>gnss.c</Link>
+    </Compile>
+    <Compile Include="..\..\gnss.h">
+      <SubType>compile</SubType>
+      <Link>gnss.h</Link>
+    </Compile>
     <Compile Include="..\..\minmea\minmea.c">
       <SubType>compile</SubType>
       <Link>minmea.c</Link>
