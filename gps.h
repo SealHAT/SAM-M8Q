@@ -1,3 +1,55 @@
+/**
+ * GPS interface
+ *
+ * Author: Anthony
+ * Due Date: 14 Feb 2018   <3
+ */
+
+#ifndef UBXTYPES_H_
+#define UBXTYPES_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ *	This type represents the UTC time data as given by the GPS device
+ */
+typedef struct utc_time_t {
+    uint8_t        year;             /* 0 .. 255 (1980 == 0)         */
+    uint8_t        month;            /* 1 .. 12                      */
+    uint8_t        day;              /* 1 .. 31                      */
+    uint8_t        hour;             /* 0 .. 23                      */
+    uint8_t        minute;           /* 0 .. 59                      */
+    uint8_t        second;           /* 0 .. 60                      */ 
+    uint16_t       millis;           /* 0 .. 999                     */
+} utc_time_t;
+
+/**
+ * This type represents A location message, parsed from the NMEA data
+ * Received from the gps module
+ */
+typedef struct location_t {
+    utc_time_t     time;             /* UTC date/time                */
+    uint16_t       mask;             /*                              */
+    uint8_t        correction;       /* GPS/UTC offset               */
+    uint8_t        type;             /* fix type                     */
+    int32_t        latitude;         /* (WGS84) degrees, 1e7         */
+    int32_t        longitude;        /* (WGS84) degrees, 1e7         */
+    int32_t        altitude;         /* (MSL) m, 1e3                 */
+    int32_t        separation;       /* (WGS84) = (MSL) + separation */
+    uint32_t       speed;            /* m/s, 1e3                     */
+    uint32_t       course;           /* degrees, 1e5                 */
+    int32_t        climb;            /* m/s, 1e3                     */
+    uint32_t       ehpe;             /* m, 1e3                       */
+    uint32_t       evpe;             /* m, 1e3                       */
+    uint8_t        quality;          /* fix quality                  */
+    uint8_t        numsv;            /* fix numsv                    */
+    uint16_t       pdop;             /* 1e2                          */
+    uint16_t       hdop;             /* 1e2                          */
+    uint16_t       vdop;             /* 1e2                          */
+    uint32_t       ticks;            /* system tick                  */
+} location_t;
 
 /**
  * gps_init
@@ -68,3 +120,9 @@ bool gps_sleep();
  * @returns true if successful, false if profile not set
  */
 bool gps_setprofile(const GpsProfile profile);
+  
+#ifdef __cplusplus
+}
+#endif
+
+#endif	/* UBXTYPES_H_ */
