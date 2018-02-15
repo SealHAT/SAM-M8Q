@@ -14,14 +14,14 @@
 #include <hpl_pm_base.h>
 #include <hpl_adc_base.h>
 
-struct crc_sync_descriptor   CRC;
-struct spi_m_sync_descriptor SPI;
+struct crc_sync_descriptor   hash_chk;
+struct spi_m_sync_descriptor spi_dev;
 
-struct adc_sync_descriptor ADC;
+struct adc_sync_descriptor analog_in;
 
-struct i2c_m_sync_desc I2C;
+struct i2c_m_sync_desc wire;
 
-void ADC_PORT_init(void)
+void analog_in_PORT_init(void)
 {
 
 	// Disable digital pin circuitry
@@ -30,17 +30,17 @@ void ADC_PORT_init(void)
 	gpio_set_pin_function(PA02, PINMUX_PA02B_ADC_AIN0);
 }
 
-void ADC_CLOCK_init(void)
+void analog_in_CLOCK_init(void)
 {
 	_pm_enable_bus_clock(PM_BUS_APBC, ADC);
 	_gclk_enable_channel(ADC_GCLK_ID, CONF_GCLK_ADC_SRC);
 }
 
-void ADC_init(void)
+void analog_in_init(void)
 {
-	ADC_CLOCK_init();
-	ADC_PORT_init();
-	adc_sync_init(&ADC, ADC, (void *)NULL);
+	analog_in_CLOCK_init();
+	analog_in_PORT_init();
+	adc_sync_init(&analog_in, ADC, (void *)NULL);
 }
 
 /**
@@ -48,14 +48,14 @@ void ADC_init(void)
  *
  * Enables CRC peripheral, clocks and initializes CRC driver
  */
-void CRC_init(void)
+void hash_chk_init(void)
 {
 	_pm_enable_bus_clock(PM_BUS_AHB, DSU);
 	_pm_enable_bus_clock(PM_BUS_APBB, PAC1);
-	crc_sync_init(&CRC, DSU);
+	crc_sync_init(&hash_chk, DSU);
 }
 
-void I2C_PORT_init(void)
+void wire_PORT_init(void)
 {
 
 	gpio_set_pin_pull_mode(PA22,
@@ -79,21 +79,21 @@ void I2C_PORT_init(void)
 	gpio_set_pin_function(PA23, PINMUX_PA23C_SERCOM3_PAD1);
 }
 
-void I2C_CLOCK_init(void)
+void wire_CLOCK_init(void)
 {
 	_pm_enable_bus_clock(PM_BUS_APBC, SERCOM3);
 	_gclk_enable_channel(SERCOM3_GCLK_ID_CORE, CONF_GCLK_SERCOM3_CORE_SRC);
 	_gclk_enable_channel(SERCOM3_GCLK_ID_SLOW, CONF_GCLK_SERCOM3_SLOW_SRC);
 }
 
-void I2C_init(void)
+void wire_init(void)
 {
-	I2C_CLOCK_init();
-	i2c_m_sync_init(&I2C, SERCOM3);
-	I2C_PORT_init();
+	wire_CLOCK_init();
+	i2c_m_sync_init(&wire, SERCOM3);
+	wire_PORT_init();
 }
 
-void SPI_PORT_init(void)
+void spi_dev_PORT_init(void)
 {
 
 	// Set pin direction to input
@@ -134,17 +134,17 @@ void SPI_PORT_init(void)
 	gpio_set_pin_function(PB11, PINMUX_PB11D_SERCOM4_PAD3);
 }
 
-void SPI_CLOCK_init(void)
+void spi_dev_CLOCK_init(void)
 {
 	_pm_enable_bus_clock(PM_BUS_APBC, SERCOM4);
 	_gclk_enable_channel(SERCOM4_GCLK_ID_CORE, CONF_GCLK_SERCOM4_CORE_SRC);
 }
 
-void SPI_init(void)
+void spi_dev_init(void)
 {
-	SPI_CLOCK_init();
-	spi_m_sync_init(&SPI, SERCOM4);
-	SPI_PORT_init();
+	spi_dev_CLOCK_init();
+	spi_m_sync_init(&spi_dev, SERCOM4);
+	spi_dev_PORT_init();
 }
 
 void delay_driver_init(void)
@@ -157,13 +157,13 @@ void delay_driver_init(void)
  *
  * Enables Rtc peripheral, clocks and initializes driver
  */
-void CALENDAR_CLOCK_init(void)
+void time_date_CLOCK_init(void)
 {
 	_pm_enable_bus_clock(PM_BUS_APBA, RTC);
 	_gclk_enable_channel(RTC_GCLK_ID, CONF_GCLK_RTC_SRC);
 }
 
-void USB_PORT_init(void)
+void usb_comms_PORT_init(void)
 {
 
 	gpio_set_pin_direction(PA24,
@@ -251,7 +251,7 @@ void USB_PORT_init(void)
 #warning USB clock should be 48MHz ~ 0.25% clock, check your configuration!
 #endif
 
-void USB_CLOCK_init(void)
+void usb_comms_CLOCK_init(void)
 {
 
 	_pm_enable_bus_clock(PM_BUS_APBB, USB);
@@ -259,28 +259,28 @@ void USB_CLOCK_init(void)
 	_gclk_enable_channel(USB_GCLK_ID, CONF_GCLK_USB_SRC);
 }
 
-void USB_init(void)
+void usb_comms_init(void)
 {
-	USB_CLOCK_init();
+	usb_comms_CLOCK_init();
 	usb_d_init();
-	USB_PORT_init();
+	usb_comms_PORT_init();
 }
 
 void system_init(void)
 {
 	init_mcu();
 
-	ADC_init();
-	CRC_init();
+	analog_in_init();
+	hash_chk_init();
 
-	I2C_init();
+	wire_init();
 
-	SPI_init();
+	spi_dev_init();
 
 	delay_driver_init();
 
-	CALENDAR_CLOCK_init();
-	CALENDAR_init();
+	time_date_CLOCK_init();
+	time_date_init();
 
-	USB_init();
+	usb_comms_init();
 }

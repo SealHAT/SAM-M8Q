@@ -7,8 +7,8 @@ details: null
 application: null
 middlewares: {}
 drivers:
-  ADC:
-    user_label: ADC
+  analog_in:
+    user_label: analog_in
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::ADC::driver_config_definition::ADC::HAL:Driver:ADC.Sync
     functionality: ADC
     api: HAL:Driver:ADC_Sync
@@ -43,7 +43,7 @@ drivers:
       adc_reference: 1.0V voltage reference
       adc_resolution: 12-bit
     optional_signals:
-    - identifier: ADC:AIN/0
+    - identifier: analog_in:AIN/0
       pad: PA02
       mode: Enabled
       configuration: null
@@ -58,8 +58,8 @@ drivers:
           input: Generic clock generator 0
         configuration:
           adc_gclk_selection: Generic clock generator 0
-  CRC:
-    user_label: CRC
+  hash_chk:
+    user_label: hash_chk
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::DSU::driver_config_definition::CRC~28DSU~29::HAL:Driver:CRC
     functionality: CRC
     api: HAL:Driver:CRC
@@ -75,9 +75,9 @@ drivers:
     api: HAL:HPL:GCLK
     configuration:
       enable_gclk_gen_0: true
-      enable_gclk_gen_1: false
-      enable_gclk_gen_2: false
-      enable_gclk_gen_3: false
+      enable_gclk_gen_1: true
+      enable_gclk_gen_2: true
+      enable_gclk_gen_3: true
       enable_gclk_gen_4: false
       enable_gclk_gen_5: false
       enable_gclk_gen_6: false
@@ -88,17 +88,17 @@ drivers:
       gclk_arch_gen_0_oe: false
       gclk_arch_gen_0_oov: false
       gclk_arch_gen_1_RUNSTDBY: false
-      gclk_arch_gen_1_enable: false
+      gclk_arch_gen_1_enable: true
       gclk_arch_gen_1_idc: false
       gclk_arch_gen_1_oe: false
       gclk_arch_gen_1_oov: false
       gclk_arch_gen_2_RUNSTDBY: false
-      gclk_arch_gen_2_enable: false
+      gclk_arch_gen_2_enable: true
       gclk_arch_gen_2_idc: false
       gclk_arch_gen_2_oe: false
       gclk_arch_gen_2_oov: false
       gclk_arch_gen_3_RUNSTDBY: false
-      gclk_arch_gen_3_enable: false
+      gclk_arch_gen_3_enable: true
       gclk_arch_gen_3_idc: false
       gclk_arch_gen_3_oe: false
       gclk_arch_gen_3_oov: false
@@ -125,15 +125,15 @@ drivers:
       gclk_gen_0_div: 1
       gclk_gen_0_div_sel: false
       gclk_gen_0_oscillator: 8MHz Internal Oscillator (OSC8M)
-      gclk_gen_1_div: 1
+      gclk_gen_1_div: 8
       gclk_gen_1_div_sel: false
-      gclk_gen_1_oscillator: External Crystal Oscillator 0.4-32MHz (XOSC)
+      gclk_gen_1_oscillator: 8MHz Internal Oscillator (OSC8M)
       gclk_gen_2_div: 1
       gclk_gen_2_div_sel: false
-      gclk_gen_2_oscillator: External Crystal Oscillator 0.4-32MHz (XOSC)
+      gclk_gen_2_oscillator: Digital Frequency Locked Loop (DFLL48M)
       gclk_gen_3_div: 1
       gclk_gen_3_div_sel: false
-      gclk_gen_3_oscillator: External Crystal Oscillator 0.4-32MHz (XOSC)
+      gclk_gen_3_oscillator: 32kHz External Crystal Oscillator (XOSC32K)
       gclk_gen_4_div: 1
       gclk_gen_4_div_sel: false
       gclk_gen_4_oscillator: External Crystal Oscillator 0.4-32MHz (XOSC)
@@ -171,8 +171,8 @@ drivers:
         - name: CPU
           input: CPU
         configuration: {}
-  I2C:
-    user_label: I2C
+  wire:
+    user_label: wire
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::SERCOM3::driver_config_definition::I2C.Master.Standard~2FFast-mode::HAL:Driver:I2C.Master.Sync
     functionality: I2C
     api: HAL:Driver:I2C_Master_Sync
@@ -203,12 +203,12 @@ drivers:
         - name: Core
           input: Generic clock generator 0
         - name: Slow
-          input: Generic clock generator 3
+          input: Generic clock generator 1
         configuration:
           core_gclk_selection: Generic clock generator 0
-          slow_gclk_selection: Generic clock generator 3
-  SPI:
-    user_label: SPI
+          slow_gclk_selection: Generic clock generator 1
+  spi_dev:
+    user_label: spi_dev
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::SERCOM4::driver_config_definition::SPI.Master::HAL:Driver:SPI.Master.Sync
     functionality: SPI
     api: HAL:Driver:SPI_Master_Sync
@@ -243,12 +243,12 @@ drivers:
         - name: Core
           input: Generic clock generator 0
         - name: Slow
-          input: Generic clock generator 3
+          input: Generic clock generator 1
         configuration:
           core_gclk_selection: Generic clock generator 0
-          slow_gclk_selection: Generic clock generator 3
-  DELAY:
-    user_label: DELAY
+          slow_gclk_selection: Generic clock generator 1
+  time_delay:
+    user_label: time_delay
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::SysTick::driver_config_definition::Delay::HAL:Driver:Delay
     functionality: Delay
     api: HAL:Driver:Delay
@@ -258,8 +258,8 @@ drivers:
     variant: null
     clocks:
       domain_group: null
-  CALENDAR:
-    user_label: CALENDAR
+  time_date:
+    user_label: time_date
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::RTC::driver_config_definition::Clock~2FCalendar.Mode::Lite:RTC:Calendar
     functionality: Calendar
     api: Lite:RTC:Calendar
@@ -605,31 +605,31 @@ drivers:
     functionality: System
     api: HAL:HPL:SYSCTRL
     configuration:
-      dfll48m_arch_bplckc: false
+      dfll48m_arch_bplckc: true
       dfll48m_arch_calibration: false
-      dfll48m_arch_ccdis: false
+      dfll48m_arch_ccdis: true
       dfll48m_arch_coarse: 31
-      dfll48m_arch_enable: false
+      dfll48m_arch_enable: true
       dfll48m_arch_fine: 512
       dfll48m_arch_llaw: false
-      dfll48m_arch_ondemand: true
+      dfll48m_arch_ondemand: false
       dfll48m_arch_qldis: false
       dfll48m_arch_runstdby: false
       dfll48m_arch_stable: false
       dfll48m_arch_usbcrm: false
       dfll48m_arch_waitlock: false
-      dfll48m_mode: Open Loop Mode
-      dfll48m_mul: 0
+      dfll48m_mode: Closed Loop Mode
+      dfll48m_mul: 1464
       dfll48m_ref_clock: Generic clock generator 3
       dfll_arch_cstep: 1
       dfll_arch_fstep: 1
-      enable_dfll48m: false
+      enable_dfll48m: true
       enable_fdpll96m: false
       enable_osc32k: false
       enable_osc8m: true
       enable_osculp32k: true
       enable_xosc: false
-      enable_xosc32k: false
+      enable_xosc32k: true
       fdpll96m_arch_enable: false
       fdpll96m_arch_lbypass: false
       fdpll96m_arch_ondemand: true
@@ -640,7 +640,7 @@ drivers:
       fdpll96m_ref_clock: Generic clock generator 3
       osc32k_arch_calib: 0
       osc32k_arch_en1k: false
-      osc32k_arch_en32k: false
+      osc32k_arch_en32k: true
       osc32k_arch_enable: false
       osc32k_arch_ondemand: true
       osc32k_arch_overwrite_calibration: false
@@ -652,19 +652,19 @@ drivers:
       osc8m_arch_ondemand: true
       osc8m_arch_overwrite_calibration: false
       osc8m_arch_runstdby: false
-      osc8m_presc: '8'
+      osc8m_presc: '1'
       osculp32k_arch_calib: 0
       osculp32k_arch_overwrite_calibration: false
       osculp32k_arch_wrtlock: false
       xosc32k_arch_aampen: false
       xosc32k_arch_en1k: false
-      xosc32k_arch_en32k: false
-      xosc32k_arch_enable: false
+      xosc32k_arch_en32k: true
+      xosc32k_arch_enable: true
       xosc32k_arch_ondemand: true
       xosc32k_arch_runstdby: false
-      xosc32k_arch_startup: 122 us
+      xosc32k_arch_startup: 1125092 us
       xosc32k_arch_wrtlock: false
-      xosc32k_arch_xtalen: false
+      xosc32k_arch_xtalen: true
       xosc_arch_ampgc: false
       xosc_arch_enable: false
       xosc_arch_gain: 2Mhz
@@ -677,8 +677,8 @@ drivers:
     variant: null
     clocks:
       domain_group: null
-  USB:
-    user_label: USB
+  usb_comms:
+    user_label: usb_comms
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::USB::driver_config_definition::USB.Device::HAL:Driver:USB.Device
     functionality: USB
     api: HAL:Driver:USB_Device
@@ -715,9 +715,9 @@ drivers:
       domain_group:
         nodes:
         - name: USB
-          input: Generic clock generator 0
+          input: Generic clock generator 2
         configuration:
-          usb_gclk_selection: Generic clock generator 0
+          usb_gclk_selection: Generic clock generator 2
 pads:
   PA02:
     name: PA02

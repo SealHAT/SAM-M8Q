@@ -1,6 +1,4 @@
 #include <atmel_start.h>
-#include "driver_init.h"
-#include "utils.h"
 
 int main(void)
 {

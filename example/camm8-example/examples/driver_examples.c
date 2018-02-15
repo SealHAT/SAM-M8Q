@@ -11,16 +11,16 @@
 #include "utils.h"
 
 /**
- * Example of using ADC to generate waveform.
+ * Example of using analog_in to generate waveform.
  */
-void ADC_example(void)
+void analog_in_example(void)
 {
 	uint8_t buffer[2];
 
-	adc_sync_enable_channel(&ADC, 0);
+	adc_sync_enable_channel(&analog_in, 0);
 
 	while (1) {
-		adc_sync_read_channel(&ADC, 0, buffer, 2);
+		adc_sync_read_channel(&analog_in, 0, buffer, 2);
 	}
 }
 
@@ -38,9 +38,9 @@ static const uint32_t crc_datas[] = {0x00000000,
                                      0x99999999};
 
 /**
- * Example of using CRC to Calculate CRC32 for a buffer.
+ * Example of using hash_chk to Calculate CRC32 for a buffer.
  */
-void CRC_example(void)
+void hash_chk_example(void)
 {
 	/* The initial value used for the CRC32 calculation usually be 0xFFFFFFFF,
 	 * but can be, for example, the result of a previous CRC32 calculation if
@@ -50,8 +50,8 @@ void CRC_example(void)
 	uint32_t crc2;
 	uint32_t ind;
 
-	crc_sync_enable(&CRC);
-	crc_sync_crc32(&CRC, (uint32_t *)crc_datas, 10, &crc);
+	crc_sync_enable(&hash_chk);
+	crc_sync_crc32(&hash_chk, (uint32_t *)crc_datas, 10, &crc);
 
 	/* The read value must be complemented to match standard CRC32
 	 * implementations or kept non-inverted if used as starting point for
@@ -64,7 +64,7 @@ void CRC_example(void)
 	 */
 	crc2 = 0xFFFFFFFF;
 	for (ind = 0; ind < 10; ind++) {
-		crc_sync_crc32(&CRC, (uint32_t *)&crc_datas[ind], 1, &crc2);
+		crc_sync_crc32(&hash_chk, (uint32_t *)&crc_datas[ind], 1, &crc2);
 	}
 	crc2 ^= 0xFFFFFFFF;
 
@@ -73,28 +73,28 @@ void CRC_example(void)
 		;
 }
 
-void I2C_example(void)
+void wire_example(void)
 {
-	struct io_descriptor *I2C_io;
+	struct io_descriptor *wire_io;
 
-	i2c_m_sync_get_io_descriptor(&I2C, &I2C_io);
-	i2c_m_sync_enable(&I2C);
-	i2c_m_sync_set_slaveaddr(&I2C, 0x12, I2C_M_SEVEN);
-	io_write(I2C_io, (uint8_t *)"Hello World!", 12);
+	i2c_m_sync_get_io_descriptor(&wire, &wire_io);
+	i2c_m_sync_enable(&wire);
+	i2c_m_sync_set_slaveaddr(&wire, 0x12, I2C_M_SEVEN);
+	io_write(wire_io, (uint8_t *)"Hello World!", 12);
 }
 
 /**
- * Example of using SPI to write "Hello World" using the IO abstraction.
+ * Example of using spi_dev to write "Hello World" using the IO abstraction.
  */
-static uint8_t example_SPI[12] = "Hello World!";
+static uint8_t example_spi_dev[12] = "Hello World!";
 
-void SPI_example(void)
+void spi_dev_example(void)
 {
 	struct io_descriptor *io;
-	spi_m_sync_get_io_descriptor(&SPI, &io);
+	spi_m_sync_get_io_descriptor(&spi_dev, &io);
 
-	spi_m_sync_enable(&SPI);
-	io_write(io, example_SPI, 12);
+	spi_m_sync_enable(&spi_dev);
+	io_write(io, example_spi_dev, 12);
 }
 
 void delay_example(void)

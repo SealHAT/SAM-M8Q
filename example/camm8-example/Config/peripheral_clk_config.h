@@ -33,7 +33,7 @@
  * \brief ADC's Clock frequency
  */
 #ifndef CONF_GCLK_ADC_FREQUENCY
-#define CONF_GCLK_ADC_FREQUENCY 1000000
+#define CONF_GCLK_ADC_FREQUENCY 8000000
 #endif
 
 /**
@@ -41,7 +41,7 @@
  * \brief CPU's Clock frequency
  */
 #ifndef CONF_CPU_FREQUENCY
-#define CONF_CPU_FREQUENCY 1000000
+#define CONF_CPU_FREQUENCY 8000000
 #endif
 
 // <y> Core Clock Source
@@ -89,7 +89,7 @@
 
 // <i> Select the slow clock source.
 #ifndef CONF_GCLK_SERCOM3_SLOW_SRC
-#define CONF_GCLK_SERCOM3_SLOW_SRC GCLK_CLKCTRL_GEN_GCLK3_Val
+#define CONF_GCLK_SERCOM3_SLOW_SRC GCLK_CLKCTRL_GEN_GCLK1_Val
 #endif
 
 /**
@@ -97,7 +97,7 @@
  * \brief SERCOM3's Core Clock frequency
  */
 #ifndef CONF_GCLK_SERCOM3_CORE_FREQUENCY
-#define CONF_GCLK_SERCOM3_CORE_FREQUENCY 1000000
+#define CONF_GCLK_SERCOM3_CORE_FREQUENCY 8000000
 #endif
 
 /**
@@ -105,7 +105,7 @@
  * \brief SERCOM3's Slow Clock frequency
  */
 #ifndef CONF_GCLK_SERCOM3_SLOW_FREQUENCY
-#define CONF_GCLK_SERCOM3_SLOW_FREQUENCY 400000
+#define CONF_GCLK_SERCOM3_SLOW_FREQUENCY 1000000
 #endif
 
 // <y> Core Clock Source
@@ -153,7 +153,7 @@
 
 // <i> Select the slow clock source.
 #ifndef CONF_GCLK_SERCOM4_SLOW_SRC
-#define CONF_GCLK_SERCOM4_SLOW_SRC GCLK_CLKCTRL_GEN_GCLK3_Val
+#define CONF_GCLK_SERCOM4_SLOW_SRC GCLK_CLKCTRL_GEN_GCLK1_Val
 #endif
 
 /**
@@ -161,7 +161,7 @@
  * \brief SERCOM4's Core Clock frequency
  */
 #ifndef CONF_GCLK_SERCOM4_CORE_FREQUENCY
-#define CONF_GCLK_SERCOM4_CORE_FREQUENCY 1000000
+#define CONF_GCLK_SERCOM4_CORE_FREQUENCY 8000000
 #endif
 
 /**
@@ -169,7 +169,7 @@
  * \brief SERCOM4's Slow Clock frequency
  */
 #ifndef CONF_GCLK_SERCOM4_SLOW_FREQUENCY
-#define CONF_GCLK_SERCOM4_SLOW_FREQUENCY 400000
+#define CONF_GCLK_SERCOM4_SLOW_FREQUENCY 1000000
 #endif
 
 // <y> RTC Clock Source
@@ -201,7 +201,7 @@
  * \brief RTC's Clock frequency
  */
 #ifndef CONF_GCLK_RTC_FREQUENCY
-#define CONF_GCLK_RTC_FREQUENCY 1000000
+#define CONF_GCLK_RTC_FREQUENCY 8000000
 #endif
 
 // <y> USB Clock Source
@@ -225,7 +225,7 @@
 
 // <i> Select the clock source for USB.
 #ifndef CONF_GCLK_USB_SRC
-#define CONF_GCLK_USB_SRC GCLK_CLKCTRL_GEN_GCLK0_Val
+#define CONF_GCLK_USB_SRC GCLK_CLKCTRL_GEN_GCLK2_Val
 #endif
 
 /**
@@ -233,7 +233,7 @@
  * \brief USB's Clock frequency
  */
 #ifndef CONF_GCLK_USB_FREQUENCY
-#define CONF_GCLK_USB_FREQUENCY 1000000
+#define CONF_GCLK_USB_FREQUENCY 47972352
 #endif
 
 // <<< end of configuration section >>>
