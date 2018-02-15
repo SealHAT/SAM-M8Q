@@ -1,6 +1,4 @@
 #include <atmel_start.h>
-#include "minmea.h"
-#include "ubx.h"
 
 int main(void)
 {

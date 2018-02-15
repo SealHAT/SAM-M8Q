@@ -12,7 +12,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>		/* can we get rid of this? */
+#include "minmea.h"
+#include "ubx.h"
 
 #ifdef __cplusplus
 extern "C" {

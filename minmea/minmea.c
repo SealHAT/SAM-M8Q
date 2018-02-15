@@ -27,66 +27,130 @@ static int hex2int(char c)
     return -1;
 }
 
-uint8_t minmea_checksum(const char *sentence)
+static inline void int2hex(const uint8_t NUM, char* const upper, char* const lower) {
+	const char hex_lookup[] = "0123456789abcdef";
+	*upper = hex_lookup[(NUM >> 4) | 0x0F];
+	*lower = hex_lookup[NUM | 0x0F]; 
+}
+
+static inline bool minmea_isfield(char c) {
+	return isprint((unsigned char) c) && c != ',' && c != '*';
+}
+
+/**
+ * minmea_checksum_internal
+ *
+ * This is a NMEA checksum calculator. If the sentence is valid it will return a positive value that is the
+ * index of the '*' character signifying the end of the sentence. If the sentence is invalid it will return
+ * zero or a negative number. This function does NOT rely on null terminated cstrings!
+ *      Return Values:
+ *             -1: No '$' character at the start of string
+ *             -2: non-printable characters in the string
+ *
+ * sentence - The NMEA sentence to check. must be terminated with a '*'.
+ * checksum - The calculated checksum. Only valid if the return value is positive.
+ * returns  - the index of the '*' character, or a error value <= 0
+ */
+static uint8_t minmea_checksum_internal(const char* sentence, uint8_t* checksum)
 {
-    // Support senteces with or without the starting dollar sign.
-    if (*sentence == '$')
-        sentence++;
+	uint8_t idx = 0;	/* index for iterating through string and returning */
+	*checksum = 0x00;	/* Clear checksum */
+	
+	// return error if the first character is not '$'
+	if (sentence[idx++] != '$') {
+		return -1;
+	}
+	
+	// The optional checksum is an XOR of all bytes between "$" and "*".
+	while (sentence[idx] != '*' && isprint((unsigned char)sentence[idx]) ) {
+		*checksum ^= sentence[idx++];
+	}
+	
+	return (sentence[idx] == '*' ? idx : -2);
+}
 
-    uint8_t checksum = 0x00;
-
-    // The optional checksum is an XOR of all bytes between "$" and "*".
-    while (*sentence && *sentence != '*')
-        checksum ^= *sentence++;
-
+/**
+ * minmea_checksum
+ *
+ * sentence - The sentence to calculate a checksum for. must be terminated with a '*' and start with a '$ 
+ * Returns  - the checksum as an 8-bit integer
+ */
+uint8_t minmea_checksum(const char* sentence)
+{
+    uint8_t checksum;
+	minmea_checksum_internal(sentence, &checksum);
     return checksum;
 }
 
 bool minmea_check(const char *sentence, bool strict)
 {
-    uint8_t checksum = 0x00;
+	uint8_t idx		 = 0;		/* index for iterating through string and returning */
+    uint8_t checksum = 0x00;	/* Checksum value */
 
-    // Sequence length is limited.
-    if (strlen(sentence) > MINMEA_MAX_LENGTH + 3)
+    // Sequence length is limited. 
+	// TODO - move this check to end to avoid strlen? is this even necessary?
+    if (strlen(sentence) > MINMEA_MAX_LENGTH + 3) {
         return false;
+	}
 
-    // A valid sentence starts with "$".
-    if (*sentence++ != '$')
-        return false;
-
-    // The optional checksum is an XOR of all bytes between "$" and "*".
-    while (*sentence && *sentence != '*' && isprint((unsigned char) *sentence))
-        checksum ^= *sentence++;
+	idx = minmea_checksum_internal(sentence, &checksum);
+	if(idx < 0) {
+		return false;
+	}
 
     // If checksum is present...
-    if (*sentence == '*') {
+    if (sentence[idx] == '*') {
         // Extract checksum.
-        sentence++;
-        int upper = hex2int(*sentence++);
-        if (upper == -1)
+        idx++;
+        int upper = hex2int(sentence[idx++]);
+        if (upper == -1) {
             return false;
-        int lower = hex2int(*sentence++);
-        if (lower == -1)
+		}
+        
+		int lower = hex2int(sentence[idx++]);
+        if (lower == -1) {
             return false;
-        int expected = upper << 4 | lower;
-
+		}
+		
         // Check for checksum mismatch.
-        if (checksum != expected)
+        int expected = upper << 4 | lower;
+        if (checksum != expected) {
             return false;
+		}
     } else if (strict) {
         // Discard non-checksummed frames in strict mode.
         return false;
     }
 
-    // The only stuff allowed at this point is a newline.
-    if (*sentence && strcmp(sentence, "\n") && strcmp(sentence, "\r\n"))
-        return false;
+	// Last two characters should be <LF><CR>
+	if(sentence[idx] == '\0' || sentence[idx] != '\r') {
+		return false;
+	}
+	
+	idx++;
+	if(sentence[idx] == '\0' || sentence[idx] != '\n') {
+		return false;
+	}
 
     return true;
 }
 
-static inline bool minmea_isfield(char c) {
-    return isprint((unsigned char) c) && c != ',' && c != '*';
+bool minmea_create(char* sentence, const int LENGTH)
+{
+	uint8_t idx		 = 0;		/* index for iterating through string and returning */
+	uint8_t checksum = 0x00;	/* Checksum value */
+	
+	idx = minmea_checksum_internal(sentence, &checksum);
+	if(idx < 0) {
+		return false;
+	}
+	
+	// add all the tail info
+	int2hex(checksum, &sentence[idx+1], &sentence[idx+2]);
+	sentence[idx+3] = '\r';
+	sentence[idx+4] = '\n';
+	sentence[idx+5] = '\0';
+	return true;
 }
 
 bool minmea_scan(const char *sentence, const char *format, ...)
