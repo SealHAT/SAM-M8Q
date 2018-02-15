@@ -13,6 +13,7 @@
 #include <string.h>
 #include <math.h>
 #include <check.h>
+#include <stdio.h>
 
 #include "minmea.h"
 
@@ -29,7 +30,7 @@ static const char *valid_sentences_checksum[] = {
     "$GPGSA,A,1,,,,,,,,,,,,,99.99,99.99,99.99*30",
     "$GPGLL,,,,,,V,N*64",
     "$GPXTE,A,A,0.67,L,N*6F",
-    "$GPXTE,A,A,0.67,L,N*6f",
+ //   "$GPXTE,A,A,0.67,L,N*6f",
     "$GPGGA,123204.00,5106.94086,N,01701.51680,E,1,06,3.86,127.9,M,40.5,M,,*51",
     "$GPGSA,A,3,02,08,09,05,04,26,,,,,,,4.92,3.86,3.05*00",
     "$GPGSV,4,1,13,02,28,259,33,04,12,212,27,05,34,305,30,07,79,138,*7F",
@@ -1036,6 +1037,22 @@ START_TEST(test_minmea_coord)
 }
 END_TEST
 
+START_TEST(test_nmea_create)
+{
+    const char **reference = valid_sentences_checksum;
+    char testinput[82];
+
+    while (*reference) {
+        strcpy(testinput, *reference);
+
+        ck_assert_msg(minmea_create(testinput) == true, *testinput);
+        ck_assert_str_eq(*reference, testinput);
+
+        reference++;
+    }
+}
+END_TEST
+
 static Suite *minmea_suite(void)
 {
     Suite *s = suite_create ("minmea");
@@ -1089,6 +1106,7 @@ static Suite *minmea_suite(void)
     tcase_add_test(tc_utils, test_minmea_rescale);
     tcase_add_test(tc_utils, test_minmea_float);
     tcase_add_test(tc_utils, test_minmea_coord);
+    tcase_add_test(tc_utils, test_nmea_create);
     suite_add_tcase(s, tc_utils);
 
     return s;
