@@ -37,9 +37,9 @@ static int hex2int(char c)
 }
 
 static inline void int2hex(const uint8_t NUM, char* const upper, char* const lower) {
-	const char hex_lookup[] = "0123456789abcdef";
-	*upper = hex_lookup[(NUM >> 4) | 0x0F];
-	*lower = hex_lookup[NUM | 0x0F];
+    const char hex_lookup[] = "0123456789ABCDEF";
+	*upper = hex_lookup[(NUM >> 4) & 0x0F];
+	*lower = hex_lookup[(NUM) & 0x0F];
 }
 
 static inline bool minmea_isfield(char c) {
@@ -158,13 +158,13 @@ bool minmea_create(char* sentence)
 
 	idx = minmea_checksum_internal(sentence, &checksum, &errors);
 	if(errors != 0) {
-		return errors;
+		return false;
 	}
 
 	// add all the tail info
 	int2hex(checksum, &sentence[idx+1], &sentence[idx+2]);
-	sentence[idx+3] = '\r';
-	sentence[idx+4] = '\n';
+//	sentence[idx+3] = '\r';
+//	sentence[idx+4] = '\n';
 	sentence[idx+5] = '\0';
 	return true;
 }
