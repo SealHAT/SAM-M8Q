@@ -23,7 +23,7 @@ extern "C" {
 #include <minmea_compat.h>
 #endif
 
-#define MINMEA_MAX_LENGTH 80
+#define MINMEA_MAX_LENGTH 82
 
 enum minmea_sentence_id {
     MINMEA_INVALID = -1,
@@ -184,7 +184,7 @@ bool minmea_check(const char *sentence, bool strict);
  * LENGTH   - The total length of the buffer
  * Returns  - TRUE if successful and false if not successful (buffer too small for example)
  */
-bool minmea_create(char* sentence, const int LENGTH);
+bool minmea_create(char* sentence);
 
 /**
  * Determine talker identifier.

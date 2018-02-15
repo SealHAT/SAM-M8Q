@@ -14,6 +14,15 @@
 #include <stdarg.h>
 #include <time.h>
 
+#include <stdio.h>
+
+typedef enum {
+    NMEA_NO_START = 0x01,
+    NMEA_NON_PRINTABLE = 0x02,
+    NMEA_NO_STAR  = 0x04,
+    NMEA_INVALID_CHECKSUM = 0x08
+} nmea_errors_t;
+
 #define boolstr(s) ((s) ? "true" : "false")
 
 static int hex2int(char c)
@@ -30,7 +39,7 @@ static int hex2int(char c)
 static inline void int2hex(const uint8_t NUM, char* const upper, char* const lower) {
 	const char hex_lookup[] = "0123456789abcdef";
 	*upper = hex_lookup[(NUM >> 4) | 0x0F];
-	*lower = hex_lookup[NUM | 0x0F]; 
+	*lower = hex_lookup[NUM | 0x0F];
 }
 
 static inline bool minmea_isfield(char c) {
@@ -40,61 +49,72 @@ static inline bool minmea_isfield(char c) {
 /**
  * minmea_checksum_internal
  *
- * This is a NMEA checksum calculator. If the sentence is valid it will return a positive value that is the
- * index of the '*' character signifying the end of the sentence. If the sentence is invalid it will return
- * zero or a negative number. This function does NOT rely on null terminated cstrings!
- *      Return Values:
- *             -1: No '$' character at the start of string
- *             -2: non-printable characters in the string
+ * This is a NMEA checksum calculator for internal use. It will parse the
+ * sentanence and calculate the checksum until it hits the end of the string,
+ * or it sees the '*' character. Any errors seen will be return as a flag
+ * in the errors parameter.
+ *      Return Values in errors parameter:
+ *             0x01: No '$' character at the start of string
+ *             0x02: non-printable characters in the string
+ *             0x04: The sentence does not end with a '*'
  *
- * sentence - The NMEA sentence to check. must be terminated with a '*'.
+ * sentence - The NMEA sentence to check, but be terminated with '*' or null-terminator
  * checksum - The calculated checksum. Only valid if the return value is positive.
- * returns  - the index of the '*' character, or a error value <= 0
+ * returns  - the index of the where checksum caclulation stopped (usually '*')
  */
-static uint8_t minmea_checksum_internal(const char* sentence, uint8_t* checksum)
+static int minmea_checksum_internal(const char* sentence, uint8_t* checksum, uint8_t* errors)
 {
 	uint8_t idx = 0;	/* index for iterating through string and returning */
-	*checksum = 0x00;	/* Clear checksum */
-	
+    *errors     = 0x00; /* Clear the error return paramters */
+	*checksum   = 0x00; /* Clear checksum */
+
 	// return error if the first character is not '$'
-	if (sentence[idx++] != '$') {
-		return -1;
+	if (sentence[idx] == '$') {
+		idx++;
 	}
-	
+    else {
+        *errors |= NMEA_NO_START;
+    }
+
 	// The optional checksum is an XOR of all bytes between "$" and "*".
-	while (sentence[idx] != '*' && isprint((unsigned char)sentence[idx]) ) {
+	while (sentence[idx] != '\0' && sentence[idx] != '*' &&
+           sentence[idx] != '\r' && sentence[idx] != '\n') {
+        if(!isprint((unsigned char)sentence[idx])) {
+            *errors |= NMEA_NON_PRINTABLE;
+        }
 		*checksum ^= sentence[idx++];
 	}
-	
-	return (sentence[idx] == '*' ? idx : -2);
+
+	return idx;
 }
 
 /**
  * minmea_checksum
  *
- * sentence - The sentence to calculate a checksum for. must be terminated with a '*' and start with a '$ 
+ * sentence - The sentence to calculate a checksum for. must be terminated with a '*' and start with a '$
  * Returns  - the checksum as an 8-bit integer
  */
 uint8_t minmea_checksum(const char* sentence)
 {
-    uint8_t checksum;
-	minmea_checksum_internal(sentence, &checksum);
+    uint8_t checksum, errors;
+	minmea_checksum_internal(sentence, &checksum, &errors);
     return checksum;
 }
 
 bool minmea_check(const char *sentence, bool strict)
 {
-	uint8_t idx		 = 0;		/* index for iterating through string and returning */
-    uint8_t checksum = 0x00;	/* Checksum value */
+    uint8_t checksum;       /* Checksum value */
+    uint8_t errors;         /* Error checking value for sentence */
+    int     idx      = 0;   /* index for iterating through string */
 
-    // Sequence length is limited. 
+    // Sequence length is limited.
 	// TODO - move this check to end to avoid strlen? is this even necessary?
     if (strlen(sentence) > MINMEA_MAX_LENGTH + 3) {
         return false;
 	}
 
-	idx = minmea_checksum_internal(sentence, &checksum);
-	if(idx < 0) {
+	idx = minmea_checksum_internal(sentence, &checksum, &errors);
+	if(errors & (NMEA_NON_PRINTABLE | NMEA_NO_START)) {
 		return false;
 	}
 
@@ -106,12 +126,12 @@ bool minmea_check(const char *sentence, bool strict)
         if (upper == -1) {
             return false;
 		}
-        
+
 		int lower = hex2int(sentence[idx++]);
         if (lower == -1) {
             return false;
 		}
-		
+
         // Check for checksum mismatch.
         int expected = upper << 4 | lower;
         if (checksum != expected) {
@@ -123,28 +143,24 @@ bool minmea_check(const char *sentence, bool strict)
     }
 
 	// Last two characters should be <LF><CR>
-	if(sentence[idx] == '\0' || sentence[idx] != '\r') {
-		return false;
-	}
-	
-	idx++;
-	if(sentence[idx] == '\0' || sentence[idx] != '\n') {
+	if(sentence[idx] != '\0' && sentence[idx] != '\r') {
 		return false;
 	}
 
     return true;
 }
 
-bool minmea_create(char* sentence, const int LENGTH)
+bool minmea_create(char* sentence)
 {
-	uint8_t idx		 = 0;		/* index for iterating through string and returning */
-	uint8_t checksum = 0x00;	/* Checksum value */
-	
-	idx = minmea_checksum_internal(sentence, &checksum);
-	if(idx < 0) {
-		return false;
+    uint8_t checksum;       /* Checksum value */
+    uint8_t errors;         /* Error checking value for sentence */
+	int     idx      = 0;   /* index for iterating through string */
+
+	idx = minmea_checksum_internal(sentence, &checksum, &errors);
+	if(errors != 0) {
+		return errors;
 	}
-	
+
 	// add all the tail info
 	int2hex(checksum, &sentence[idx+1], &sentence[idx+2]);
 	sentence[idx+3] = '\r';
@@ -696,7 +712,8 @@ int minmea_gettime(struct timespec *ts, const struct minmea_date *date, const st
     tm.tm_min = time_->minutes;
     tm.tm_sec = time_->seconds;
 
-    time_t timestamp = mktime(&tm); /* See README.md if your system lacks timegm(). */
+    //time_t timestamp = mktime(&tm); /* See README.md if your system lacks timegm(). */
+    time_t timestamp = timegm(&tm); /* See README.md if your system lacks timegm(). */
     if (timestamp != (time_t)-1) {
         ts->tv_sec = timestamp;
         ts->tv_nsec = time_->microseconds * 1000;
