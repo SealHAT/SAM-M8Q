@@ -24,11 +24,12 @@
  * File: ubx.c
  */
 
-#include "portable_endian.h"
 #include "ubxmessage.h"
 #include "ubx.h"
 #include "malloc.h"
 #include "memory.h"
+
+#define HTOBE16(x)      ((x << 8) | (x >> 8))   /* 16 bit endian swap*/
 
 void fletcherChecksum(unsigned char* buffer, int size, unsigned char* checkSumA, unsigned char* checkSumB)
 {
@@ -56,7 +57,7 @@ void completeMsg(UBXMsgBuffer* buffer, int payloadSize)
 
 void initMsg(UBXMsg* msg, int payloadSize, UBXMessageClass msgClass, UBXMessageId msgId)
 {
-    msg->preamble = htobe16(UBX_PREAMBLE);
+    msg->preamble = (uint16_t)HTOBE16(UBX_PREAMBLE);  /* 0xB562 constant in ubxmessage.h */
     msg->hdr.msgClass = msgClass;
     msg->hdr.msgId = msgId;
     msg->hdr.length = payloadSize;
