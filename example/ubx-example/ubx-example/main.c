@@ -10,7 +10,6 @@ int main(void)
 	atmel_start_init();
 	delay_init(SysTick);
 
-	const char *NMEA_NOMSGS = "$PUBX,40,RMC,0,0,0,0,0,*77\r\n$PUBX,40,GGA,0,0,0,0,0,*6A\r\n$PUBX,40,GSA,0,0,0,0,0,*7E\r\n$PUBX,40,VTG,0,0,0,0,0,*6E\r\n$PUBX,40,GSV,0,0,0,0,0,*69\r\n$PUBX,40,GLL,0,0,0,0,0,*6C\r\n";
 	UBXMsgBuffer ubxmsgbuff;
 	ubxmsgbuff = getMON_VER_POLL();
 	
@@ -37,10 +36,10 @@ int main(void)
 	spi_m_sync_enable(&SPI_0);
 
 	/* disable all periodic nmea messages */
-	memcpy(spi_obuff, NMEA_NOMSGS, strlen(NMEA_NOMSGS));
-	gpio_set_pin_level(GPIO_PIN(SPI_SS),false);
-	spi_m_sync_transfer(&SPI_0, &spi_buff);
-	gpio_set_pin_level(GPIO_PIN(SPI_SS),true);
+	//memcpy(spi_obuff, NMEA_NOMSGS, strlen(NMEA_NOMSGS));
+	//gpio_set_pin_level(GPIO_PIN(SPI_SS),false);
+	//spi_m_sync_transfer(&SPI_0, &spi_buff);
+	//gpio_set_pin_level(GPIO_PIN(SPI_SS),true);
 	
 	/* poll for device information */
 	memcpy(spi_obuff, ubxmsgbuff.data, ubxmsgbuff.size);
@@ -56,7 +55,30 @@ int main(void)
 	
     /* Setting SPI Mode confs */
     //TODO Look at ubxmessages.h 1215, make structs and pack
-	ubxmsgbuff = setCFG_PRT_SPI();
+    UBXCFG_PRT cfgprt;
+    cfgprt.txReady.en = 0;
+    //cfgprt.mode.UBX_DDC = 0;
+    //cfgprt.mode.UBX_UART = 0;
+    //cfgprt.mode.UBX_USB = 0;
+    cfgprt.mode.UBX_SPI.spiMode = UBXPRTSPIMode0;
+    cfgprt.mode.UBX_SPI.flowControl = 0;
+    cfgprt.mode.UBX_SPI.ffCnt = 4;
+    cfgprt.inProtoMask = 1;
+    cfgprt.outProtoMask = 1;
+    cfgprt.flags = UBXPRTExtendedTxTimeout;
+
+    ubxmsgbuff = setCFG_PRT_SPI(cfgprt);
+    memcpy(spi_obuff, ubxmsgbuff.data, ubxmsgbuff.size);
+    gpio_set_pin_level(GPIO_PIN(SPI_SS),false);
+    spi_m_sync_transfer(&SPI_0, &spi_buff);
+    gpio_set_pin_level(GPIO_PIN(SPI_SS),true);
+
+    /* clear buffer */
+    //memcpy(spi_obuff, spi_clear, SPI_SIZE);
+    //gpio_set_pin_level(GPIO_PIN(SPI_SS),false);
+    //spi_m_sync_transfer(&SPI_0, &spi_buff);
+    //gpio_set_pin_level(GPIO_PIN(SPI_SS),true);
+
 	while (1) {
 		gpio_set_pin_level(GPIO_PIN(SPI_SS),false);
 		spi_m_sync_transfer(&SPI_0, &spi_buff);

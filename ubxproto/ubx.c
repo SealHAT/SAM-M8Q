@@ -896,17 +896,14 @@ UBXMsgBuffer getCFG_PRT_SPI()
     return buffer;
 }
 
-UBXMsgBuffer setCFG_PRT_SPI(UBXX2_t txReady, UBXX2_t inProtoMask, UBXX2_t outProtoMask, UBXX2_t flags)
+UBXMsgBuffer setCFG_PRT_SPI(UBXCFG_PRT cfg)
 {
     int payloadSize = sizeof(UBXCFG_PRT);
     UBXMsgBuffer buffer = createBuffer(payloadSize);
     UBXMsg* msg = (UBXMsg*)buffer.data;
     initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PRT);
-    msg->payload.CFG_PRT.portID = UBXCFGPortIds.UBXPRTSPI;
-    msg->payload.CFG_PRT.txReady = txReady;
-    msg->payload.CFG_PRT.inProtoMask = inProtoMask;
-    msg->payload.CFG_PRT.outProtoMask = outProtoMask;
-    msg->payload.CFG_PRT.flags = flags;
+    msg->payload.CFG_PRT = cfg;
+    msg->payload.CFG_PRT.portID = UBXPRTSPI;
     completeMsg(&buffer, payloadSize);
     return buffer;
 }
