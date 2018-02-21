@@ -287,6 +287,14 @@ typedef enum
 
 typedef enum
 {
+    UBXPRTDDC = 0,
+    UBXPRTUART = 1,
+    UBXPRTUSB = 3,
+    UBXPRTSPI = 4
+} UBXCFGPortIds;
+
+typedef enum
+{
     UBXProtocol = 0,
     UBXNMEAProtocol
 } UBXCFGProtocolIds;
