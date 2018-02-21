@@ -1,4 +1,7 @@
-## C git ignore template
+############
+## C Language
+############
+
 # Prerequisites
 *.d
 
@@ -7,8 +10,6 @@
 *.ko
 *.obj
 *.elf
-*.slo
-*.lo
 
 # Linker output
 *.ilk
@@ -24,7 +25,6 @@
 *.a
 *.la
 *.lo
-*.lai
 
 # Shared objects (inc. Windows DLLs)
 *.dll
@@ -46,17 +46,40 @@
 *.idb
 *.pdb
 
-# Fortran module files
-*.mod
-*.smod
+################
+## Atmel Studio
+################
+## Ignore Atmel Studio temporary files and build results
+# http://www.atmel.com/microsite/atmel_studio6/
 
-## CMAKE ignores
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
+# Atmel Studio is powered by an older version of Visual Studio,
+# so most of the project and solution files are the same as VS files,
+# only prefixed by an `at`.
+
+*.log
+
+#Build Directories
+[Dd]ebug/
+[Rr]elease/
+
+#Build Results
+*.o
+*.d
+*.eep
+*.elf
+*.hex
+*.map
+*.srec
+
+#User Specific Files
+*.atsuo
+
+############
+## Windows
+############
+
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
