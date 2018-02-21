@@ -10,8 +10,9 @@ int main(void)
 	atmel_start_init();
 	delay_init(SysTick);
 
-	UBXMsgBuffer ubxmsgbuff;
-	ubxmsgbuff = getMON_VER_POLL();
+	UBXMsgBuffer ubxmsgbuff;		/* ubx message buffer, copy to spi */
+	UBXCFG_PRT cfgprt;              /* struct for ubx port configuration */
+
 	
 	/* spi buffer init code */
 	char   spi_clear[SPI_SIZE];
@@ -34,14 +35,10 @@ int main(void)
 	/* set clock mode and enable spi */
 	spi_m_sync_set_mode(&SPI_0, SPI_MODE_0);
 	spi_m_sync_enable(&SPI_0);
-
-	/* disable all periodic nmea messages */
-	//memcpy(spi_obuff, NMEA_NOMSGS, strlen(NMEA_NOMSGS));
-	//gpio_set_pin_level(GPIO_PIN(SPI_SS),false);
-	//spi_m_sync_transfer(&SPI_0, &spi_buff);
-	//gpio_set_pin_level(GPIO_PIN(SPI_SS),true);
+	
 	
 	/* poll for device information */
+	ubxmsgbuff = getMON_VER_POLL();
 	memcpy(spi_obuff, ubxmsgbuff.data, ubxmsgbuff.size);
 	gpio_set_pin_level(GPIO_PIN(SPI_SS),false);
 	spi_m_sync_transfer(&SPI_0, &spi_buff);
@@ -54,8 +51,6 @@ int main(void)
 	gpio_set_pin_level(GPIO_PIN(SPI_SS),true);
 	
     /* Setting SPI Mode confs */
-    //TODO Look at ubxmessages.h 1215, make structs and pack
-    UBXCFG_PRT cfgprt;
     cfgprt.txReady.en = 0;
     //cfgprt.mode.UBX_DDC = 0;
     //cfgprt.mode.UBX_UART = 0;
@@ -67,17 +62,15 @@ int main(void)
     cfgprt.outProtoMask = 1;
     cfgprt.flags = UBXPRTExtendedTxTimeout;
 
+	/* build spi port config buffer */
     ubxmsgbuff = setCFG_PRT_SPI(cfgprt);
+	
+	/* send port configuration */
     memcpy(spi_obuff, ubxmsgbuff.data, ubxmsgbuff.size);
     gpio_set_pin_level(GPIO_PIN(SPI_SS),false);
-    spi_m_sync_transfer(&SPI_0, &spi_buff);
+    spi_m_sync_transfer(&SPI_0, &spi_buff); /* should receive ACK after sending */
     gpio_set_pin_level(GPIO_PIN(SPI_SS),true);
 
-    /* clear buffer */
-    //memcpy(spi_obuff, spi_clear, SPI_SIZE);
-    //gpio_set_pin_level(GPIO_PIN(SPI_SS),false);
-    //spi_m_sync_transfer(&SPI_0, &spi_buff);
-    //gpio_set_pin_level(GPIO_PIN(SPI_SS),true);
 
 	while (1) {
 		gpio_set_pin_level(GPIO_PIN(SPI_SS),false);
