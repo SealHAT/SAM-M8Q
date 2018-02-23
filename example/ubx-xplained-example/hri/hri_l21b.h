@@ -70,7 +70,6 @@
 #include <hri_supc_l21.h>
 #include <hri_systemcontrol_l21.h>
 #include <hri_systick_l21.h>
-#include <hri_tal_l21.h>
 #include <hri_tc_l21.h>
 #include <hri_tcc_l21.h>
 #include <hri_trng_l21.h>

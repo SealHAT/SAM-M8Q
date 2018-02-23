@@ -3,7 +3,7 @@
  *
  * \brief HPL initialization related functionality implementation.
  *
- * Copyright (C) 2014-2017 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2014-2018 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -49,13 +49,12 @@
 #include <hpl_dma.h>
 #include <hpl_dmac_config.h>
 
-/* Referenced GCLKs, should be initialized firstly
-* - GCLK3 for DFLL
+/* Referenced GCLKs (out of 0~7), should be initialized firstly
+* - GCLK 3 for DFLL48M
 */
 #define _GCLK_INIT_1ST 0x00000008
-
 /* Not referenced GCLKs, initialized last */
-#define _GCLK_INIT_LAST 0xFFFFFFF7
+#define _GCLK_INIT_LAST 0x000000F7
 
 /**
  * \brief Initialize the hardware abstraction layer

@@ -4,7 +4,7 @@
  *
  * \brief SAM Serial Communication Interface
  *
- * Copyright (C) 2014-2017 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2014-2018 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -118,7 +118,6 @@
 		    (uint16_t)(CONF_SERCOM_##n##_USART_BAUD_RATE), CONF_SERCOM_##n##_USART_FRACTIONAL,                         \
 		    CONF_SERCOM_##n##_USART_RECEIVE_PULSE_LENGTH, CONF_SERCOM_##n##_USART_DEBUG_STOP_MODE,                     \
 	}
-
 /**
  * \brief SERCOM USART configuration type
  */
