@@ -119,7 +119,6 @@
         <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_supc_l21.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_systemcontrol_l21.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_systick_l21.h"/>
-        <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_tal_l21.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_tc_l21.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_tcc_l21.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_trng_l21.h"/>

@@ -4,7 +4,7 @@
  *
  * \brief SAM Oscillators Controller.
  *
- * Copyright (C) 2015 - 2016 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2015 - 2018 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -54,10 +54,9 @@ void _oscctrl_init_sources(void)
 
 #if CONF_XOSC_CONFIG == 1
 	hri_oscctrl_write_XOSCCTRL_reg(hw,
-	                               OSCCTRL_XOSCCTRL_STARTUP(CONF_XOSC_STARTUP)
-	                                   | (CONF_XOSC_AMPGC << OSCCTRL_XOSCCTRL_AMPGC_Pos)
+	                               OSCCTRL_XOSCCTRL_STARTUP(CONF_XOSC_STARTUP) | (0 << OSCCTRL_XOSCCTRL_AMPGC_Pos)
 	                                   | OSCCTRL_XOSCCTRL_GAIN(CONF_XOSC_GAIN)
-	                                   | (CONF_XOSC_ONDEMAND << OSCCTRL_XOSCCTRL_ONDEMAND_Pos)
+	                                   | (0 << OSCCTRL_XOSCCTRL_ONDEMAND_Pos)
 	                                   | (CONF_XOSC_RUNSTDBY << OSCCTRL_XOSCCTRL_RUNSTDBY_Pos)
 	                                   | (CONF_XOSC_XTALEN << OSCCTRL_XOSCCTRL_XTALEN_Pos)
 	                                   | (CONF_XOSC_ENABLE << OSCCTRL_XOSCCTRL_ENABLE_Pos));
@@ -76,6 +75,9 @@ void _oscctrl_init_sources(void)
 #if CONF_XOSC_ENABLE == 1
 	while (!hri_oscctrl_get_STATUS_XOSCRDY_bit(hw))
 		;
+#endif
+#if CONF_XOSC_AMPGC == 1
+	hri_oscctrl_set_XOSCCTRL_AMPGC_bit(hw);
 #endif
 #if CONF_XOSC_ONDEMAND == 1
 	hri_oscctrl_set_XOSCCTRL_ONDEMAND_bit(hw);
@@ -96,8 +98,8 @@ void _oscctrl_init_sources(void)
 
 void _oscctrl_init_referenced_generators(void)
 {
-	void *                     hw = (void *)OSCCTRL;
-	hri_oscctrl_dfllctrl_reg_t tmp;
+	void *                     hw  = (void *)OSCCTRL;
+	hri_oscctrl_dfllctrl_reg_t tmp = 0;
 
 #if CONF_DFLL_CONFIG == 1
 #if CONF_DFLL_OVERWRITE_CALIBRATION == 0
