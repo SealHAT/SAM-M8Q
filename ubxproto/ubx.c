@@ -1246,6 +1246,17 @@ UBXMsgBuffer getRXM_SVSI(UBXU4_t iTOW,
     return buffer;
 }
 
+/* UBXNAV.H functions */
+UBXMsgBuffer getNAV_PVT_POLL()
+{
+	int payloadSize = 0;
+	UBXMsgBuffer buffer = createBuffer(payloadSize);
+	UBXMsg* msg = (UBXMsg*)buffer.data;
+	initMsg(msg, payloadSize, UBXMsgClassNAV, UBXMsgIdNAV_PVT);
+    completeMsg(&buffer, payloadSize);
+    return buffer;
+}
+
 /*!
  * \defgroup Functions
  */
