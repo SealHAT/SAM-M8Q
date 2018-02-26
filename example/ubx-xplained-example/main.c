@@ -41,6 +41,7 @@ int main(void)
     UBXMsgBuffer ubx_ibuff;
     UBXMsgBuffer ubx_obuff;
     UBXMsgs      ubxmsgs;
+	UBXMsg*		 ubxmsg;
 	
     /* UBX Config Port SPI */
     ubxmsgs.CFG_PRT.portID = UBXPRTSPI;
@@ -81,10 +82,36 @@ int main(void)
 //    ubx_obuff.size = ubx_buffptr->size;
     //memcpy(ubx_ibuff.data, spi_ibuff);
 	delay_ms(100);
+	
+	ubx_obuff = getNAV_PVT_POLL();	
+	memcpy(spi_obuff, ubx_obuff.data, ubx_obuff.size);
+	spi_buff.size = SPI_SIZE;
+	delay_ms(100);
+	
+	gpio_set_pin_level(SPI_SS, false);
+	spi_m_sync_transfer(&SPI_0, &spi_buff);
+	gpio_set_pin_level(SPI_SS, true);
+	
+	delay_ms(100);
+	
 	while (1) {
+	
+
+		gpio_set_pin_level(SPI_SS, false);
+		spi_m_sync_transfer(&SPI_0, &spi_buff);
+		gpio_set_pin_level(SPI_SS, true);
+		
+		delay_ms(100);
+		ubx_ibuff.data = spi_ibuff;
+		ubxmsg = (UBXMsg*)ubx_ibuff.data;
 
 	}
 }
+
+//void getpositionaldata()
+//{
+	//
+//}
 
 void alignbuffer(char *spibuf, UBXMsgBuffer* ubxbuf)
 {

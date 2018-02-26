@@ -31,6 +31,7 @@
 #include "ubxcfg.h"
 #include "ubxlog.h"
 #include "ubxmon.h"
+#include "ubxnav.h"
 #include "ubxrxm.h"
 #include "ubxutils.h"
 

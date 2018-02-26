@@ -400,6 +400,10 @@
       <SubType>compile</SubType>
       <Link>ubxmon.h</Link>
     </Compile>
+    <Compile Include="..\..\ubxproto\ubxnav.h">
+      <SubType>compile</SubType>
+      <Link>ubxnav.h</Link>
+    </Compile>
     <Compile Include="..\..\ubxproto\ubxrxm.h">
       <SubType>compile</SubType>
       <Link>ubxrxm.h</Link>
