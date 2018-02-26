@@ -59,7 +59,7 @@ int main(void)
 
     /* Associate ubx and spi buffers */
 
-	ubx_obuff = setCFG_PRT(ubxmsgs.CFG_PRT); /* BROKEN */
+	ubx_obuff = setCFG_PRT(ubxmsgs.CFG_PRT);
 	
 	memcpy(spi_obuff, ubx_obuff.data, ubx_obuff.size);
     spi_buff.size = SPI_SIZE;
