@@ -22,9 +22,6 @@
  *
  * Actual LGPL text https://www.gnu.org/licenses/lgpl.html
  *
- * File: ubxlog.h
- */
-/*! \file */
 #ifndef UBLOXNAV_H
 #define UBLOXNAV_H
 
