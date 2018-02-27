@@ -1,5 +1,3 @@
-<<<<<<< master
-=======
 /*
  * SealHAT
  * Anthony Koutroulis
@@ -27,28 +25,6 @@
  * File: ubxlog.h
  */
 /*! \file */
->>>>>>> header for ubxnav messages
-#ifndef UBLOXNAV_H
-#define UBLOXNAV_H
 
 #include "ubxmessage.h"
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-<<<<<<< master
-UBXMsgBuffer getNAV_PVT_POLL();
-=======
-extern UBXMsgBuffer getNAV_PVT_POLL();
->>>>>>> header for ubxnav messages
-
-#ifdef __cplusplus
-}
-#endif
-
-<<<<<<< master
-#endif // UBLOXNAV_H
-=======
-#endif // UBLOXNAV_H
->>>>>>> header for ubxnav messages
+#include "ubxnav.h"
