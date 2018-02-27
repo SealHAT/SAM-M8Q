@@ -133,7 +133,7 @@ bool gps_sleep();
  *
  * @return true if successful, false if device fails to sleep
  */
-bool gps_sleep();
+bool gps_wake();
 
 /**
  * gps_setprofile
