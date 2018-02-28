@@ -9,7 +9,7 @@ static uint8_t MOSI[SPI_SIZE];
 static uint8_t MISO[SPI_SIZE];
 
 /* move to uc-interfa */
-uint8_t	cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt
+uint8_t	cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt);
 void	clearSPIbuffers();
 
 
@@ -30,20 +30,31 @@ int main(void)
     	
     /* initialize read/write buffers */
     clearSPIbuffers();
+	
+	/* Do a Poll message to get info/check if GPS is ready */
 
-    /* Get default CFG_PRT settings */
     //ubx_obuff = getCFG_PRT_POLL_OPT(UBXPRTSPI);    
-    //spi_buff.size  = SPI_SIZE;
-    //memcpy(MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
-    //clearUBXMsgBuffer(&ubx_obuff);
-    //spi_buff.txbuf = MOSI;
-    //spi_buff.rxbuf = MISO;
-    //gpio_set_pin_level(SPI_SS, false);
-    //spi_m_sync_transfer(&SPI_0, &spi_buff);
-    //gpio_set_pin_level(SPI_SS, true);
-    //ubxmsg = (UBXMsg*)&MISO[ubx_obuff.size+UBX_FFCNT];
-    ///* End default CFG_PRT settings */
-//
+	ubx_obuff = getCFG_RXM_POLL();
+	
+	/* Init SO buffer and copy data */
+    spi_buff.size  = ubx_obuff.size;
+	spi_buff.size  = SPI_SIZE;
+    memcpy(MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+    clearUBXMsgBuffer(&ubx_obuff);
+	
+	/* Associate SPI buffers */
+    spi_buff.txbuf = MOSI;
+    spi_buff.rxbuf = MISO;
+	
+	/* Do single spi transfer */
+    gpio_set_pin_level(SPI_SS, false);
+    spi_m_sync_transfer(&SPI_0, &spi_buff);
+    gpio_set_pin_level(SPI_SS, true);
+	
+	/* align message buffer to input for easy member access */
+    ubxmsg = (UBXMsg*)&MISO[ubx_obuff.size + 2];
+
+
     //delay_ms(100);
 //
     ///* Get a nav position/velocity/time reading */
