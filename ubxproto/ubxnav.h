@@ -23,11 +23,15 @@
  * and source of this library in your application.
  *
  * Actual LGPL text https://www.gnu.org/licenses/lgpl.html
+<<<<<<< master
  *
  * File: ubxlog.h
  */
 /*! \file */
 >>>>>>> header for ubxnav messages
+=======
+ */
+>>>>>>> small cleanup after testing
 #ifndef UBLOXNAV_H
 #define UBLOXNAV_H
 
