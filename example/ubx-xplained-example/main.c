@@ -2,23 +2,21 @@
 #include <string.h>
 #include "ubx.h"
 
-#define SPI_SIZE	(128)
-#define UBX_FFCNT	(16)
+#define SPI_SIZE	(256)
+#define UBX_FFCNT	(64)
 
 static uint8_t MOSI[SPI_SIZE];
 static uint8_t MISO[SPI_SIZE];
 
 /* move to uc-interfa */
-
-uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt);
-
-void clearSPIbuffers();
+uint8_t	cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt
+void	clearSPIbuffers();
 
 
 int main(void)
 {
-	/* Initializes MCU, drivers and middleware */
-	atmel_start_init();
+    /* Initializes MCU, drivers and middleware */
+    atmel_start_init();
 
     /* set clock mode and enable spi */
     spi_m_sync_set_mode(&SPI_0, SPI_MODE_0);
@@ -34,40 +32,41 @@ int main(void)
     clearSPIbuffers();
 
     /* Get default CFG_PRT settings */
-    ubx_obuff = getCFG_PRT_POLL_OPT(UBXPRTSPI);    
-    spi_buff.size  = SPI_SIZE;
-    memcpy(MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
-    clearUBXMsgBuffer(&ubx_obuff);
-    spi_buff.txbuf = MOSI;
-    spi_buff.rxbuf = MISO;
-   	gpio_set_pin_level(SPI_SS, false);
-	spi_m_sync_transfer(&SPI_0, &spi_buff);
-	gpio_set_pin_level(SPI_SS, true);
-    ubxmsg = (UBXMsg*)&MISO[ubx_obuff.size+UBX_FFCNT];
-    /* End default CFG_PRT settings */
-
-    delay_ms(100);
-
-    /* Get default CFG_PRT settings */
-    ubx_obuff = getNAV_PVT_POLL(); 
-    spi_buff.size  = SPI_SIZE;
-    memcpy(MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
-    clearUBXMsgBuffer(&ubx_obuff);
-    spi_buff.txbuf = MOSI;
-    spi_buff.rxbuf = MISO;
-   	gpio_set_pin_level(SPI_SS, false);
-	spi_m_sync_transfer(&SPI_0, &spi_buff);
-	gpio_set_pin_level(SPI_SS, true);
-    ubxmsg = (UBXMsg*)&MISO[ubx_obuff.size+UBX_FFCNT];
-    /* End default CFG_PRT settings */
+    //ubx_obuff = getCFG_PRT_POLL_OPT(UBXPRTSPI);    
+    //spi_buff.size  = SPI_SIZE;
+    //memcpy(MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+    //clearUBXMsgBuffer(&ubx_obuff);
+    //spi_buff.txbuf = MOSI;
+    //spi_buff.rxbuf = MISO;
+    //gpio_set_pin_level(SPI_SS, false);
+    //spi_m_sync_transfer(&SPI_0, &spi_buff);
+    //gpio_set_pin_level(SPI_SS, true);
+    //ubxmsg = (UBXMsg*)&MISO[ubx_obuff.size+UBX_FFCNT];
+    ///* End default CFG_PRT settings */
+//
+    //delay_ms(100);
+//
+    ///* Get a nav position/velocity/time reading */
+    //ubx_obuff = getNAV_PVT_POLL(); 
+    //spi_buff.size  = SPI_SIZE;
+    //memcpy(MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+    //clearUBXMsgBuffer(&ubx_obuff);
+    //spi_buff.txbuf = MOSI;
+    //spi_buff.rxbuf = MISO;
+    //gpio_set_pin_level(SPI_SS, false);
+    //spi_m_sync_transfer(&SPI_0, &spi_buff);
+    //gpio_set_pin_level(SPI_SS, true);
+    //ubxmsg = (UBXMsg*)&MISO[ubx_obuff.size+UBX_FFCNT];
+    ///* End default CFG_PRT settings */
     
     delay_ms(100);
     cfgerr = cfgUBXoverSPI(&SPI_0, UBX_FFCNT);
 	
 	
 	
-	while (1) {
+    while (1) {
         delay_ms(100);
+		
         gpio_set_pin_level(SPI_SS, false);
 	    spi_m_sync_transfer(&SPI_0, &spi_buff);
 	    gpio_set_pin_level(SPI_SS, true);
@@ -101,7 +100,7 @@ uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt)
     msgsize   = ubx_obuff.size + ffCnt + ACK_SIZE;
 
     /* Construct/Associate SPI tx/rx buffers */
-    spi_buff.size  = SPI_SIZE;
+    spi_buff.size  = ubx_obuff.size;
     memcpy(MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
     clearUBXMsgBuffer(&ubx_obuff);
 
@@ -113,40 +112,17 @@ uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt)
 	spi_m_sync_transfer(spi, &spi_buff);
 	gpio_set_pin_level(SPI_SS, true);
 
-    delay_ms(100);
+	/* TODO: Timing to limit buffsize/numxfers */
+	clearSPIbuffers();
+
+	/* May need a second xfer to receive ACK */	
     gpio_set_pin_level(SPI_SS, false);
 	spi_m_sync_transfer(spi, &spi_buff);
 	gpio_set_pin_level(SPI_SS, true);
-
-    delay_ms(100);
-    gpio_set_pin_level(SPI_SS, false);
-    spi_m_sync_transfer(spi, &spi_buff);
-    gpio_set_pin_level(SPI_SS, true);
-
-    delay_ms(100);
-    gpio_set_pin_level(SPI_SS, false);
-    spi_m_sync_transfer(spi, &spi_buff);
-    gpio_set_pin_level(SPI_SS, true);
-
-    clearSPIbuffers();
-
-    delay_ms(100);
-    gpio_set_pin_level(SPI_SS, false);
-    spi_m_sync_transfer(spi, &spi_buff);
-    gpio_set_pin_level(SPI_SS, true);
-
-    delay_ms(100);
-    gpio_set_pin_level(SPI_SS, false);
-    spi_m_sync_transfer(spi, &spi_buff);
-    gpio_set_pin_level(SPI_SS, true);
-
-    delay_ms(100);
-    gpio_set_pin_level(SPI_SS, false);
-    spi_m_sync_transfer(spi, &spi_buff);
-    gpio_set_pin_level(SPI_SS, true);
-
+	
     /* Check rxbuffer for ACK/NAK */
-    ubxmsg = (UBXMsg*)&MISO[msgsize - ACK_SIZE];
+	/* TODO: verify aligment and sizes here */
+    ubxmsg = (UBXMsg*)&MISO[msgsize - ffCnt - ACK_SIZE];
     if(ubxmsg->hdr.msgClass == UBXMsgClassACK &&
        ubxmsg->hdr.msgId == UBXMsgClassACK)
     {
@@ -165,6 +141,6 @@ void clearSPIbuffers()
 {    
     for(int i = 0; i < SPI_SIZE; i++) {
         MOSI[i] = 0xff;
-        MISO[i] = 0xff;
+        MISO[i] = 0x00;
     }
 }

@@ -21,7 +21,7 @@
  * and source of this library in your application.
  *
  * Actual LGPL text https://www.gnu.org/licenses/lgpl.html
- *
+ */
 #ifndef UBLOXNAV_H
 #define UBLOXNAV_H
 
