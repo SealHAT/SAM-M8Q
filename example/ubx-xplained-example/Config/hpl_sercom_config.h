@@ -46,7 +46,7 @@
 // <e> Advanced Configuration
 // <id> spi_master_advanced
 #ifndef CONF_SERCOM_0_SPI_ADVANCED
-#define CONF_SERCOM_0_SPI_ADVANCED 0
+#define CONF_SERCOM_0_SPI_ADVANCED 1
 #endif
 
 // <o> Dummy byte <0x00-0x1ff>
