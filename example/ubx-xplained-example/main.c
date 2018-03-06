@@ -2,6 +2,7 @@
 #include <string.h>
 #include "ubx.h"
 
+/* move to uc-interfa */
 #define SPI_SIZE	(256)
 #define UBX_FFCNT	(32)
 
@@ -9,10 +10,9 @@ static uint8_t MOSI[SPI_SIZE];
 static uint8_t MISO[SPI_SIZE];
 
 int32_t spi_transfer(struct spi_m_sync_descriptor *spi, const struct spi_xfer *p_xfer);
-
-/* move to uc-interfa */
 uint8_t	cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt);
 void	clearSPIbuffers();
+/* end uc-interfa */
 
 int main(void)
 {
