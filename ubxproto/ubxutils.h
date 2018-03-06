@@ -38,7 +38,21 @@ extern "C"
 extern void fletcherChecksum(unsigned char* buffer, int size, unsigned char* checkSumA, unsigned char* checkSumB);
 extern void clearUBXMsgBuffer(const UBXMsgBuffer *buffer);
 
-/* SealHAT additions */
+/* SealHAT additions ******
+ *  The following functions are created as part of the 2018 UCSC SealHAT project
+ * TODO: license/document this correctly
+ */
+
+/**
+ * alignUBXmessage
+ *
+ * Aligns a UBXMsg struct to the first detected UBX message in a uint8_t/character buffer. 
+ * This allows for easy parsing of received data using UBXMsg attribute access from ubx.h
+ *
+ * @param msg pointer to a UBXMsg struct
+ * @param BUFF pointer to an array containing a ubx message preceded by a number of 0xff chars
+ * @param SIZE size of the BUFF array
+ */
 extern void alignUBXmessage(UBXMsg *msg, const uint8_t *BUFF, const int SIZE);
 
 #ifdef __cplusplus
