@@ -37,6 +37,10 @@ extern "C"
 //Additional API will be replaced with checkMessage(const UBXMsgBuffer* buffer);
 extern void fletcherChecksum(unsigned char* buffer, int size, unsigned char* checkSumA, unsigned char* checkSumB);
 extern void clearUBXMsgBuffer(const UBXMsgBuffer *buffer);
+
+/* SealHAT additions */
+extern void alignUBXmessage(UBXMsg *msg, const uint8_t *BUFF, const int SIZE);
+
 #ifdef __cplusplus
 }
 #endif

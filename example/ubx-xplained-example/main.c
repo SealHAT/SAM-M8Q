@@ -9,11 +9,10 @@ static uint8_t MOSI[SPI_SIZE];
 static uint8_t MISO[SPI_SIZE];
 
 int32_t spi_transfer(struct spi_m_sync_descriptor *spi, const struct spi_xfer *p_xfer);
+
 /* move to uc-interfa */
 uint8_t	cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt);
 void	clearSPIbuffers();
-void    alignUBXmessage(UBXMsg *msg, const uint8_t *msgbuff);
-
 
 int main(void)
 {
@@ -35,8 +34,8 @@ int main(void)
     spi_buff.size  = SPI_SIZE;
     spi_buff.txbuf = MOSI;
     spi_buff.rxbuf = MISO;
+    ubxmsg         = NULL;
     delay_ms(500); /* allow startup for device */
-
     spi_transfer(&SPI_0, &spi_buff); /* empty communication */
 	
 	/* Do a Poll message to get info/check if GPS is ready */
@@ -54,16 +53,15 @@ int main(void)
     
     delay_ms(100);
     spi_transfer(&SPI_0, &spi_buff);
+    alignUBXmessage(ubxmsg, MISO, SPI_SIZE);
 
-    alignUBXmessage(ubxmsg, MISO);
     delay_ms(100);
     spi_transfer(&SPI_0, &spi_buff);
-    alignUBXmessage(ubxmsg, MISO);
-
-
-    cfgerr = cfgUBXoverSPI(&SPI_0, UBX_FFCNT);
+    alignUBXmessage(ubxmsg, MISO, SPI_SIZE);
+    
     delay_ms(100);
-	
+    cfgerr = cfgUBXoverSPI(&SPI_0, UBX_FFCNT);
+    	
 	ubx_obuff = getNAV_PVT_POLL();
     memcpy(MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
     clearUBXMsgBuffer(&ubx_obuff);
@@ -78,6 +76,7 @@ int main(void)
 int32_t spi_transfer(struct spi_m_sync_descriptor *spi, const struct spi_xfer *p_xfer)
 {
     int32_t retval;
+
     gpio_set_pin_level(SPI_SS, false);
     retval = spi_m_sync_transfer(spi, p_xfer);
     gpio_set_pin_level(SPI_SS, true);
@@ -107,6 +106,7 @@ uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi_des, uint8_t ffCnt)
 
     /* Build MOSI configuration message, and MISO buffer */
     ubx_obuff = setCFG_PRT(ubxmsgs.CFG_PRT);
+    ubxmsg    = NULL;
 
     /* Construct/Associate SPI tx/rx buffers */
     spi_buff.size  = ubx_obuff.size;
@@ -126,7 +126,7 @@ uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi_des, uint8_t ffCnt)
     spi_transfer(spi_des, &spi_buff);
 	
     /* Check rxbuffer for ACK/NAK */
-    alignUBXmessage(ubxmsg, MISO);
+    alignUBXmessage(ubxmsg, MISO, SPI_SIZE);
 
     if(ubxmsg->hdr.msgClass == UBXMsgClassACK &&
        ubxmsg->hdr.msgId == UBXMsgClassACK)
@@ -149,33 +149,3 @@ void clearSPIbuffers()
     }
 }
 
-void alignUBXmessage(UBXMsg *msg, const uint8_t *msgbuff) 
-{
-    int         i;
-    uint8_t     val[2];     /* Character iterator       */
-    uint16_t    *header;    /* Holds UBX message header */
-
-    i = 0;
-    val[1] = msgbuff[i];
-    header = NULL;
-
-    /* Find start of UBX message */
-    while(val[1] == 0xff )
-    {
-        val[1] = msgbuff[++i];
-    }
-    val[0] = msgbuff[i+1];
-    header = (uint16_t*)val;
-
-    /* Check that message is UBX and align msg to data */
-    if(header[0] != UBX_PREAMBLE)
-    {
-        msg->preamble = 0xffff;
-    }
-    else
-    {
-        msg->preamble = header[0];
-        msg = (UBXMsg*)&msgbuff[i];
-    }
-
-}
