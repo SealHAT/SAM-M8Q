@@ -12,6 +12,7 @@ int32_t spi_transfer(struct spi_m_sync_descriptor *spi, const struct spi_xfer *p
 /* move to uc-interfa */
 uint8_t	cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt);
 void	clearSPIbuffers();
+void    alignUBXmessage(UBXMsg *msg, const uint8_t *msgbuff);
 
 
 int main(void)
@@ -24,10 +25,10 @@ int main(void)
     spi_m_sync_enable(&SPI_0);
 
     /* SPI init code */
-    UBXMsgBuffer ubx_obuff;
-    UBXMsg *ubxmsg;
+    UBXMsgBuffer    ubx_obuff;
+    UBXMsg          *ubxmsg;
     struct spi_xfer spi_buff;
-    uint8_t cfgerr;
+    uint8_t         cfgerr;
     	
     /* initialize read/write buffers */
     clearSPIbuffers();
@@ -35,55 +36,62 @@ int main(void)
     spi_buff.txbuf = MOSI;
     spi_buff.rxbuf = MISO;
     delay_ms(500); /* allow startup for device */
-    gpio_set_pin_level(SPI_SS, false);
-    spi_m_sync_transfer(&SPI_0, &spi_buff);
-    gpio_set_pin_level(SPI_SS, true);
+
+    spi_transfer(&SPI_0, &spi_buff); /* empty communication */
 	
 	/* Do a Poll message to get info/check if GPS is ready */
     //ubx_obuff = getCFG_RST(0,0);
     //ubx_obuff = getCFG_PRT_POLL_OPT(UBXPRTSPI);    
 	//ubx_obuff = getCFG_RXM_POLL();
+    //ubx_obuff = getCFG_PM2_POLL();
     //ubx_obuff = getCFG_GNSS_POLL();
     //ubx_obuff = getCFG_MSG_RATE();
+    ubx_obuff = getRXM_PMREQ(180000,2);
     
 	/* Init SO buffer and copy data */
     memcpy(MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
     clearUBXMsgBuffer(&ubx_obuff);
-	
-	/* align message buffer to input for easy member access */
-    ubxmsg = (UBXMsg*)&MISO[ubx_obuff.size + 2];
     
     delay_ms(100);
-    cfgerr = cfgUBXoverSPI(&SPI_0, UBX_FFCNT);
+    spi_transfer(&SPI_0, &spi_buff);
 
+    alignUBXmessage(ubxmsg, MISO);
+    delay_ms(100);
+    spi_transfer(&SPI_0, &spi_buff);
+    alignUBXmessage(ubxmsg, MISO);
+
+
+    cfgerr = cfgUBXoverSPI(&SPI_0, UBX_FFCNT);
+    delay_ms(100);
 	
 	ubx_obuff = getNAV_PVT_POLL();
     memcpy(MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
     clearUBXMsgBuffer(&ubx_obuff);
 
-    while (1) {
-        delay_ms(100);
-		
+    while (1) 
+    {
+        delay_ms(100);	
         spi_transfer(&SPI_0, &spi_buff);
 	}
 }
 
 int32_t spi_transfer(struct spi_m_sync_descriptor *spi, const struct spi_xfer *p_xfer)
 {
+    int32_t retval;
     gpio_set_pin_level(SPI_SS, false);
-    spi_m_sync_transfer(spi, p_xfer);
+    retval = spi_m_sync_transfer(spi, p_xfer);
     gpio_set_pin_level(SPI_SS, true);
+
+    return retval;
 }
 
 
-uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt)
+uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi_des, uint8_t ffCnt)
 {
-    #define ACK_SIZE (10) /* ACK_* message size in bytes */
     struct spi_xfer spi_buff;
     UBXMsgBuffer    ubx_obuff;
     UBXMsgs         ubxmsgs;
     UBXMsg          *ubxmsg;
-    uint32_t        msgsize;
     uint8_t         ack;
 
     /* Populate CFG_PRT variables to enable UBX only over SPI */
@@ -96,11 +104,9 @@ uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt)
     ubxmsgs.CFG_PRT.inProtoMask = UBXPRTInProtoInUBX;
     ubxmsgs.CFG_PRT.outProtoMask = UBXPRTOutProtoOutUBX;
     ubxmsgs.CFG_PRT.flags = UBXPRTExtendedTxTimeout;
-   // ubxmsgs.CFG_PRT.flags = 0;
 
     /* Build MOSI configuration message, and MISO buffer */
     ubx_obuff = setCFG_PRT(ubxmsgs.CFG_PRT);
-    msgsize   = ubx_obuff.size + ffCnt + ACK_SIZE;
 
     /* Construct/Associate SPI tx/rx buffers */
     spi_buff.size  = ubx_obuff.size;
@@ -111,21 +117,17 @@ uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt)
     spi_buff.rxbuf = MISO;
 
     /* Send CFG_PRT message, Receive ACK_??? message */
-   	gpio_set_pin_level(SPI_SS, false);
-	spi_m_sync_transfer(spi, &spi_buff);
-	gpio_set_pin_level(SPI_SS, true);
+    spi_transfer(spi_des, &spi_buff);
 
 	/* TODO: Timing to limit buffsize/numxfers */
 	clearSPIbuffers();
 
 	/* May need a second xfer to receive ACK */	
-    gpio_set_pin_level(SPI_SS, false);
-	spi_m_sync_transfer(spi, &spi_buff);
-	gpio_set_pin_level(SPI_SS, true);
+    spi_transfer(spi_des, &spi_buff);
 	
     /* Check rxbuffer for ACK/NAK */
-	/* TODO: verify aligment and sizes here */
-    ubxmsg = (UBXMsg*)&MISO[msgsize - ffCnt - ACK_SIZE];
+    alignUBXmessage(ubxmsg, MISO);
+
     if(ubxmsg->hdr.msgClass == UBXMsgClassACK &&
        ubxmsg->hdr.msgId == UBXMsgClassACK)
     {
@@ -136,7 +138,6 @@ uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi, uint8_t ffCnt)
         ack = false;
     }
 
-    #undef ACK_SIZE
     return ack;
 }
 
@@ -146,4 +147,35 @@ void clearSPIbuffers()
         MOSI[i] = 0xff;
         MISO[i] = 0x00;
     }
+}
+
+void alignUBXmessage(UBXMsg *msg, const uint8_t *msgbuff) 
+{
+    int         i;
+    uint8_t     val[2];     /* Character iterator       */
+    uint16_t    *header;    /* Holds UBX message header */
+
+    i = 0;
+    val[1] = msgbuff[i];
+    header = NULL;
+
+    /* Find start of UBX message */
+    while(val[1] == 0xff )
+    {
+        val[1] = msgbuff[++i];
+    }
+    val[0] = msgbuff[i+1];
+    header = (uint16_t*)val;
+
+    /* Check that message is UBX and align msg to data */
+    if(header[0] != UBX_PREAMBLE)
+    {
+        msg->preamble = 0xffff;
+    }
+    else
+    {
+        msg->preamble = header[0];
+        msg = (UBXMsg*)&msgbuff[i];
+    }
+
 }
