@@ -1,0 +1,9 @@
+UBX protocol implementation based on C language for u-blox© GNSS chips
+
+INSTALLATION
+
+mkdir build
+cd build
+cmake ../
+make
+sudo make install
