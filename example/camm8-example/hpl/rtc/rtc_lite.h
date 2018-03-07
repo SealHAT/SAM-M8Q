@@ -65,7 +65,7 @@ extern "C" {
  * \brief Initialize rtc interface
  * \return Initialization status.
  */
-int8_t CALENDAR_init();
+int8_t time_date_init();
 
 #ifdef __cplusplus
 }

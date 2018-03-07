@@ -32,31 +32,31 @@ extern "C" {
 
 #include "hal_usb_device.h"
 
-extern struct adc_sync_descriptor ADC;
-extern struct crc_sync_descriptor CRC;
+extern struct adc_sync_descriptor analog_in;
+extern struct crc_sync_descriptor hash_chk;
 
-extern struct i2c_m_sync_desc       I2C;
-extern struct spi_m_sync_descriptor SPI;
+extern struct i2c_m_sync_desc       wire;
+extern struct spi_m_sync_descriptor spi_dev;
 
-void ADC_PORT_init(void);
-void ADC_CLOCK_init(void);
-void ADC_init(void);
+void analog_in_PORT_init(void);
+void analog_in_CLOCK_init(void);
+void analog_in_init(void);
 
-void I2C_CLOCK_init(void);
-void I2C_init(void);
-void I2C_PORT_init(void);
+void wire_CLOCK_init(void);
+void wire_init(void);
+void wire_PORT_init(void);
 
-void SPI_PORT_init(void);
-void SPI_CLOCK_init(void);
-void SPI_init(void);
+void spi_dev_PORT_init(void);
+void spi_dev_CLOCK_init(void);
+void spi_dev_init(void);
 
 void delay_driver_init(void);
 
-void   CALENDAR_CLOCK_init(void);
-int8_t CALENDAR_init(void);
+void   time_date_CLOCK_init(void);
+int8_t time_date_init(void);
 
-void USB_CLOCK_init(void);
-void USB_init(void);
+void usb_comms_CLOCK_init(void);
+void usb_comms_init(void);
 
 /**
  * \brief Perform system initialization, initialize pins and clocks for

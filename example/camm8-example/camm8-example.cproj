@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>example</AssemblyName>
+    <AssemblyName>camm8-example</AssemblyName>
     <Name>camm8-example</Name>
-    <RootNamespace>example</RootNamespace>
+    <RootNamespace>camm8-example</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
@@ -138,11 +138,11 @@
           <AcmeProjectActionInfo Action="File" Source="hri/hri_usb_d21.h" IsConfig="false" Hash="EvW/gadWtJuAf9g0v+grXA" />
           <AcmeProjectActionInfo Action="File" Source="hri/hri_wdt_d21.h" IsConfig="false" Hash="otyPG8mlWKYNjVfH1ngHMw" />
           <AcmeProjectActionInfo Action="File" Source="main.c" IsConfig="false" Hash="k0AH7j+BrmdFhBPzCCMptA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="bzrbq/TLafpbK+S4Q1S2Wg" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="JI3/dAnZ7e3IHqkL+1ZFYA" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="h04Q+wVrtD4F4ZLKL5EprA" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="pk47FYO5AiXgfmBU73u8Jg" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="tZbDo92FrWj/UVILJYS2sg" />
-          <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="aDOrPR3UYjFdzq1jrp4H8A" />
-          <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="qTRaACDp8IGo4RDWLmyTvg" />
+          <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="VxVCAKbxlAJ12cgy8UBDjA" />
+          <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="cP8VBR0SLP0jKuBrMZ9y+Q" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hal_adc_sync.h" IsConfig="false" Hash="1Z3ikKjJFcOx7/XVLtcwnA" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hpl_adc_async.h" IsConfig="false" Hash="tOpdyFPrUdotYYlEc/Rcbw" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hpl_adc_sync.h" IsConfig="false" Hash="U0G1cRAzJMbaUUv6J9zZ1Q" />
@@ -165,8 +165,8 @@
           <AcmeProjectActionInfo Action="File" Source="hpl/pm/hpl_pm.c" IsConfig="false" Hash="u3DaRbkFN8feyOG9UobZjg" />
           <AcmeProjectActionInfo Action="File" Source="hpl/pm/hpl_pm_base.h" IsConfig="false" Hash="HzB0uCMa5692qbqugofh1g" />
           <AcmeProjectActionInfo Action="File" Source="hpl/port/hpl_gpio_base.h" IsConfig="false" Hash="4naS03fGk/xHs5fsSYGKmw" />
-          <AcmeProjectActionInfo Action="File" Source="hpl/rtc/rtc_lite.c" IsConfig="false" Hash="YoCAvqbm2ZS7Yyxsnw1PbA" />
-          <AcmeProjectActionInfo Action="File" Source="hpl/rtc/rtc_lite.h" IsConfig="false" Hash="lSPsoboDmuNCv+9yue9xHQ" />
+          <AcmeProjectActionInfo Action="File" Source="hpl/rtc/rtc_lite.c" IsConfig="false" Hash="WiD+T8XVzcP0LVCeG+wxwA" />
+          <AcmeProjectActionInfo Action="File" Source="hpl/rtc/rtc_lite.h" IsConfig="false" Hash="DZkKj3IzSaXTDjEqUnba/A" />
           <AcmeProjectActionInfo Action="File" Source="hpl/sercom/hpl_sercom.c" IsConfig="false" Hash="XzJaptW+FouaJDd/6pNFZg" />
           <AcmeProjectActionInfo Action="File" Source="hpl/sysctrl/hpl_sysctrl.c" IsConfig="false" Hash="Y3Ru8ykzGTo7+EM/5Hiibg" />
           <AcmeProjectActionInfo Action="File" Source="hpl/systick/hpl_systick.c" IsConfig="false" Hash="MCGXIeQK0KAMOMOje0m95A" />
@@ -175,13 +175,13 @@
           <AcmeProjectActionInfo Action="File" Source="atmel_start.c" IsConfig="false" Hash="bn5r93ntFMNhq0KaPV3+pw" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_adc_config.h" IsConfig="true" Hash="FAc647CKMLX2Sje9qxOXJg" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_dmac_config.h" IsConfig="true" Hash="SHdxLw1U2akzI1NrICicSA" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_gclk_config.h" IsConfig="true" Hash="h+loqG0PiB0PkIyL8TQo/g" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_gclk_config.h" IsConfig="true" Hash="nP7lbhuPPMMWjB0xxE9UEw" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_pm_config.h" IsConfig="true" Hash="GH0DautnKY3X7yLEFG4tgA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_sercom_config.h" IsConfig="true" Hash="tkhqxQgq+fzNt+Jp7Wfubw" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_sysctrl_config.h" IsConfig="true" Hash="Ba4iK873K10dYe/h/VRU9A" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_sysctrl_config.h" IsConfig="true" Hash="gFPuO3oNtaPN8lsDM/kKoA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_systick_config.h" IsConfig="true" Hash="tlT3lNDKWFe82MiGWfQzcA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_usb_config.h" IsConfig="true" Hash="+CZQL4FCfFGN9BtH9ykqtA" />
-          <AcmeProjectActionInfo Action="File" Source="config/peripheral_clk_config.h" IsConfig="true" Hash="lU0Ij5QuZ0NLG00UDU+ywQ" />
+          <AcmeProjectActionInfo Action="File" Source="config/peripheral_clk_config.h" IsConfig="true" Hash="AKwmrw+2XxzjCuWvIpKtLQ" />
         </AcmeActionInfos>
       </AcmeProjectConfig>
     </AcmeProjectConfig>
@@ -329,6 +329,8 @@
       <Value>../hpl/systick</Value>
       <Value>../hpl/usb</Value>
       <Value>../hri</Value>
+      <Value>../../../minmea</Value>
+      <Value>../../../ubxproto</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -347,6 +349,7 @@
     </ListValues>
   </armgcc.linker.libraries.LibrarySearchPaths>
   <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+  <armgcc.linker.memorysettings.ExternalRAM />
   <armgcc.linker.miscellaneous.LinkerFlags>-Tsamd21g18a_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
@@ -404,9 +407,61 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\ubxtypes.h">
+    <Compile Include="..\..\gnss.c">
       <SubType>compile</SubType>
-      <Link>ubxtypes.h</Link>
+      <Link>gnss.c</Link>
+    </Compile>
+    <Compile Include="..\..\gnss.h">
+      <SubType>compile</SubType>
+      <Link>gnss.h</Link>
+    </Compile>
+    <Compile Include="..\..\minmea\minmea.c">
+      <SubType>compile</SubType>
+      <Link>minmea.c</Link>
+    </Compile>
+    <Compile Include="..\..\minmea\minmea.h">
+      <SubType>compile</SubType>
+      <Link>minmea.h</Link>
+    </Compile>
+    <Compile Include="..\..\ubxproto\portable_endian.h">
+      <SubType>compile</SubType>
+      <Link>portable_endian.h</Link>
+    </Compile>
+    <Compile Include="..\..\ubxproto\ubx.c">
+      <SubType>compile</SubType>
+      <Link>ubx.c</Link>
+    </Compile>
+    <Compile Include="..\..\ubxproto\ubx.h">
+      <SubType>compile</SubType>
+      <Link>ubx.h</Link>
+    </Compile>
+    <Compile Include="..\..\ubxproto\ubxaid.h">
+      <SubType>compile</SubType>
+      <Link>ubxaid.h</Link>
+    </Compile>
+    <Compile Include="..\..\ubxproto\ubxcfg.h">
+      <SubType>compile</SubType>
+      <Link>ubxcfg.h</Link>
+    </Compile>
+    <Compile Include="..\..\ubxproto\ubxlog.h">
+      <SubType>compile</SubType>
+      <Link>ubxlog.h</Link>
+    </Compile>
+    <Compile Include="..\..\ubxproto\ubxmessage.h">
+      <SubType>compile</SubType>
+      <Link>ubxmessage.h</Link>
+    </Compile>
+    <Compile Include="..\..\ubxproto\ubxmon.h">
+      <SubType>compile</SubType>
+      <Link>ubxmon.h</Link>
+    </Compile>
+    <Compile Include="..\..\ubxproto\ubxrxm.h">
+      <SubType>compile</SubType>
+      <Link>ubxrxm.h</Link>
+    </Compile>
+    <Compile Include="..\..\ubxproto\ubxutils.h">
+      <SubType>compile</SubType>
+      <Link>ubxutils.h</Link>
     </Compile>
     <Compile Include="atmel_start.c">
       <SubType>compile</SubType>

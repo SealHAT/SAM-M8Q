@@ -39,7 +39,7 @@
  *
  * \acme_license_stop
  *
- * Project: example
+ * Project: camm8-example
  * Target:  ATSAMD21G18A 
  *
  **/
