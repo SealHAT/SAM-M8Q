@@ -27,10 +27,10 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc)
     delay_ms(500);
 
     /* OPTIONAL - Reset GPS to device defaults */
-    ubx_obuff = getCFG_RST(0,0);    
-    memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
-    clearUBXMsgBuffer(&ubx_obuff);
-    gps_transfer();
+    //ubx_obuff = getCFG_RST(0,0);    
+    //memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+    //clearUBXMsgBuffer(&ubx_obuff);
+    //gps_transfer();
 
     //TODO get and return device status
     return 1;
@@ -248,3 +248,36 @@ uint8_t cfgPSMOO(uint8_t period)
 
     return ack;
 }
+
+uint8_t gps_selftest()
+{
+    UBXMsgBuffer    ubx_obuff;
+    UBXMsg          *msg;
+    uint8_t         ack;
+    uint16_t        preamble;
+
+    //msg = NULL;
+
+    //ubx_obuff = getCFG_RST(0,0);
+    ubx_obuff = getCFG_PRT_POLL_OPT(UBXPRTSPI);
+    //ubx_obuff = getCFG_RXM_POLL();
+    //ubx_obuff = getCFG_PM2_POLL();
+    //ubx_obuff = getCFG_GNSS_POLL();
+    //ubx_obuff = getCFG_MSG_RATE();
+    //ubx_obuff = getRXM_PMREQ(10000,2);
+
+    memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+    clearUBXMsgBuffer(&ubx_obuff);
+
+    gps_transfer();
+    alignUBXmessage(&msg, GPS_MISO, GPS_BUFFSIZE);
+    //preamble = msg->preamble;
+    gps_clearbuffers();
+    
+    
+    
+
+
+    return 0;
+}
+

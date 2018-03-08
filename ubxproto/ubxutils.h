@@ -53,7 +53,7 @@ extern void clearUBXMsgBuffer(const UBXMsgBuffer *buffer);
  * @param BUFF pointer to an array containing a ubx message preceded by a number of 0xff chars
  * @param SIZE size of the BUFF array
  */
-extern void alignUBXmessage(UBXMsg *msg, const uint8_t *BUFF, const int SIZE);
+extern void alignUBXmessage(UBXMsg **msg, uint8_t *BUFF, const int SIZE);
 
 #ifdef __cplusplus
 }
