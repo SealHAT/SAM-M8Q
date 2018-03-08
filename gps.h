@@ -10,12 +10,19 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include "ubx.h"
 
-#include <hpl_spi_m_sync.h>
+#include "driver_init.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define GPS_BUFFSIZE (128)
+#define UBX_FFTCNT	 (32)
+
+
 
 /**
  * utc_time_t enum
@@ -83,7 +90,7 @@ typedef enum
  * @param spi device descriptor from AtmelStart configuration
  * @return true if successful, false if initialization fails
  */
-bool gps_init(struct spi_m_sync_descriptor *spi);
+uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc);
 
 /**
  * gps_getfix
@@ -145,6 +152,13 @@ bool gps_wake();
  * @returns true if successful, false if profile not set
  */
 bool gps_setprofile(const GPS_PROFILE profile);
+
+
+//TODO    encapsulate these helper functions
+//uint8_t cfgUBXoverSPI(uint8_t ffCnt);
+//uint8_t cfgPSMOO(uint8_t period);
+
+
   
 #ifdef __cplusplus
 }
