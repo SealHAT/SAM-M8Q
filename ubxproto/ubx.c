@@ -49,7 +49,7 @@ extern void clearUBXMsgBuffer(const UBXMsgBuffer* buffer)
 }
 
 /* SealHAT */
-void alignUBXmessage(UBXMsg *msg, const uint8_t *BUFF, const int SIZE)
+void alignUBXmessage(UBXMsg **msg, uint8_t *BUFF, const int SIZE)
 {
     int         i;
     uint8_t     val[2];     /* Character iterator       */
@@ -74,8 +74,7 @@ void alignUBXmessage(UBXMsg *msg, const uint8_t *BUFF, const int SIZE)
     }
     else
     {
-        msg->preamble = header[0];
-        msg = (UBXMsg*)&BUFF[i];
+        *msg = (UBXMsg*)&BUFF[i];
     }
 
 }

@@ -155,6 +155,7 @@ bool gps_setprofile(const GPS_PROFILE profile);
 
 
 //TODO    encapsulate these helper functions
+uint8_t gps_selftest();
 //uint8_t cfgUBXoverSPI(uint8_t ffCnt);
 //uint8_t cfgPSMOO(uint8_t period);
 
