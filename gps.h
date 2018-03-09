@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-#define GPS_BUFFSIZE (128)
+#define GPS_BUFFSIZE (256)
 #define UBX_FFTCNT	 (32)
 
 

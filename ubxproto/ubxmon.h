@@ -35,6 +35,7 @@ extern "C"
 #endif
 
 extern UBXMsgBuffer getMON_VER_POLL();
+extern UBXMsgBuffer getMON_HW_POLL();
 
 #ifdef __cplusplus
 }

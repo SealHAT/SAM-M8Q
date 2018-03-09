@@ -26,11 +26,26 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc)
     gps_clearbuffers();
     delay_ms(500);
 
+	// TODO implement initial config
     /* OPTIONAL - Reset GPS to device defaults */
+	/* ALTERNATIVELY - load/verify saved cfg */
     //ubx_obuff = getCFG_RST(0,0);    
     //memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
     //clearUBXMsgBuffer(&ubx_obuff);
     //gps_transfer();
+	
+	/* Set default msg rate over SPI */
+	ubx_obuff = getCFG_MSG_RATE(UBXMsgClassNAV,UBXMsgIdNAV_PVT,1);
+	memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+	clearUBXMsgBuffer(&ubx_obuff);
+	gps_transfer();
+	gps_clearbuffers();
+	
+	ubx_obuff = getCFG_RATE(100,1,0);
+	memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+	clearUBXMsgBuffer(&ubx_obuff);
+	gps_transfer();
+	gps_clearbuffers();
 
     //TODO get and return device status
     return 1;
@@ -48,12 +63,14 @@ uint8_t gps_getfix(location_t *fix)
     clearUBXMsgBuffer(&ubx_obuff);
 
     result = gps_transfer();
+	delay_ms(500);
     gps_transfer();
+	
     /* error check result of gps_transfer */
     //TODO Verify successful fix
     
     /* retrieve ubx message */
-    alignUBXmessage(msg, GPS_MISO, GPS_BUFFSIZE);
+    alignUBXmessage(&msg, GPS_MISO, GPS_BUFFSIZE);
 
     //fix->altitude = msg->payload.NAV_PVT.height;
     //fix->climb
@@ -121,7 +138,9 @@ uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi_des, uint8_t ffCnt)
 
     /* Populate CFG_PRT variables to enable UBX only over SPI */
     ubxmsgs.CFG_PRT.portID = UBXPRTSPI;
-    ubxmsgs.CFG_PRT.txReady.en = 0;
+    //ubxmsgs.CFG_PRT.txReady.en = 1; /* enable tx ready pin */
+	//ubxmsgs.CFG_PRT.txReady.pol = 1;/* active low */
+	//ubxmsgs.CFG_PRT.txReady.pin
     ubxmsgs.CFG_PRT.mode.UBX_SPI.spiMode = UBXPRTSPIMode0;
     ubxmsgs.CFG_PRT.mode.UBX_SPI.flowControl = 0;
     ubxmsgs.CFG_PRT.mode.UBX_SPI.ffCnt = ffCnt;
@@ -259,12 +278,13 @@ uint8_t gps_selftest()
     //msg = NULL;
 
     //ubx_obuff = getCFG_RST(0,0);
-    ubx_obuff = getCFG_PRT_POLL_OPT(UBXPRTSPI);
+    //ubx_obuff = getCFG_PRT_POLL_OPT(UBXPRTSPI);
     //ubx_obuff = getCFG_RXM_POLL();
     //ubx_obuff = getCFG_PM2_POLL();
     //ubx_obuff = getCFG_GNSS_POLL();
-    //ubx_obuff = getCFG_MSG_RATE();
+    //ubx_obuff = getCFG_RATE_POLL();
     //ubx_obuff = getRXM_PMREQ(10000,2);
+	ubx_obuff = getCFG_MSG_POLL(UBXMsgClassNAV, UBXMsgIdNAV_PVT);
 
     memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
     clearUBXMsgBuffer(&ubx_obuff);
