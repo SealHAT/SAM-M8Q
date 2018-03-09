@@ -41,11 +41,16 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc)
 	gps_transfer();
 	gps_clearbuffers();
 	
+	/* Up sampling speed to 10Hz */
 	ubx_obuff = getCFG_RATE(100,1,0);
 	memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
 	clearUBXMsgBuffer(&ubx_obuff);
 	gps_transfer();
 	gps_clearbuffers();
+	
+	
+	cfgUBXoverSPI(UBX_FFTCNT);
+	
 
     //TODO get and return device status
     return 1;
@@ -129,7 +134,7 @@ int32_t gps_transfer()
 //TODO encapsulate these helper functions
 
 
-uint8_t cfgUBXoverSPI(struct spi_m_sync_descriptor *spi_des, uint8_t ffCnt)
+uint8_t cfgUBXoverSPI(uint8_t ffCnt)
 {
     UBXMsgBuffer    ubx_obuff;
     UBXMsgs         ubxmsgs;
