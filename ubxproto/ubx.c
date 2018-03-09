@@ -1203,6 +1203,16 @@ UBXMsgBuffer getMON_VER_POLL()
     return buffer;
 }
 
+UBXMsgBuffer getMON_HW_POLL()
+{
+	int payloadSize = 0;
+	UBXMsgBuffer buffer = createBuffer(payloadSize);
+	UBXMsg* msg = (UBXMsg*)buffer.data;
+	initMsg(msg, payloadSize, UBXMsgClassMON, UBXMsgIdMON_HW);
+	completeMsg(&buffer, payloadSize);
+	return buffer;
+}
+
 UBXMsgBuffer getRXM_ALM_POLL()
 {
     int payloadSize = 0;

@@ -24,7 +24,7 @@ void SPI_0_PORT_init(void)
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
-	                   false);
+	                   true);
 
 	gpio_set_pin_function(PA04, PINMUX_PA04D_SERCOM0_PAD0);
 
@@ -49,7 +49,7 @@ void SPI_0_PORT_init(void)
 	                       // <GPIO_PULL_OFF"> Off
 	                       // <GPIO_PULL_UP"> Pull-up
 	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_OFF);
+	                       GPIO_PULL_UP);
 
 	gpio_set_pin_function(PA06, PINMUX_PA06D_SERCOM0_PAD2);
 }

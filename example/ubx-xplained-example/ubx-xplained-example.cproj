@@ -132,7 +132,7 @@
           <AcmeProjectActionInfo Action="File" Source="hri/hri_usb_l21.h" IsConfig="false" Hash="XwlCn70ridkjozzx51wV5Q" />
           <AcmeProjectActionInfo Action="File" Source="hri/hri_wdt_l21.h" IsConfig="false" Hash="FudU84812ccy5irPNuVWtw" />
           <AcmeProjectActionInfo Action="File" Source="main.c" IsConfig="false" Hash="k0AH7j+BrmdFhBPzCCMptA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="IOG7qpdItpMSURQhoxRdpA" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="gW6TwnIZdKRhL3c57puYHg" />
           <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="uZROCf9MQW8FlUMwiIJlwQ" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="xqtpimpEIS8GvBi549t9Rw" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="xqym42O9Zt3aBChrz2ZeIw" />
@@ -173,99 +173,99 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
       <ArmGcc>
-        <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
-        <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
-        <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
-        <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
-        <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
-        <armgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>NDEBUG</Value>
-          </ListValues>
-        </armgcc.compiler.symbols.DefSymbols>
-        <armgcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
-            <Value>%24(PackRepoDir)\atmel\SAML21_DFP\1.2.120\saml21b\include</Value>
-            <Value>../Config</Value>
-            <Value>../</Value>
-            <Value>../examples</Value>
-            <Value>../hal/include</Value>
-            <Value>../hal/utils/include</Value>
-            <Value>../hpl/core</Value>
-            <Value>../hpl/dmac</Value>
-            <Value>../hpl/gclk</Value>
-            <Value>../hpl/mclk</Value>
-            <Value>../hpl/osc32kctrl</Value>
-            <Value>../hpl/oscctrl</Value>
-            <Value>../hpl/pm</Value>
-            <Value>../hpl/port</Value>
-            <Value>../hpl/sercom</Value>
-            <Value>../hpl/systick</Value>
-            <Value>../hri</Value>
-          </ListValues>
-        </armgcc.compiler.directories.IncludePaths>
-        <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
-        <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
-        <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
-        <armgcc.linker.general.UseNewlibNano>True</armgcc.linker.general.UseNewlibNano>
-        <armgcc.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </armgcc.linker.libraries.Libraries>
-        <armgcc.linker.libraries.LibrarySearchPaths>
-          <ListValues>
-            <Value>%24(ProjectDir)\Device_Startup</Value>
-          </ListValues>
-        </armgcc.linker.libraries.LibrarySearchPaths>
-        <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
-        <armgcc.linker.miscellaneous.LinkerFlags>-Tsaml21j18b_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
-        <armgcc.assembler.general.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
-            <Value>%24(PackRepoDir)\atmel\SAML21_DFP\1.2.120\saml21b\include</Value>
-            <Value>../Config</Value>
-            <Value>../</Value>
-            <Value>../examples</Value>
-            <Value>../hal/include</Value>
-            <Value>../hal/utils/include</Value>
-            <Value>../hpl/core</Value>
-            <Value>../hpl/dmac</Value>
-            <Value>../hpl/gclk</Value>
-            <Value>../hpl/mclk</Value>
-            <Value>../hpl/osc32kctrl</Value>
-            <Value>../hpl/oscctrl</Value>
-            <Value>../hpl/pm</Value>
-            <Value>../hpl/port</Value>
-            <Value>../hpl/sercom</Value>
-            <Value>../hpl/systick</Value>
-            <Value>../hri</Value>
-          </ListValues>
-        </armgcc.assembler.general.IncludePaths>
-        <armgcc.preprocessingassembler.general.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
-            <Value>%24(PackRepoDir)\atmel\SAML21_DFP\1.2.120\saml21b\include</Value>
-            <Value>../Config</Value>
-            <Value>../</Value>
-            <Value>../examples</Value>
-            <Value>../hal/include</Value>
-            <Value>../hal/utils/include</Value>
-            <Value>../hpl/core</Value>
-            <Value>../hpl/dmac</Value>
-            <Value>../hpl/gclk</Value>
-            <Value>../hpl/mclk</Value>
-            <Value>../hpl/osc32kctrl</Value>
-            <Value>../hpl/oscctrl</Value>
-            <Value>../hpl/pm</Value>
-            <Value>../hpl/port</Value>
-            <Value>../hpl/sercom</Value>
-            <Value>../hpl/systick</Value>
-            <Value>../hri</Value>
-          </ListValues>
-        </armgcc.preprocessingassembler.general.IncludePaths>
-      </ArmGcc>
+  <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+  <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+  <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+  <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+  <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+  <armgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>NDEBUG</Value>
+    </ListValues>
+  </armgcc.compiler.symbols.DefSymbols>
+  <armgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
+      <Value>%24(PackRepoDir)\atmel\SAML21_DFP\1.2.120\saml21b\include</Value>
+      <Value>../Config</Value>
+      <Value>../</Value>
+      <Value>../examples</Value>
+      <Value>../hal/include</Value>
+      <Value>../hal/utils/include</Value>
+      <Value>../hpl/core</Value>
+      <Value>../hpl/dmac</Value>
+      <Value>../hpl/gclk</Value>
+      <Value>../hpl/mclk</Value>
+      <Value>../hpl/osc32kctrl</Value>
+      <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pm</Value>
+      <Value>../hpl/port</Value>
+      <Value>../hpl/sercom</Value>
+      <Value>../hpl/systick</Value>
+      <Value>../hri</Value>
+    </ListValues>
+  </armgcc.compiler.directories.IncludePaths>
+  <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
+  <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+  <armgcc.linker.general.UseNewlibNano>True</armgcc.linker.general.UseNewlibNano>
+  <armgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </armgcc.linker.libraries.Libraries>
+  <armgcc.linker.libraries.LibrarySearchPaths>
+    <ListValues>
+      <Value>%24(ProjectDir)\Device_Startup</Value>
+    </ListValues>
+  </armgcc.linker.libraries.LibrarySearchPaths>
+  <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+  <armgcc.linker.miscellaneous.LinkerFlags>-Tsaml21j18b_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
+  <armgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
+      <Value>%24(PackRepoDir)\atmel\SAML21_DFP\1.2.120\saml21b\include</Value>
+      <Value>../Config</Value>
+      <Value>../</Value>
+      <Value>../examples</Value>
+      <Value>../hal/include</Value>
+      <Value>../hal/utils/include</Value>
+      <Value>../hpl/core</Value>
+      <Value>../hpl/dmac</Value>
+      <Value>../hpl/gclk</Value>
+      <Value>../hpl/mclk</Value>
+      <Value>../hpl/osc32kctrl</Value>
+      <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pm</Value>
+      <Value>../hpl/port</Value>
+      <Value>../hpl/sercom</Value>
+      <Value>../hpl/systick</Value>
+      <Value>../hri</Value>
+    </ListValues>
+  </armgcc.assembler.general.IncludePaths>
+  <armgcc.preprocessingassembler.general.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
+      <Value>%24(PackRepoDir)\atmel\SAML21_DFP\1.2.120\saml21b\include</Value>
+      <Value>../Config</Value>
+      <Value>../</Value>
+      <Value>../examples</Value>
+      <Value>../hal/include</Value>
+      <Value>../hal/utils/include</Value>
+      <Value>../hpl/core</Value>
+      <Value>../hpl/dmac</Value>
+      <Value>../hpl/gclk</Value>
+      <Value>../hpl/mclk</Value>
+      <Value>../hpl/osc32kctrl</Value>
+      <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pm</Value>
+      <Value>../hpl/port</Value>
+      <Value>../hpl/sercom</Value>
+      <Value>../hpl/systick</Value>
+      <Value>../hri</Value>
+    </ListValues>
+  </armgcc.preprocessingassembler.general.IncludePaths>
+</ArmGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -286,6 +286,7 @@
       <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
       <Value>%24(PackRepoDir)\atmel\SAML21_DFP\1.2.120\saml21b\include</Value>
       <Value>../../../ubxproto</Value>
+      <Value>../../..</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -302,7 +303,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/systick</Value>
       <Value>../hri</Value>
-      <Value>../../..</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>

@@ -565,7 +565,8 @@ pads:
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA04
     mode: Digital output
     user_label: PA04
-    configuration: null
+    configuration:
+      pad_initial_level: High
   PA05:
     name: PA05
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA05
@@ -577,7 +578,8 @@ pads:
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA06
     mode: Digital input
     user_label: PA06
-    configuration: null
+    configuration:
+      pad_pull_config: Pull-up
   SPI_SS:
     name: PA07
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA07
