@@ -298,6 +298,13 @@ uint8_t gps_selftest()
     alignUBXmessage(&msg, GPS_MISO, GPS_BUFFSIZE);
     //preamble = msg->preamble;
     gps_clearbuffers();
+
+    ubx_obuff = getCFG_PRT_POLL_OPT(UBXPRTSPI);
+    memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+    clearUBXMsgBuffer(&ubx_obuff);
+    gps_transfer();
+    alignUBXmessage(&msg, GPS_MISO, GPS_BUFFSIZE);
+    gps_clearbuffers();
     
     
     
