@@ -34,8 +34,7 @@ typedef enum {
 int32_t usb_start(void);
 
 /// For Atmel START Compatibility
-//inline void usb_init(void) { usb_start(); }
-inline void usb_init(void) { usb_start(); }
+static inline void usb_init(void) { usb_start(); }
 
 /**
  * \brief Turn off USB and deallocate resources
