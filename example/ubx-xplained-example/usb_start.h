@@ -8,6 +8,7 @@
 #ifndef USB_DEVICE_MAIN_H
 #define USB_DEVICE_MAIN_H
 
+#include <atmel_start.h>
 #include "cdcdf_acm.h"
 #include "cdcdf_acm_desc.h"
 
@@ -33,6 +34,7 @@ typedef enum {
 int32_t usb_start(void);
 
 /// For Atmel START Compatibility
+//inline void usb_init(void) { usb_start(); }
 inline void usb_init(void) { usb_start(); }
 
 /**
