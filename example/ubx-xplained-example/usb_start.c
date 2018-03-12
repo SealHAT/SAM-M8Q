@@ -5,7 +5,6 @@
  * Please copy examples or other code you want to keep to a separate file or main.c
  * to avoid loosing it when reconfiguring.
  */
-#include "atmel_start.h"
 #include "usb_start.h"
 
 #define USB_BUFFER_SIZE CONF_USB_CDCD_ACM_DATA_BULKIN_MAXPKSZ		/* Define buffer size as endpoint size */
@@ -239,3 +238,5 @@ int32_t usb_flushRx(void)
 	outbuf.tail = 0;
 	return ERR_NONE;
 }
+
+//void usb_init(void){ usb_start(); }
