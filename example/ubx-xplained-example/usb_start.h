@@ -8,20 +8,117 @@
 #ifndef USB_DEVICE_MAIN_H
 #define USB_DEVICE_MAIN_H
 
+#include "cdcdf_acm.h"
+#include "cdcdf_acm_desc.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 
-#include "cdcdf_acm.h"
-#include "cdcdf_acm_desc.h"
+typedef enum {
+	USB_Detached   = -1,  /* device is unplugged and VBUS is inactive*/
+	USB_Attached   = 0,   /* device is attached to the bus but not powered ( ex. host detected over current, also used to indicate unattached state) */
+	USB_Powered    = 1,   /* device is connected to a host, but enumeration has not begun. VBUS is active and device can draw up to 100mA. */
+	USB_Default    = 2,   /* device's USB bus has been reset by the host and is waiting for the host to begin the enumeration process */
+	USB_Addressed  = 3,   /* device has been addressed by the USB Host, but is not configured. */
+	USB_Configured = 4,   /* device has been enumerated by the host and is ready for USB communications to begin */
+	USB_Suspended  = 0x10 /* USB bus has been suspended by the host, and the device should power down to a minimal power level until the bus is resumed. */
+} USB_State_t;
 
-void cdcd_acm_example(void);
-void cdc_device_acm_init(void);
+/************************ UTILITY FUNCTIONS *************************************/
+/**
+ * \brief Initialize USB and allocate resources
+ * @returns 0 if successful, or negative if error (as listed in err_codes.h)
+ */
+int32_t usb_start(void);
+
+/// For Atmel START Compatibility
+inline void usb_init(void) { usb_start(); }
 
 /**
- * \berif Initialize USB
+ * \brief Turn off USB and deallocate resources
+ * @returns 0 if successful, or negative if error (as listed in err_codes.h)
  */
-void usb_init(void);
+int32_t usb_stop(void);
+
+/**
+ * \brief Get the current state of the USB
+ *
+ * @returns the USB state as defined by the enum USB_State_t
+ */
+USB_State_t usb_state(void);
+
+/**
+ * \brief Returns true if DTR signal is high
+ */
+bool usb_dtr(void);
+
+/**
+ * \brief Returns true if RTS signal is high
+ */
+bool usb_rts(void);
+
+/************************ TRANSMITTING DATA *************************************/
+/**
+ * @brief Send a buffer of data to the USB host
+ *
+ * Send a buffer of data over USB. The data buffer can be of any length but will be split
+ * into several packets by the underlying USB stack and sent chunks dictated by the USB endpoint
+ * size.
+ * 
+ * @param outData [IN] buffer of data to output over USB
+ * @param BUFFER_SIZE [IN] size of buffer to transfer
+ * @returns 0 if successful, or negative if error (as listed in err_codes.h)
+ */
+int32_t usb_write(uint8_t* outData, uint32_t BUFFER_SIZE);
+
+/**
+ * @brief send a single character to the USB host
+ *
+ * Buffers a single character to be sent to the USB host. Once the buffer is full
+ * it will be sent to the host. To send immediatly use the usb_flushTx() function.
+ *
+ * @param outChar [IN] the byte of data to send to the host
+ * @returns 0 if successful, or negative if error (as listed in err_codes.h)
+ */
+inline int32_t usb_put(uint8_t outChar) { return usb_write(&outChar, 1); }
+
+/**
+ * @brief flush the TX buffer and send it's contents to the USB host.
+ *
+ * This function currently does nothing and will always return ERR_NONE.
+ * IN transactions are not buffered, this function is kept in only for compatibility.
+ *
+ * @returns 0 if successful, or negative if error (as listed in err_codes.h)
+ */
+inline int32_t usb_flushTx(void) { return ERR_NONE; }
+
+/************************ RECEIVING DATA ****************************************/
+/**
+ * @brief receive a buffer of data from the USB host
+ * Receive a buffer of data over USB. Input data buffer can be of any size. 
+ * If user's input buffer size is larger than USB buffer, only the max USB
+ * buffer size amount of data will be written into the buffer.
+ *
+ * @param receiveBuffer [IN] buffer to store incoming USB data
+ * @param BUFFER_SIZE [IN] size of receiving buffer
+ *
+ * @returns the number of bytes received into the buffer
+ */
+int32_t usb_read(uint8_t* receiveBuffer, uint32_t BUFFER_SIZE);
+
+/**
+ * @brief receive a single character from the USB host
+ *
+ * @return less than 0 is an error return from usb_d_ep_transfer()
+ */
+int32_t usb_get(void);
+
+/**
+ * @brief flush the RX buffer and send it's contents.
+ * @returns 0 if successful, or negative if error (as listed in err_codes.h)
+ */
+int32_t usb_flushRx(void);
 
 #ifdef __cplusplus
 }
