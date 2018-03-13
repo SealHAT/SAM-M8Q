@@ -39,7 +39,7 @@
 // <CONF_USB_D_N_EP_MAX"> Max possible (by "Max Endpoint Number" config)
 // <id> usbd_num_ep_sp
 #ifndef CONF_USB_D_NUM_EP_SP
-#define CONF_USB_D_NUM_EP_SP CONF_USB_N_4
+#define CONF_USB_D_NUM_EP_SP CONF_USB_D_N_EP_MAX
 #endif
 
 // </h>
@@ -118,7 +118,7 @@
 // <1024=> Cached by 1024 bytes buffer (interrupt or isochronous EP)
 // <id> usb_ep1_I_CACHE
 #ifndef CONF_USB_EP1_I_CACHE
-#define CONF_USB_EP1_I_CACHE 0
+#define CONF_USB_EP1_I_CACHE 64
 #endif
 // </h>
 

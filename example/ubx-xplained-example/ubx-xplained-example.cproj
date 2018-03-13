@@ -148,9 +148,9 @@
           <AcmeProjectActionInfo Action="File" Source="usb/usb_protocol.c" IsConfig="false" Hash="tWUcFFv/c8ipnv3J//bMIg" />
           <AcmeProjectActionInfo Action="File" Source="usb/usb_protocol.h" IsConfig="false" Hash="EIEORPtDPE5AsfEkRF09CQ" />
           <AcmeProjectActionInfo Action="File" Source="main.c" IsConfig="false" Hash="k0AH7j+BrmdFhBPzCCMptA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="mCMxCHRgYlh3o4C0ycYMIw" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="4nwoUPn8t1bAMptr0IpVHQ" />
           <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="zVC6/gDNm8ETcmlo/yRPRw" />
-          <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="3K8nKzhrNup6McrxPM3AcA" />
+          <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="4/4DZSPD3p4sND/7eRGuqw" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="xqym42O9Zt3aBChrz2ZeIw" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="Odjej0nVkdKUjEp3Elj5VA" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hpl_missing_features.h" IsConfig="false" Hash="noI6DoZ4ysytTUo8vCjnOg" />
@@ -161,7 +161,7 @@
           <AcmeProjectActionInfo Action="File" Source="hpl/core/hpl_core_m0plus_base.c" IsConfig="false" Hash="6FAsoECFZQZE17tjnSmvvQ" />
           <AcmeProjectActionInfo Action="File" Source="hpl/core/hpl_core_port.h" IsConfig="false" Hash="aP5qhvJxgu12CH/0emKWEw" />
           <AcmeProjectActionInfo Action="File" Source="hpl/core/hpl_init.c" IsConfig="false" Hash="eJWsIa0SJ3U3wya4J+IgUg" />
-          <AcmeProjectActionInfo Action="File" Source="hpl/dmac/hpl_dmac.c" IsConfig="false" Hash="p6VNvnqSkDN2/rOnU4gURQ" />
+          <AcmeProjectActionInfo Action="File" Source="hpl/dmac/hpl_dmac.c" IsConfig="false" Hash="wSO2zVerA5XSfSt2GNdByA" />
           <AcmeProjectActionInfo Action="File" Source="hpl/gclk/hpl_gclk.c" IsConfig="false" Hash="tM4AOXb+7ALB/L2IeO/vng" />
           <AcmeProjectActionInfo Action="File" Source="hpl/gclk/hpl_gclk_base.h" IsConfig="false" Hash="FNjePCljZtEX5ZWtAoTflQ" />
           <AcmeProjectActionInfo Action="File" Source="hpl/mclk/hpl_mclk.c" IsConfig="false" Hash="FWWPZ7b0BPNXmVkYDoYGsg" />
@@ -181,11 +181,11 @@
           <AcmeProjectActionInfo Action="File" Source="config/hpl_gclk_config.h" IsConfig="true" Hash="Whn3bPEwLzpqdPcgdBZr6Q" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_mclk_config.h" IsConfig="true" Hash="ypj6b88E67yiUigfMMA65A" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_osc32kctrl_config.h" IsConfig="true" Hash="1lr8/iP9d4vSgnRopTGGEQ" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_oscctrl_config.h" IsConfig="true" Hash="k+9f76hRO9C6JMhEOUMBqQ" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_oscctrl_config.h" IsConfig="true" Hash="yW/B1OjyXUDDhw/3/TkLpw" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_sercom_config.h" IsConfig="true" Hash="zSD30aN9Nu5LBF5qbG/pwQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_systick_config.h" IsConfig="true" Hash="tlT3lNDKWFe82MiGWfQzcA" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_usb_config.h" IsConfig="true" Hash="OTnXMB+/o/b7gPmkxUTUeQ" />
-          <AcmeProjectActionInfo Action="File" Source="config/peripheral_clk_config.h" IsConfig="true" Hash="7nAD1k/zz8RX1h7BIE6JOg" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_usb_config.h" IsConfig="true" Hash="dssN/MloyevKUhMfzLs0Vg" />
+          <AcmeProjectActionInfo Action="File" Source="config/peripheral_clk_config.h" IsConfig="true" Hash="nVL6cpFd/ICvCzw/AN0bYw" />
           <AcmeProjectActionInfo Action="File" Source="config/usbd_config.h" IsConfig="true" Hash="D6drRowd1XvzVArZlLMbvA" />
         </AcmeActionInfos>
       </AcmeProjectConfig>
@@ -346,7 +346,6 @@
       <Value>../usb/device</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
-  <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
   <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>

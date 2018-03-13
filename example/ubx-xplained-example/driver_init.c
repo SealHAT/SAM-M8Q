@@ -197,6 +197,10 @@ void system_init(void)
 
 	gpio_set_pin_function(SPI_SS, GPIO_PIN_FUNCTION_OFF);
 
+	// GPIO on PB10
+
+	gpio_set_pin_function(LED_DEBUG, GPIO_PIN_FUNCTION_OFF);
+
 	SPI_0_init();
 
 	delay_driver_init();

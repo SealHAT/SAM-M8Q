@@ -563,7 +563,7 @@ drivers:
       osc16m_arch_fcal: 0
       osc16m_arch_ondemand: true
       osc16m_arch_runstdby: false
-      osc16m_freq: '4'
+      osc16m_freq: '16'
       xosc_arch_ampgc: false
       xosc_arch_enable: false
       xosc_arch_gain: 2MHz
@@ -641,7 +641,7 @@ drivers:
       usb_arch_ep5_cache: Cached by 64 bytes buffer
       usb_arch_ep6_cache: Cached by 64 bytes buffer
       usb_arch_ep7_cache: Cached by 64 bytes buffer
-      usb_ep1_I_CACHE: No cache
+      usb_ep1_I_CACHE: Cached by 64 bytes buffer
       usb_ep2_I_CACHE: No cache
       usb_ep3_I_CACHE: No cache
       usb_ep4_I_CACHE: No cache
@@ -650,7 +650,7 @@ drivers:
       usb_ep7_I_CACHE: No cache
       usbd_arch_max_ep_n: 2 (EP 0x82 or 0x02)
       usbd_arch_speed: Full speed
-      usbd_num_ep_sp: 4 (EP0 + 3 endpoints)
+      usbd_num_ep_sp: Max possible (by "Max Endpoint Number" config)
     optional_signals: []
     variant:
       specification: default
@@ -696,6 +696,12 @@ pads:
     user_label: SPI_SS
     configuration:
       pad_initial_level: High
+  LED_DEBUG:
+    name: PB10
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PB10
+    mode: Peripheral IO
+    user_label: LED_DEBUG
+    configuration: null
   PA24:
     name: PA24
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA24
