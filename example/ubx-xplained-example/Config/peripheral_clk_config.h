@@ -9,7 +9,7 @@
  * \brief CPU's Clock frequency
  */
 #ifndef CONF_CPU_FREQUENCY
-#define CONF_CPU_FREQUENCY 4000000
+#define CONF_CPU_FREQUENCY 16000000
 #endif
 
 // <y> Core Clock Source
@@ -65,7 +65,7 @@
  * \brief SERCOM0's Core Clock frequency
  */
 #ifndef CONF_GCLK_SERCOM0_CORE_FREQUENCY
-#define CONF_GCLK_SERCOM0_CORE_FREQUENCY 4000000
+#define CONF_GCLK_SERCOM0_CORE_FREQUENCY 16000000
 #endif
 
 /**

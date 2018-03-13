@@ -69,8 +69,8 @@ uint8_t gps_getfix(location_t *fix)
     clearUBXMsgBuffer(&ubx_obuff);
 
     result = gps_transfer();
-	delay_ms(500);
-    gps_transfer();
+	//delay_ms(500);
+    //gps_transfer();
 	
     /* error check result of gps_transfer */
     //TODO Verify successful fix
