@@ -8,12 +8,11 @@
 #ifndef GPSINTERFACE_H_
 #define GPSINTERFACE_H_
 
+#include "driver_init.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include "ubx.h"
-
-#include "driver_init.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,7 +21,13 @@ extern "C" {
 #define GPS_BUFFSIZE (256)
 #define UBX_FFTCNT	 (32)
 
-
+typedef enum {
+	GPS_SUCCESS = 0x00,
+	GPS_FAILURE = 0x01,
+	GPS_INVALID = 0x02,
+	GPS_NORXMSG = 0x04,
+	GPS_NOTXMSG = 0x08
+	} GPS_ERROR;
 
 /**
  * utc_time_t enum
