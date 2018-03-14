@@ -382,7 +382,7 @@ drivers:
     configuration:
       enable_gclk_gen_0: true
       enable_gclk_gen_1: true
-      enable_gclk_gen_2: false
+      enable_gclk_gen_2: true
       enable_gclk_gen_3: false
       enable_gclk_gen_4: false
       enable_gclk_gen_5: false
@@ -398,7 +398,7 @@ drivers:
       gclk_arch_gen_1_oe: false
       gclk_arch_gen_1_oov: false
       gclk_arch_gen_1_runstdby: false
-      gclk_arch_gen_2_enable: false
+      gclk_arch_gen_2_enable: true
       gclk_arch_gen_2_idc: false
       gclk_arch_gen_2_oe: false
       gclk_arch_gen_2_oov: false
@@ -428,7 +428,7 @@ drivers:
       gclk_arch_gen_7_oe: false
       gclk_arch_gen_7_oov: false
       gclk_arch_gen_7_runstdby: false
-      gclk_gen_0_div: 4
+      gclk_gen_0_div: 1
       gclk_gen_0_div_sel: false
       gclk_gen_0_oscillator: 16MHz Internal Oscillator (OSC16M)
       gclk_gen_1_div: 1
@@ -653,9 +653,9 @@ drivers:
       domain_group:
         nodes:
         - name: TC
-          input: Generic clock generator 0
+          input: Generic clock generator 2
         configuration:
-          tc_gclk_selection: Generic clock generator 0
+          tc_gclk_selection: Generic clock generator 2
   USB_DEVICE_INSTANCE:
     user_label: USB_DEVICE_INSTANCE
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::USB::driver_config_definition::USB.Device::HAL:Driver:USB.Device
