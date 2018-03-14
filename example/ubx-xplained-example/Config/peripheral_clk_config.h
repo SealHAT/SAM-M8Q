@@ -9,7 +9,7 @@
  * \brief CPU's Clock frequency
  */
 #ifndef CONF_CPU_FREQUENCY
-#define CONF_CPU_FREQUENCY 4000000
+#define CONF_CPU_FREQUENCY 16000000
 #endif
 
 // <y> Core Clock Source
@@ -65,7 +65,7 @@
  * \brief SERCOM0's Core Clock frequency
  */
 #ifndef CONF_GCLK_SERCOM0_CORE_FREQUENCY
-#define CONF_GCLK_SERCOM0_CORE_FREQUENCY 4000000
+#define CONF_GCLK_SERCOM0_CORE_FREQUENCY 16000000
 #endif
 
 /**
@@ -97,7 +97,7 @@
 
 // <i> Select the clock source for TC.
 #ifndef CONF_GCLK_TC0_SRC
-#define CONF_GCLK_TC0_SRC GCLK_PCHCTRL_GEN_GCLK0_Val
+#define CONF_GCLK_TC0_SRC GCLK_PCHCTRL_GEN_GCLK2_Val
 #endif
 
 /**
@@ -105,7 +105,7 @@
  * \brief TC0's Clock frequency
  */
 #ifndef CONF_GCLK_TC0_FREQUENCY
-#define CONF_GCLK_TC0_FREQUENCY 4000000
+#define CONF_GCLK_TC0_FREQUENCY 2000000
 #endif
 
 // <y> USB Clock Source
