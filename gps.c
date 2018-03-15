@@ -42,7 +42,7 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc)
 	gps_clearbuffers();
 	
 	/* Up sampling speed to 10Hz */
-	ubx_obuff = getCFG_RATE(100,1,0);
+	ubx_obuff = getCFG_RATE(1000,1,0);
 	memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
 	clearUBXMsgBuffer(&ubx_obuff);
 	gps_transfer();
@@ -87,6 +87,8 @@ uint8_t gps_getfix(location_t *fix)
 	}
 	else
 	{
+        fix->latitude  = 999999999;
+        fix->longitude = 999999999;
 		result = 0;
 	}
 
