@@ -4,22 +4,24 @@
 
 static struct timer_task sample;
 static location_t g_gps_fix;
+static UBXNAV_PVT g_gps_soln;
 static location_t dummy_fix;
 static uint8_t g_gps_test;
+static char usb_out[49];
 
-void gps_usb_writefix(location_t *fix);
+void gps_usb_writefix(location_t *fix, UBXNAV_PVT *soln);
 
 void timer_cb(const struct timer_task *const timer_task)
 {
-    g_gps_test = gps_getfix(&g_gps_fix);
+    g_gps_test = gps_getfix(&g_gps_fix, &g_gps_soln);
     
     if( usb_dtr() )
     {
         if( g_gps_test == 1 ){
             gpio_set_pin_level(LED_DEBUG,false);
-            gps_usb_writefix(&g_gps_fix);
+            gps_usb_writefix(&g_gps_fix, &g_gps_soln);
         } else {
-            gps_usb_writefix(&dummy_fix);
+            gps_usb_writefix(&dummy_fix, &g_gps_soln);
         }
         
     }
@@ -61,13 +63,16 @@ int main(void)
 	}
 }
 
-void gps_usb_writefix(location_t *fix)
+void gps_usb_writefix(location_t *fix, UBXNAV_PVT *soln)
 {
-    char    usb_out[26];
+ //   char    usb_out[26];
     uint8_t usb_result;
 
     /* print latitude and longitude as signed floats */
-    snprintf(usb_out, 26 ,"%ld.%07d, %ld.%07d\n",
+    snprintf(usb_out, 49 ,"%d, %ld, %ld, %ld.%07d, %ld.%07d\n",
+        soln->fixType,
+        soln->vAcc,
+        soln->hAcc,
         fix->latitude / 10000000,
         abs(fix->latitude % 10000000),
         fix->longitude / 10000000,
