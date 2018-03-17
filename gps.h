@@ -72,11 +72,15 @@ typedef struct location_t {
     uint32_t       ticks;            /**< system tick                  */
 } location_t;
 
+typedef struct pvtsoln_t {
+    
+};
+
 /**
  * GPS_PROFILE enum
  *
  * Each represents a predefined configuration scheme for the CAM8 
- * gps module, implemenation left to GNSS device header
+ * gps module, implementation left to GNSS device header
  */
 typedef enum
 {
@@ -106,7 +110,7 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc);
  * @param fix reference to a gps location structure
  * @return 0 if successful, integer status code otherwise
  */
-uint8_t gps_getfix(location_t *fix);
+uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln);
 
 /**
  * gps_gettime
