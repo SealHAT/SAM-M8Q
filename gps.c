@@ -42,7 +42,7 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc)
 	gps_clearbuffers();
 	
 	/* Up sampling speed to 10Hz */
-	ubx_obuff = getCFG_RATE(100,1,0);
+	ubx_obuff = getCFG_RATE(1000,1,0);
 	memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
 	clearUBXMsgBuffer(&ubx_obuff);
 	gps_transfer();
@@ -56,7 +56,7 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc)
     return 1;
 }
 
-uint8_t gps_getfix(location_t *fix)
+uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln)
 {
     UBXMsgBuffer    ubx_obuff;
     UBXMsg          *msg;
@@ -80,6 +80,7 @@ uint8_t gps_getfix(location_t *fix)
 	
 	if (msg->hdr.msgId == UBXMsgIdNAV_PVT)
 	{
+        *soln = msg->payload.NAV_PVT;
 		fix->latitude = msg->payload.NAV_PVT.lat;
 		fix->longitude = msg->payload.NAV_PVT.lon;
 		
@@ -87,6 +88,8 @@ uint8_t gps_getfix(location_t *fix)
 	}
 	else
 	{
+        fix->latitude  = 999999999;
+        fix->longitude = 999999999;
 		result = 0;
 	}
 
@@ -300,6 +303,7 @@ uint8_t gps_selftest()
     //ubx_obuff = getCFG_RATE_POLL();
     //ubx_obuff = getRXM_PMREQ(10000,2);
 	ubx_obuff = getCFG_MSG_POLL(UBXMsgClassNAV, UBXMsgIdNAV_PVT);
+    //ubx_obuff = getNAV_SAT_POLL();
 
     memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
     clearUBXMsgBuffer(&ubx_obuff);
