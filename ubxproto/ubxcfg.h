@@ -158,6 +158,9 @@ extern UBXMsgBuffer getCFG_USB(UBXU2_t vendorId,
                                       UBXCH_t* productString,
                                       UBXCH_t* serialNumber);
 
+/* Setting functions */
+extern UBXMsgBuffer setCFG_PRT(UBXCFG_PRT cfg);
+
 #ifdef __cplusplus
 }
 #endif

@@ -287,6 +287,14 @@ typedef enum
 
 typedef enum
 {
+    UBXPRTDDC = 0,
+    UBXPRTUART = 1,
+    UBXPRTUSB = 3,
+    UBXPRTSPI = 4
+} UBXCFGPortIds;
+
+typedef enum
+{
     UBXProtocol = 0,
     UBXNMEAProtocol
 } UBXCFGProtocolIds;
@@ -1246,7 +1254,7 @@ typedef struct
     UBXX2_t inProtoMask; //See UBXPRTInProtoMask to fill this field
     UBXX2_t outProtoMask; //See UBXPRTOutProtoMask to fill this field
     UBXX2_t flags; //See UBXPRTFlags to fill this field, shall be 0 for USB
-    UBXU1_t reserved5;
+    UBXU1_t reserved5[2];
 } UBXCFG_PRT;
 
 //typedef struct {

@@ -48,6 +48,37 @@ extern void clearUBXMsgBuffer(const UBXMsgBuffer* buffer)
     free(buffer->data);
 }
 
+/* SealHAT */
+void alignUBXmessage(UBXMsg **msg, uint8_t *BUFF, const int SIZE)
+{
+    int         i;
+    uint8_t     val[2];     /* Character iterator       */
+    uint16_t    *header;    /* Holds UBX message header */
+
+    i = 0;
+    val[1] = BUFF[i];
+    header = NULL;
+
+    /* Find start of UBX message */
+    while(val[1] == 0xff && (i < (SIZE - 1)))
+    {
+        val[1] = BUFF[++i];
+    }
+    val[0] = BUFF[i+1];
+    header = (uint16_t*)val;
+
+    /* Check that message is UBX and align msg to data */
+    if(header[0] != UBX_PREAMBLE)
+    {
+        msg = NULL;
+    }
+    else
+    {
+        *msg = (UBXMsg*)&BUFF[i];
+    }
+
+}
+
 void completeMsg(UBXMsgBuffer* buffer, int payloadSize)
 {
     unsigned char* checkSumA = (unsigned char*)(buffer->data + UBX_HEADER_SIZE  + payloadSize);
@@ -889,6 +920,40 @@ UBXMsgBuffer getCFG_PRT_USB()
     return buffer;
 }
 
+UBXMsgBuffer setCFG_PRT(UBXCFG_PRT cfg)
+{
+	int payloadSize = sizeof(UBXCFG_PRT);
+	UBXMsgBuffer buffer = createBuffer(payloadSize);
+	UBXMsg* msg = (UBXMsg*)buffer.data;
+	initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PRT);
+
+	msg->payload.CFG_PRT.portID = cfg.portID;
+	msg->payload.CFG_PRT.txReady = cfg.txReady;
+	switch(msg->payload.CFG_PRT.portID) {
+		case UBXPRTDDC :
+		msg->payload.CFG_PRT.mode.UBX_DDC = cfg.mode.UBX_DDC;
+		break;
+		case UBXPRTUART :
+		msg->payload.CFG_PRT.mode.UBX_UART = cfg.mode.UBX_UART;
+		break;
+		case UBXPRTUSB :
+		msg->payload.CFG_PRT.mode.UBX_USB = cfg.mode.UBX_USB;
+		break;
+		case UBXPRTSPI :
+		msg->payload.CFG_PRT.mode.UBX_SPI = cfg.mode.UBX_SPI;
+		break;
+		default:
+		/* error */
+		break;
+	}
+	msg->payload.CFG_PRT.inProtoMask = cfg.inProtoMask;
+	msg->payload.CFG_PRT.outProtoMask = cfg.outProtoMask;
+	msg->payload.CFG_PRT.flags = cfg.flags;
+
+	completeMsg(&buffer,payloadSize);
+	return buffer;
+}
+
 UBXMsgBuffer getCFG_PRT_SPI()
 {
     //TODO
@@ -1138,6 +1203,16 @@ UBXMsgBuffer getMON_VER_POLL()
     return buffer;
 }
 
+UBXMsgBuffer getMON_HW_POLL()
+{
+	int payloadSize = 0;
+	UBXMsgBuffer buffer = createBuffer(payloadSize);
+	UBXMsg* msg = (UBXMsg*)buffer.data;
+	initMsg(msg, payloadSize, UBXMsgClassMON, UBXMsgIdMON_HW);
+	completeMsg(&buffer, payloadSize);
+	return buffer;
+}
+
 UBXMsgBuffer getRXM_ALM_POLL()
 {
     int payloadSize = 0;
@@ -1208,6 +1283,17 @@ UBXMsgBuffer getRXM_SVSI(UBXU4_t iTOW,
     msg->payload.RXM_SVSI.numVis = numVis;
     msg->payload.RXM_SVSI.numSV = numSV;
     memcpy(((char*)&(msg->payload.RXM_SVSI)) + sizeof(UBXRXM_SVSI), svsiPart, svsiPartCount*sizeof(UBXRXM_SVSI_PART));
+    completeMsg(&buffer, payloadSize);
+    return buffer;
+}
+
+/* UBXNAV.H functions */
+UBXMsgBuffer getNAV_PVT_POLL()
+{
+	int payloadSize = 0;
+	UBXMsgBuffer buffer = createBuffer(payloadSize);
+	UBXMsg* msg = (UBXMsg*)buffer.data;
+	initMsg(msg, payloadSize, UBXMsgClassNAV, UBXMsgIdNAV_PVT);
     completeMsg(&buffer, payloadSize);
     return buffer;
 }
