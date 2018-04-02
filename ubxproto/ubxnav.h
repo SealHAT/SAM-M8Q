@@ -1,5 +1,3 @@
-<<<<<<< master
-=======
 /*
  * SealHAT
  * Anthony Koutroulis
@@ -23,15 +21,10 @@
  * and source of this library in your application.
  *
  * Actual LGPL text https://www.gnu.org/licenses/lgpl.html
-<<<<<<< master
  *
  * File: ubxlog.h
  */
-/*! \file */
->>>>>>> header for ubxnav messages
-=======
- */
->>>>>>> small cleanup after testing
+
 #ifndef UBLOXNAV_H
 #define UBLOXNAV_H
 
@@ -41,18 +34,11 @@ extern "C"
 {
 #endif
 
-<<<<<<< master
-UBXMsgBuffer getNAV_PVT_POLL();
-=======
 extern UBXMsgBuffer getNAV_PVT_POLL();
->>>>>>> header for ubxnav messages
 
 #ifdef __cplusplus
 }
 #endif
 
-<<<<<<< master
 #endif // UBLOXNAV_H
-=======
-#endif // UBLOXNAV_H
->>>>>>> header for ubxnav messages
+
