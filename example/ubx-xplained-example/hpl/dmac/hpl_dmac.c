@@ -169,6 +169,14 @@ int32_t _dma_set_source_address(const uint8_t channel, const void *const src)
 	return ERR_NONE;
 }
 
+int32_t _dma_set_next_descriptor(const uint8_t current_channel, const uint8_t next_channel)
+{
+	hri_dmacdescriptor_write_DESCADDR_reg(&_descriptor_section[current_channel],
+	                                      (uint32_t)&_descriptor_section[next_channel]);
+
+	return ERR_NONE;
+}
+
 int32_t _dma_srcinc_enable(const uint8_t channel, const bool enable)
 {
 	hri_dmacdescriptor_write_BTCTRL_SRCINC_bit(&_descriptor_section[channel], enable);

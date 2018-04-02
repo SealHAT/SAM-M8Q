@@ -8,12 +8,11 @@
 #ifndef GPSINTERFACE_H_
 #define GPSINTERFACE_H_
 
+#include "driver_init.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include "ubx.h"
-
-#include "driver_init.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,7 +21,13 @@ extern "C" {
 #define GPS_BUFFSIZE (256)
 #define UBX_FFTCNT	 (32)
 
-
+typedef enum {
+	GPS_SUCCESS = 0x00,
+	GPS_FAILURE = 0x01,
+	GPS_INVALID = 0x02,
+	GPS_NORXMSG = 0x04,
+	GPS_NOTXMSG = 0x08
+	} GPS_ERROR;
 
 /**
  * utc_time_t enum
@@ -67,11 +72,15 @@ typedef struct location_t {
     uint32_t       ticks;            /**< system tick                  */
 } location_t;
 
+typedef struct pvtsoln_t {
+    
+};
+
 /**
  * GPS_PROFILE enum
  *
  * Each represents a predefined configuration scheme for the CAM8 
- * gps module, implemenation left to GNSS device header
+ * gps module, implementation left to GNSS device header
  */
 typedef enum
 {
@@ -101,7 +110,7 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc);
  * @param fix reference to a gps location structure
  * @return 0 if successful, integer status code otherwise
  */
-uint8_t gps_getfix(location_t *fix);
+uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln);
 
 /**
  * gps_gettime

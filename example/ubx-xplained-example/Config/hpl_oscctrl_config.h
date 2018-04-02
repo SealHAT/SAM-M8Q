@@ -126,7 +126,7 @@
 // <i> This defines the oscillator frequency (Mhz)
 // <id> osc16m_freq
 #ifndef CONF_OSC16M_FSEL
-#define CONF_OSC16M_FSEL OSCCTRL_OSC16MCTRL_FSEL_4_Val
+#define CONF_OSC16M_FSEL OSCCTRL_OSC16MCTRL_FSEL_16_Val
 #endif
 
 // <q> Oscillator Calibration Control
@@ -190,7 +190,7 @@
 // <i> Indicates whether configuration for DFLL is enabled or not
 // <id> enable_dfll48m
 #ifndef CONF_DFLL_CONFIG
-#define CONF_DFLL_CONFIG 0
+#define CONF_DFLL_CONFIG 1
 #endif
 
 // <y> Reference Clock Source
@@ -213,7 +213,7 @@
 // <i> Indicates whether DFLL is enabled or not
 // <id> dfll48m_arch_enable
 #ifndef CONF_DFLL_ENABLE
-#define CONF_DFLL_ENABLE 0
+#define CONF_DFLL_ENABLE 1
 #endif
 
 // <q> Wait Lock
@@ -241,14 +241,14 @@
 // <i> Indicates whether Chill Cycle Disable is enabled or not
 // <id> dfll_arch_ccdis
 #ifndef CONF_DFLL_CCDIS
-#define CONF_DFLL_CCDIS 0
+#define CONF_DFLL_CCDIS 1
 #endif
 
 // <q> On Demand Control
 // <i> Indicates whether On Demand Control is enabled or not
 // <id> dfll_arch_ondemand
 #ifndef CONF_DFLL_ONDEMAND
-#define CONF_DFLL_ONDEMAND 1
+#define CONF_DFLL_ONDEMAND 0
 #endif
 
 // <q> Run in Standby
@@ -262,7 +262,7 @@
 // <i> Indicates whether USB Clock Recovery Mode is enabled or not
 // <id> dfll_arch_usbcrm
 #ifndef CONF_DFLL_USBCRM
-#define CONF_DFLL_USBCRM 0
+#define CONF_DFLL_USBCRM 1
 #endif
 
 // <q> Lose Lock After Wake
@@ -284,7 +284,7 @@
 // <1=>Closed Loop Mode
 // <id> dfll48m_mode
 #ifndef CONF_DFLL_MODE
-#define CONF_DFLL_MODE 0
+#define CONF_DFLL_MODE 1
 #endif
 
 // <o> Coarse Maximum Step <0x0-0x1F>
@@ -302,7 +302,7 @@
 // <o> DFLL Multiply Factor <0x0-0xFFFF>
 //  <id> dfll48m_mul
 #ifndef CONF_DFLL_MUL
-#define CONF_DFLL_MUL 0
+#define CONF_DFLL_MUL 48000
 #endif
 
 // <e> DFLL Calibration Overwrite

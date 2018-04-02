@@ -42,7 +42,7 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc)
 	gps_clearbuffers();
 	
 	/* Up sampling speed to 10Hz */
-	ubx_obuff = getCFG_RATE(100,1,0);
+	ubx_obuff = getCFG_RATE(1000,1,0);
 	memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
 	clearUBXMsgBuffer(&ubx_obuff);
 	gps_transfer();
@@ -56,32 +56,47 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc)
     return 1;
 }
 
-uint8_t gps_getfix(location_t *fix)
+uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln)
 {
     UBXMsgBuffer    ubx_obuff;
     UBXMsg          *msg;
     uint8_t         result;
 
     msg    = NULL;
+	
     ubx_obuff = getNAV_PVT_POLL();
     memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
     clearUBXMsgBuffer(&ubx_obuff);
 
     result = gps_transfer();
-	delay_ms(500);
-    gps_transfer();
+	//delay_ms(500);
+    //gps_transfer();
 	
     /* error check result of gps_transfer */
     //TODO Verify successful fix
     
     /* retrieve ubx message */
     alignUBXmessage(&msg, GPS_MISO, GPS_BUFFSIZE);
+	
+	if (msg->hdr.msgId == UBXMsgIdNAV_PVT)
+	{
+        *soln = msg->payload.NAV_PVT;
+		fix->latitude = msg->payload.NAV_PVT.lat;
+		fix->longitude = msg->payload.NAV_PVT.lon;
+		
+		result = 1;
+	}
+	else
+	{
+        fix->latitude  = 999999999;
+        fix->longitude = 999999999;
+		result = 0;
+	}
 
     //fix->altitude = msg->payload.NAV_PVT.height;
     //fix->climb
     
-    fix->latitude = msg->payload.NAV_PVT.lat;
-    fix->longitude = msg->payload.NAV_PVT.lon;
+    
 
     return result;
 }
@@ -173,7 +188,7 @@ uint8_t cfgUBXoverSPI(uint8_t ffCnt)
     gps_transfer();
 
     /* Check rxbuffer for ACK/NAK */
-    alignUBXmessage(ubxmsg, GPS_MISO, GPS_BUFFSIZE);
+    alignUBXmessage(&ubxmsg, GPS_MISO, GPS_BUFFSIZE);
 
     if(ubxmsg != NULL &&
        ubxmsg->hdr.msgClass == UBXMsgClassACK &&
@@ -257,7 +272,7 @@ uint8_t cfgPSMOO(uint8_t period)
     gps_transfer();
 
     /* Check rxbuffer for ACK/NAK */
-    alignUBXmessage(ubxmsg, GPS_MISO, GPS_BUFFSIZE);
+    alignUBXmessage(&ubxmsg, GPS_MISO, GPS_BUFFSIZE);
 
     if(ubxmsg != NULL &&
        ubxmsg->hdr.msgClass == UBXMsgClassACK &&
@@ -277,11 +292,9 @@ uint8_t gps_selftest()
 {
     UBXMsgBuffer    ubx_obuff;
     UBXMsg          *msg;
-    uint8_t         ack;
-    uint16_t        preamble;
-
-    //msg = NULL;
-
+    GPS_ERROR       ack;
+    
+	msg = NULL;
     //ubx_obuff = getCFG_RST(0,0);
     //ubx_obuff = getCFG_PRT_POLL_OPT(UBXPRTSPI);
     //ubx_obuff = getCFG_RXM_POLL();
@@ -290,13 +303,23 @@ uint8_t gps_selftest()
     //ubx_obuff = getCFG_RATE_POLL();
     //ubx_obuff = getRXM_PMREQ(10000,2);
 	ubx_obuff = getCFG_MSG_POLL(UBXMsgClassNAV, UBXMsgIdNAV_PVT);
+    //ubx_obuff = getNAV_SAT_POLL();
 
     memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
     clearUBXMsgBuffer(&ubx_obuff);
 
     gps_transfer();
     alignUBXmessage(&msg, GPS_MISO, GPS_BUFFSIZE);
-    //preamble = msg->preamble;
+    
+	if (msg->hdr.msgId == UBXMsgIdACK_ACK)
+	{
+		ack = GPS_SUCCESS;
+	} 
+	else
+	{
+		ack = GPS_FAILURE;
+	}
+	
     gps_clearbuffers();
 
     ubx_obuff = getCFG_PRT_POLL_OPT(UBXPRTSPI);
@@ -306,10 +329,6 @@ uint8_t gps_selftest()
     alignUBXmessage(&msg, GPS_MISO, GPS_BUFFSIZE);
     gps_clearbuffers();
     
-    
-    
-
-
-    return 0;
+    return (uint8_t)ack;
 }
 
