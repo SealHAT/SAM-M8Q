@@ -23,7 +23,7 @@ extern "C" {
 #include <minmea_compat.h>
 #endif
 
-#define MINMEA_MAX_LENGTH 80
+#define MINMEA_MAX_LENGTH 82
 
 enum minmea_sentence_id {
     MINMEA_INVALID = -1,
@@ -172,6 +172,19 @@ uint8_t minmea_checksum(const char *sentence);
  * Check sentence validity and checksum. Returns true for valid sentences.
  */
 bool minmea_check(const char *sentence, bool strict);
+
+/**
+ * minmea_create
+ *
+ * This function takes a loaded NMEA sentence and appends the proper checksum to the end and verifies it.
+ * The input should be a complete NMEA message beginning with a '$' and ending with a '*' and the buffer
+ * should have at least five extra bytes after the '*' character to add the checksum, <CR><LF>, and null terminator.
+ *
+ * sentence - Pointer to a character array containing the NMEA sentence to complete
+ * LENGTH   - The total length of the buffer
+ * Returns  - TRUE if successful and false if not successful (buffer too small for example)
+ */
+bool minmea_create(char* sentence);
 
 /**
  * Determine talker identifier.
