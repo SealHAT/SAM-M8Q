@@ -14,6 +14,8 @@
 struct spi_m_sync_descriptor SPI_0;
 struct timer_descriptor      TIMER_0;
 
+struct i2c_m_sync_desc I2C_GPS;
+
 void SPI_0_PORT_init(void)
 {
 
@@ -68,6 +70,45 @@ void SPI_0_init(void)
 	SPI_0_CLOCK_init();
 	spi_m_sync_init(&SPI_0, SERCOM0);
 	SPI_0_PORT_init();
+}
+
+void I2C_GPS_PORT_init(void)
+{
+
+	gpio_set_pin_pull_mode(PB12,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_OFF);
+
+	gpio_set_pin_function(PB12, PINMUX_PB12C_SERCOM4_PAD0);
+
+	gpio_set_pin_pull_mode(PB13,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_OFF);
+
+	gpio_set_pin_function(PB13, PINMUX_PB13C_SERCOM4_PAD1);
+}
+
+void I2C_GPS_CLOCK_init(void)
+{
+	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM4_GCLK_ID_CORE, CONF_GCLK_SERCOM4_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM4_GCLK_ID_SLOW, CONF_GCLK_SERCOM4_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
+	hri_mclk_set_APBCMASK_SERCOM4_bit(MCLK);
+}
+
+void I2C_GPS_init(void)
+{
+	I2C_GPS_CLOCK_init();
+	i2c_m_sync_init(&I2C_GPS, SERCOM4);
+	I2C_GPS_PORT_init();
 }
 
 void delay_driver_init(void)
@@ -217,6 +258,8 @@ void system_init(void)
 	gpio_set_pin_function(LED_DEBUG, GPIO_PIN_FUNCTION_OFF);
 
 	SPI_0_init();
+
+	I2C_GPS_init();
 
 	delay_driver_init();
 

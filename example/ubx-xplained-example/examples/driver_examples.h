@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+void I2C_GPS_example(void);
+
 void delay_example(void);
 
 void TIMER_0_example(void);

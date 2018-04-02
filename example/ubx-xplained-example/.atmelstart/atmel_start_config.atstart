@@ -383,11 +383,11 @@ drivers:
       enable_gclk_gen_0: true
       enable_gclk_gen_1: true
       enable_gclk_gen_2: true
-      enable_gclk_gen_3: false
+      enable_gclk_gen_3: true
       enable_gclk_gen_4: false
       enable_gclk_gen_5: false
       enable_gclk_gen_6: false
-      enable_gclk_gen_7: false
+      enable_gclk_gen_7: true
       gclk_arch_gen_0_enable: true
       gclk_arch_gen_0_idc: false
       gclk_arch_gen_0_oe: false
@@ -403,7 +403,7 @@ drivers:
       gclk_arch_gen_2_oe: false
       gclk_arch_gen_2_oov: false
       gclk_arch_gen_2_runstdby: false
-      gclk_arch_gen_3_enable: false
+      gclk_arch_gen_3_enable: true
       gclk_arch_gen_3_idc: false
       gclk_arch_gen_3_oe: false
       gclk_arch_gen_3_oov: false
@@ -423,7 +423,7 @@ drivers:
       gclk_arch_gen_6_oe: false
       gclk_arch_gen_6_oov: false
       gclk_arch_gen_6_runstdby: false
-      gclk_arch_gen_7_enable: false
+      gclk_arch_gen_7_enable: true
       gclk_arch_gen_7_idc: false
       gclk_arch_gen_7_oe: false
       gclk_arch_gen_7_oov: false
@@ -437,9 +437,9 @@ drivers:
       gclk_gen_2_div: 8
       gclk_gen_2_div_sel: false
       gclk_gen_2_oscillator: 16MHz Internal Oscillator (OSC16M)
-      gclk_gen_3_div: 1
+      gclk_gen_3_div: 16
       gclk_gen_3_div_sel: false
-      gclk_gen_3_oscillator: 32kHz Ultra Low Power Internal Oscillator (OSCULP32K)
+      gclk_gen_3_oscillator: 16MHz Internal Oscillator (OSC16M)
       gclk_gen_4_div: 1
       gclk_gen_4_div_sel: false
       gclk_gen_4_oscillator: External Crystal Oscillator 0.4-32MHz (XOSC)
@@ -451,7 +451,7 @@ drivers:
       gclk_gen_6_oscillator: External Crystal Oscillator 0.4-32MHz (XOSC)
       gclk_gen_7_div: 1
       gclk_gen_7_div_sel: false
-      gclk_gen_7_oscillator: External Crystal Oscillator 0.4-32MHz (XOSC)
+      gclk_gen_7_oscillator: 32kHz Ultra Low Power Internal Oscillator (OSCULP32K)
     optional_signals: []
     variant: null
     clocks:
@@ -518,7 +518,7 @@ drivers:
       dfll48m_arch_enable: true
       dfll48m_mode: Closed Loop Mode
       dfll48m_mul: 48000
-      dfll48m_ref_clock: Generic clock generator 3
+      dfll48m_ref_clock: Generic clock generator 7
       dfll_arch_bplckc: false
       dfll_arch_calibration: false
       dfll_arch_ccdis: true
@@ -606,6 +606,42 @@ drivers:
       - name: SERCOM0/PAD/2
         pad: PA06
         label: MISO
+    clocks:
+      domain_group:
+        nodes:
+        - name: Core
+          input: Generic clock generator 0
+        - name: Slow
+          input: Generic clock generator 3
+        configuration:
+          core_gclk_selection: Generic clock generator 0
+          slow_gclk_selection: Generic clock generator 3
+  I2C_GPS:
+    user_label: I2C_GPS
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::SERCOM4::driver_config_definition::I2C.Master.Standard~2FFast-mode::HAL:Driver:I2C.Master.Sync
+    functionality: I2C
+    api: HAL:Driver:I2C_Master_Sync
+    configuration:
+      i2c_master_advanced: false
+      i2c_master_arch_dbgstop: Keep running
+      i2c_master_arch_inactout: Disabled
+      i2c_master_arch_lowtout: false
+      i2c_master_arch_mexttoen: false
+      i2c_master_arch_runstdby: false
+      i2c_master_arch_sdahold: 300-600ns hold time
+      i2c_master_arch_sexttoen: false
+      i2c_master_arch_trise: 215
+      i2c_master_baud_rate: 400000
+    optional_signals: []
+    variant:
+      specification: SDA=0, SCL=1
+      required_signals:
+      - name: SERCOM4/PAD/0
+        pad: PB12
+        label: SDA
+      - name: SERCOM4/PAD/1
+        pad: PB13
+        label: SCL
     clocks:
       domain_group:
         nodes:
@@ -730,6 +766,18 @@ pads:
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PB10
     mode: Peripheral IO
     user_label: LED_DEBUG
+    configuration: null
+  PB12:
+    name: PB12
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PB12
+    mode: I2C
+    user_label: PB12
+    configuration: null
+  PB13:
+    name: PB13
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PB13
+    mode: I2C
+    user_label: PB13
     configuration: null
   PA24:
     name: PA24
