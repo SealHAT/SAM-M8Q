@@ -2,15 +2,16 @@
 
 static uint8_t GPS_MISO[GPS_BUFFSIZE];
 static uint8_t GPS_MOSI[GPS_BUFFSIZE];
-static struct spi_m_sync_descriptor *gps_desc;
+static struct io_descriptor *gps_desc;
 static struct spi_xfer               gps_buff;
+
 
 static void	    gps_clearbuffers();
 static int32_t  gps_transfer();
 
 
 
-uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc) 
+uint8_t gps_init_spi(struct spi_m_sync_descriptor *spi_desc) 
 {
     UBXMsgBuffer    ubx_obuff;
 
@@ -54,6 +55,56 @@ uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc)
 
     //TODO get and return device status
     return 1;
+}
+
+
+uint8_t gps_init_i2c(struct io_descriptor *i2c_desc) 
+{
+	struct io_descriptor *I2C_GPS_io;
+    struct _i2c_m_msg msg;
+    uint8_t buf[2];
+
+
+    UBXMsgBuffer    ubx_obuff;
+
+    msg.addr = GPS_SLAVEADDR;
+    msg.len  = GPS_BUFFSIZE;
+    msg.flags = I2C_M_STOP;
+    msg.buffer = gps_buff;
+
+     i2c_m_sync_enable(&I2C_GPS);
+     i2c_m_sync_set_slaveaddr(&I2C_GPS, GPS_SLAVEADDR, I2C_M_SEVEN);
+
+     /* Clear GPS buffers and allow time for device to boot */
+     gps_clearbuffers();
+     delay_ms(500);
+
+     // TODO implement initial config
+     /* OPTIONAL - Reset GPS to device defaults */
+     /* ALTERNATIVELY - load/verify saved cfg */
+     //ubx_obuff = getCFG_RST(0,0);
+     //memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+     //clearUBXMsgBuffer(&ubx_obuff);
+     //gps_transfer();
+     
+     /* Set default msg rate over SPI */
+     ubx_obuff = getCFG_MSG_RATE(UBXMsgClassNAV,UBXMsgIdNAV_PVT,1);
+     memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+     clearUBXMsgBuffer(&ubx_obuff);
+     gps_transfer();
+     gps_clearbuffers();
+     
+     /* Up sampling speed to 10Hz */
+     ubx_obuff = getCFG_RATE(1000,1,0);
+     memcpy(GPS_MOSI, (uint8_t*)ubx_obuff.data, ubx_obuff.size);
+     clearUBXMsgBuffer(&ubx_obuff);
+     gps_transfer();
+     gps_clearbuffers();
+     
+     
+     cfgUBXoverSPI(UBX_FFTCNT);
+
+     return 1;
 }
 
 uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln)
