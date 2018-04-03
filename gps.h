@@ -18,8 +18,9 @@
 extern "C" {
 #endif
 
-#define GPS_BUFFSIZE (256)
-#define UBX_FFTCNT	 (32)
+#define GPS_BUFFSIZE  (256)
+#define UBX_FFTCNT	  (32)
+#define GPS_SLAVEADDR (0x42)
 
 typedef enum {
 	GPS_SUCCESS = 0x00,
@@ -91,7 +92,7 @@ typedef enum
 } GPS_PROFILE;
 
 /**
- * gps_init
+ * gps_init_spi
  *
  * Initializes and starts the GPS module with the default sampling 
  * and messaging rates
@@ -99,7 +100,18 @@ typedef enum
  * @param spi device descriptor from AtmelStart configuration
  * @return true if successful, false if initialization fails
  */
-uint8_t gps_init(struct spi_m_sync_descriptor *spi_desc);
+uint8_t gps_init_spi(struct spi_m_sync_descriptor *spi_desc);
+
+/**
+ * gps_init_i2c
+ *
+ * Initializes and starts the GPS module with the default sampling 
+ * and messaging rates
+ * 
+ * @param spi device descriptor from AtmelStart configuration
+ * @return true if successful, false if initialization fails
+ */
+uint8_t gps_init_i2c(struct i2c_m_sync_desc *i2c_desc);
 
 /**
  * gps_getfix
