@@ -37,7 +37,7 @@ int main(void)
 	/* Initializes MCU, drivers and middleware */
 	atmel_start_init();
 	//gps_init(&SPI_0);
-    gps_init_spi(&I2C_GPS);
+    gps_init_i2c(&I2C_GPS);
     gpio_set_pin_direction(LED_DEBUG, GPIO_DIRECTION_OUT);
     gpio_set_pin_level(LED_DEBUG, true);
     gpio_set_pin_function(LED_DEBUG,GPIO_PIN_FUNCTION_OFF);

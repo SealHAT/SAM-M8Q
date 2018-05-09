@@ -920,6 +920,23 @@ UBXMsgBuffer getCFG_PRT_USB()
     return buffer;
 }
 
+// UBXMsgBuffer setCFG_PRT(UBXCFGPortIds id, UBXCFG_PRTTxReady txr, UBXCFG_PRTMode mode, 
+// 						UBXPRTInProtoMask ipmask, UBXPRTOutProtoMask opmask, UBXPRTFlags flags)
+// {
+// 	int payloadSize = sizeof(UBXCFG_PRT);
+// 	UBXMsgBuffer buffer = createBuffer(payloadSize);
+// 	UBXMsg *msg = (UBXMsg*)buffer.data;
+// 	initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PRT);
+// 	msg->payload.CFG_PRT.portID			= id;
+// 	msg->payload.CFG_PRT.txReady		= txr;
+// 	msg->payload.CFG_PRT.mode			= mode;
+// 	msg->payload.CFG_PRT.inProtoMask	= ipmask;
+// 	msg->payload.CFG_PRT.outProtoMask	= opmask;
+// 	msg->payload.CFG_PRT.flags			= flags;
+// 	completeMsg(&buffer, payloadSize);
+// 	return buffer;
+// }
+
 UBXMsgBuffer setCFG_PRT(UBXCFG_PRT cfg)
 {
 	int payloadSize = sizeof(UBXCFG_PRT);
@@ -931,7 +948,7 @@ UBXMsgBuffer setCFG_PRT(UBXCFG_PRT cfg)
 	msg->payload.CFG_PRT.txReady = cfg.txReady;
 	switch(msg->payload.CFG_PRT.portID) {
 		case UBXPRTDDC :
-		msg->payload.CFG_PRT.mode.UBX_DDC = cfg.mode.UBX_DDC;
+		msg->payload.CFG_PRT.mode.UBX_DDC.slaveAddr = cfg.mode.UBX_DDC.slaveAddr;
 		break;
 		case UBXPRTUART :
 		msg->payload.CFG_PRT.mode.UBX_UART = cfg.mode.UBX_UART;

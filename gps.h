@@ -20,7 +20,19 @@ extern "C" {
 
 #define GPS_BUFFSIZE  (256)
 #define UBX_FFTCNT	  (32)
-#define GPS_SLAVEADDR (0x42)
+
+/* i2c defines */
+#define I2C_TIMEOUT	(4)
+
+#define M8Q_REG_R(ADDR)			((uint8_t)(ADDR << 1) | 0x1)
+#define M8Q_REG_W(ADDR)			((uint8_t)(ADDR << 1) | 0x0)
+
+typedef enum {
+	M8Q_SLAVE_ADDR		= 0x42,
+	M8Q_BYTES_HI_ADDR	= 0xFD,
+	M8Q_BYTES_LO_ADDR	= 0xFE,
+	M8Q_DATA_ADDR		= 0xFF
+} M8Q_DDC_ADDR;
 
 typedef enum {
 	GPS_SUCCESS = 0x00,
@@ -28,7 +40,7 @@ typedef enum {
 	GPS_INVALID = 0x02,
 	GPS_NORXMSG = 0x04,
 	GPS_NOTXMSG = 0x08
-	} GPS_ERROR;
+} GPS_ERROR;
 
 /**
  * utc_time_t enum
@@ -73,9 +85,9 @@ typedef struct location_t {
     uint32_t       ticks;            /**< system tick                  */
 } location_t;
 
-typedef struct pvtsoln_t {
-    
-};
+// typedef struct pvtsoln_t {
+//     
+// };
 
 /**
  * GPS_PROFILE enum
@@ -111,7 +123,19 @@ uint8_t gps_init_spi(struct spi_m_sync_descriptor *spi_desc);
  * @param spi device descriptor from AtmelStart configuration
  * @return true if successful, false if initialization fails
  */
-uint8_t gps_init_i2c(struct i2c_m_sync_desc *i2c_desc);
+uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
+
+/**
+ * gps_write_i2c
+ *
+ * Sends a message to the I2C slave. M8Q does not support individual
+ *	addressing on writes, so only the data is needed.
+ * 
+ * @param data to send over i2c not including address
+ * @param size of the data in bytes to send
+ * @return 1 if successful, 0 if i2c transmission times out
+ */
+uint8_t gps_write_i2c(const uint8_t *DATA, const uint8_t SIZE);
 
 /**
  * gps_getfix
