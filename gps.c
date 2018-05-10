@@ -1,8 +1,8 @@
 #include "gps.h"
 
-static uint8_t GPS_SDABUF[GPS_BUFFSIZE];
-static uint8_t GPS_MISO[GPS_BUFFSIZE];
-static uint8_t GPS_MOSI[GPS_BUFFSIZE];
+static uint8_t	GPS_SDABUF[GPS_BUFFSIZE];
+static uint8_t	GPS_MISO[GPS_BUFFSIZE];
+static uint8_t	GPS_MOSI[GPS_BUFFSIZE];
 static struct i2c_m_sync_desc	gps_i2c_desc;
 static struct _i2c_m_msg		gps_i2c_msg;
 
@@ -10,9 +10,6 @@ static void	    gps_clearbuffers();
 static int32_t  gps_transfer();
 static UBXMsg   ubx_msg;
 /*static UBXMsgs	ubx_msgs;*/
-
-
-
 
 // uint8_t gps_init_spi(struct spi_m_sync_descriptor *spi_desc) 
 // {
@@ -85,17 +82,18 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC)
 	ubx_msg.payload.CFG_PRT.flags					= UBXPRTExtendedTxTimeout;
 	
     do 
-    {
+    {	/* send message to configure the DDC serial port */
         ubx_buf = setCFG_PRT(ubx_msg.payload.CFG_PRT);
-        gps_write_i2c(ubx_buf.data, ubx_buf.size);
+        gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
 
-        gps_read_i2c(ubx_buf.data, sizeof(UBXACK_ACK));
+		/* verify that the message was received */
+        gps_read_i2c((uint8_t*)ubx_buf.data, sizeof(UBXACK_ACK));
         msg = (UBXMsg*)ubx_buf.data;
         
+		/* repeat until timeout or acknowledge from device */
         if (msg->payload.ACK_ACK.msgId == UBXMsgIdACK_ACK) {
             result = 1;
         }
-
     } while (result == 0 && timeout++ < CFG_TIMEOUT);
 	
 
@@ -149,27 +147,27 @@ uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln)
 
 uint8_t gps_gettime(utc_time_t *time)
 {
-
+	return 0;
 }
 
 bool gps_setrate(const uint32_t period)
 {
-
+	return true;
 }
 
 bool gps_sleep()
 {
-
+	return true;
 }
 
 bool gps_wake()
 {
-
+	return true;
 }
 
 bool gps_setprofile(const GPS_PROFILE profile)
 {
-
+	return true;
 }
 
 void gps_clearbuffers()
@@ -183,7 +181,7 @@ void gps_clearbuffers()
 
 int32_t gps_transfer()
 {
-    int32_t retval;
+    int32_t retval = 0;
 
 //     gpio_set_pin_level(SPI_SS, false);
 // /*    retval = spi_m_sync_transfer(gps_desc, &gps_buff);*/

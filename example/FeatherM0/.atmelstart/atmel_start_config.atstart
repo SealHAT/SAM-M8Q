@@ -111,7 +111,7 @@ drivers:
       adc_arch_winmode: No window mode
       adc_arch_winmoneo: false
       adc_arch_winut: 0
-      adc_differential_mode: true
+      adc_differential_mode: false
       adc_freerunning_mode: false
       adc_pinmux_negative: ADC AIN0 pin
       adc_pinmux_positive: ADC AIN0 pin
@@ -688,9 +688,9 @@ drivers:
     functionality: System
     api: HAL:HPL:SYSCTRL
     configuration:
-      dfll48m_arch_bplckc: true
+      dfll48m_arch_bplckc: false
       dfll48m_arch_calibration: false
-      dfll48m_arch_ccdis: true
+      dfll48m_arch_ccdis: false
       dfll48m_arch_coarse: 31
       dfll48m_arch_enable: true
       dfll48m_arch_fine: 512
@@ -723,7 +723,7 @@ drivers:
       fdpll96m_ref_clock: Generic clock generator 3
       osc32k_arch_calib: 0
       osc32k_arch_en1k: false
-      osc32k_arch_en32k: true
+      osc32k_arch_en32k: false
       osc32k_arch_enable: false
       osc32k_arch_ondemand: true
       osc32k_arch_overwrite_calibration: false
@@ -774,7 +774,7 @@ drivers:
       usb_arch_ep5_cache: Cached by 64 bytes buffer
       usb_arch_ep6_cache: Cached by 64 bytes buffer
       usb_arch_ep7_cache: Cached by 64 bytes buffer
-      usb_ep1_I_CACHE: No cache
+      usb_ep1_I_CACHE: Cached by 64 bytes buffer
       usb_ep2_I_CACHE: No cache
       usb_ep3_I_CACHE: No cache
       usb_ep4_I_CACHE: No cache
@@ -814,23 +814,23 @@ pads:
     mode: Analog
     user_label: VBATT
     configuration: null
-  PB10:
+  MOSI:
     name: PB10
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PB10
     mode: Digital output
-    user_label: PB10
+    user_label: MOSI
     configuration: null
-  PB11:
+  SCK:
     name: PB11
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PB11
     mode: Digital output
-    user_label: PB11
+    user_label: SCK
     configuration: null
-  PA12:
+  MISO:
     name: PA12
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA12
     mode: Digital input
-    user_label: PA12
+    user_label: MISO
     configuration: null
   TX_RDY:
     name: PA15
@@ -845,28 +845,30 @@ pads:
     mode: Digital output
     user_label: LED_BUILTIN
     configuration: null
-  PA22:
+  SDA:
     name: PA22
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA22
     mode: I2C
-    user_label: PA22
-    configuration: null
-  PA23:
+    user_label: SDA
+    configuration:
+      pad_pull_config: Pull-up
+  SCL:
     name: PA23
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA23
     mode: I2C
-    user_label: PA23
-    configuration: null
-  PA24:
+    user_label: SCL
+    configuration:
+      pad_pull_config: Pull-up
+  USB_N:
     name: PA24
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA24
     mode: Advanced
-    user_label: PA24
+    user_label: USB_N
     configuration: null
-  PA25:
+  USB_P:
     name: PA25
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA25
     mode: Advanced
-    user_label: PA25
+    user_label: USB_P
     configuration: null
 toolchain_options: []

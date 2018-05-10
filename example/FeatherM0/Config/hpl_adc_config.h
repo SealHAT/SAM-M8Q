@@ -59,7 +59,7 @@
 // <i> In differential mode, the voltage difference between the MUXPOS and MUXNEG inputs will be converted by the ADC. (DIFFMODE)
 // <id> adc_differential_mode
 #ifndef CONF_ADC_0_DIFFMODE
-#define CONF_ADC_0_DIFFMODE 1
+#define CONF_ADC_0_DIFFMODE 0
 #endif
 
 // <o> Positive Mux Input Selection
