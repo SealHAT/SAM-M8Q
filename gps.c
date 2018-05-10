@@ -8,7 +8,9 @@ static struct _i2c_m_msg		gps_i2c_msg;
 
 static void	    gps_clearbuffers();
 static int32_t  gps_transfer();
-static UBXMsgs	ubx_msg;
+static UBXMsg   ubx_msg;
+/*static UBXMsgs	ubx_msgs;*/
+
 
 
 
@@ -61,27 +63,43 @@ static UBXMsgs	ubx_msg;
 
 uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC) 
 {
-	UBXMsgBuffer ubx_buf;
+    UBXMsg          *msg;
+	UBXMsgBuffer    ubx_buf;
+    uint8_t         result  = 0;
+    uint16_t        timeout = 0;
 	
 	gps_i2c_desc = *I2C_DESC;
 	
 	i2c_m_sync_enable(&gps_i2c_desc);
 	i2c_m_sync_set_slaveaddr(&gps_i2c_desc, M8Q_SLAVE_ADDR, I2C_M_SEVEN);
-	 
-	ubx_msg.CFG_PRT.portID					= UBXPRTDDC;
-	ubx_msg.CFG_PRT.txReady.en				= 1U;		/* 0 - disabled, 1 - enabled			*/
-	ubx_msg.CFG_PRT.txReady.pol				= 1U;		/* 0 - High-active, 1 - Low-active		*/
-	ubx_msg.CFG_PRT.txReady.pin				= 6U;		/* PIO06 is TxD on the SAM-M8Q			*/
-	ubx_msg.CFG_PRT.txReady.thres			= 128U;		/* Given value is multiplied by 8 bytes */
-	ubx_msg.CFG_PRT.mode.UBX_DDC.slaveAddr	= M8Q_SLAVE_ADDR;
-	ubx_msg.CFG_PRT.inProtoMask				= UBXPRTInProtoInUBX;
-	ubx_msg.CFG_PRT.outProtoMask			= UBXPRTOutProtoOutUBX;
-	ubx_msg.CFG_PRT.flags					= UBXPRTExtendedTxTimeout;
 	
-	ubx_buf = setCFG_PRT(ubx_msg.CFG_PRT);
-	gps_write_i2c(ubx_buf.data, ubx_buf.size);
+    /* configure the device to communicate over DDC (i2c) with a FIFO interrrupt */
+	ubx_msg.payload.CFG_PRT.portID					= UBXPRTDDC;
+	ubx_msg.payload.CFG_PRT.txReady.en				= 1U;		/* 0 - disabled, 1 - enabled			*/
+	ubx_msg.payload.CFG_PRT.txReady.pol			    = 1U;		/* 0 - High-active, 1 - Low-active		*/
+	ubx_msg.payload.CFG_PRT.txReady.pin			    = 6U;		/* PIO06 is TxD on the SAM-M8Q			*/
+	ubx_msg.payload.CFG_PRT.txReady.thres			= 128U;		/* Given value is multiplied by 8 bytes */
+	ubx_msg.payload.CFG_PRT.mode.UBX_DDC.slaveAddr  = M8Q_SLAVE_ADDR;
+	ubx_msg.payload.CFG_PRT.inProtoMask			    = UBXPRTInProtoInUBX;
+	ubx_msg.payload.CFG_PRT.outProtoMask			= UBXPRTOutProtoOutUBX;
+	ubx_msg.payload.CFG_PRT.flags					= UBXPRTExtendedTxTimeout;
+	
+    do 
+    {
+        ubx_buf = setCFG_PRT(ubx_msg.payload.CFG_PRT);
+        gps_write_i2c(ubx_buf.data, ubx_buf.size);
 
-     return 1;
+        gps_read_i2c(ubx_buf.data, sizeof(UBXACK_ACK));
+        msg = (UBXMsg*)ubx_buf.data;
+        
+        if (msg->payload.ACK_ACK.msgId == UBXMsgIdACK_ACK) {
+            result = 1;
+        }
+
+    } while (result == 0 && timeout++ < CFG_TIMEOUT);
+	
+
+    return result;
 }
 
 uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln)
@@ -167,9 +185,9 @@ int32_t gps_transfer()
 {
     int32_t retval;
 
-    gpio_set_pin_level(SPI_SS, false);
-/*    retval = spi_m_sync_transfer(gps_desc, &gps_buff);*/
-    gpio_set_pin_level(SPI_SS, true);
+//     gpio_set_pin_level(SPI_SS, false);
+// /*    retval = spi_m_sync_transfer(gps_desc, &gps_buff);*/
+//     gpio_set_pin_level(SPI_SS, true);
 
     return retval;
 }
@@ -364,13 +382,17 @@ uint8_t gps_write_i2c(const uint8_t *DATA, const uint8_t SIZE)
 {
 	uint16_t timeout = 0;
 	
-	memcpy(GPS_SDABUF, DATA, SIZE);
+    /* add the address and message to the buffer */
+	memcpy(&GPS_SDABUF[1], DATA, SIZE);
+    GPS_SDABUF[0] = M8Q_REG_W(M8Q_DATA_ADDR);
 	
+    /* set up the i2c packet */
 	gps_i2c_msg.addr	= M8Q_SLAVE_ADDR;
 	gps_i2c_msg.len		= SIZE;
 	gps_i2c_msg.flags	= I2C_M_STOP;
 	gps_i2c_msg.buffer	= GPS_SDABUF;
 	
+    /* send, repeat until successful or timeout */
 	while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
 		if (timeout++ == I2C_TIMEOUT) {
 			return 0;
@@ -380,7 +402,26 @@ uint8_t gps_write_i2c(const uint8_t *DATA, const uint8_t SIZE)
 	return 1;
 }
 
-uint8_t gps_read_i2c(uint8_t *data)
+uint8_t gps_read_i2c(uint8_t *data, const uint8_t SIZE)
 {
-	
+	uint16_t timeout = 0;
+
+    /* add the address and empty the buffer */
+    memset(GPS_SDABUF, 0x00, SIZE);
+    GPS_SDABUF[0] = M8Q_REG_R(M8Q_DATA_ADDR);
+
+    /* set up the i2c packet */
+    gps_i2c_msg.addr    = M8Q_SLAVE_ADDR;
+    gps_i2c_msg.len     = SIZE;
+    gps_i2c_msg.flags   = I2C_M_STOP;
+    gps_i2c_msg.buffer  = GPS_SDABUF;
+
+    /* send, repeat until successful or timeout */
+    while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
+        if (timeout++ == I2C_TIMEOUT) {
+            return 0;
+        }
+    }
+
+    return 1;
 }

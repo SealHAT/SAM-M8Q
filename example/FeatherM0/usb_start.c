@@ -5,42 +5,55 @@
  * Please copy examples or other code you want to keep to a separate file or main.c
  * to avoid loosing it when reconfiguring.
  */
-#include "atmel_start.h"
 #include "usb_start.h"
-#include "ringbuff/ringbuffer.h"
 
 #define USB_BUFFER_SIZE CONF_USB_CDCD_ACM_DATA_BULKIN_MAXPKSZ		/* Define buffer size as endpoint size */
 static uint8_t single_desc_bytes[] = { CDCD_ACM_DESCES_LS_FS };		/* Device descriptors and Configuration descriptors list. */
 static struct usbd_descriptors single_desc[] = { {single_desc_bytes, single_desc_bytes + sizeof(single_desc_bytes) } };	/* Make a struct of the needed descriptors */
 
-static uint8_t ctrl_buffer[64];					/* Ctrl endpoint buffer */
-static uint8_t tx_buff[USB_BUFFER_SIZE];		/* The TX buffer for sending bytes */
-volatile static uint8_t tx_idx = 0;				/* index to track the position in the TX queue*/
-static ring_buffer_t rx_buff;					/* Ring buffer queue */
+typedef struct {
+	uint8_t buff[USB_BUFFER_SIZE];		// Buffer for receiving data from host
+	volatile uint32_t head;				// Head index of the buffer
+	volatile uint32_t tail;				// tail index of the buffer
+	volatile bool outInProgress;        // indicates if there is data waiting to be read
+	volatile enum usb_xfer_code lastCode;	// transfer code of the last completed transaction
+} outData_t;
 
-volatile static bool inComplete  = false;		/* flag to indicate an IN transfer has occurred */
-volatile static bool outComplete = false;		/* flag to indicate an OUT transfer has occurred */
-volatile static bool dtr_flag    = false;		/* Flag to indicate status of DTR - Data Terminal Ready */
-volatile static bool rts_flag    = false;		/* Flag to indicate status of RTS - Request to Send */
+typedef struct {
+	volatile uint32_t waiting;				// number of bytes waiting to be sent
+	volatile enum usb_xfer_code lastCode;	// transfer code of the last completed transaction
+} inData_t;
+
+typedef struct {
+	uint8_t buff[USB_BUFFER_SIZE];		// Buffer for USB control transactions
+	volatile USB_State_t devState;		// tracks the USB device state
+	volatile bool dtr;					// Flag to indicate status of DTR - Data Terminal Ready
+	volatile bool rts;					// Flag to indicate status of RTS - Request to Send
+} ctrlData_t;
+
+static ctrlData_t ctrlBuf;				// CTRL endpoint buffer
+static outData_t  outbuf;				// OUT endpoint buffer
+static inData_t   inbuf;				// IN endpoint buffer
 
 /**
  * \brief Callback for USB to simply set a flag that data has been received.
  */
 static bool usb_out_complete(const uint8_t ep, const enum usb_xfer_code rc, const uint32_t count)
 {
-//	static uint8_t rx_temp_buf[USB_BUFFER_SIZE];
-//	
-//	if (count <= USB_BUFFER_SIZE && (RING_BUFFER_SIZE - ring_buffer_num_items(&rx_buff) - 1 == 0) ) {	
-//		cdcdf_acm_read(rx_temp_buf, count);
-//		ring_buffer_queue_arr(&rx_buff, rx_temp_buf, count);
-//		
-//		return false;
-//	}
-//	return true;
+	volatile hal_atomic_t __atomic;
+	atomic_enter_critical(&__atomic);
 	
-	outComplete = 1;
-	/* No error returns false ... probably because false is 0? */
-	return false;	
+	// only modify state if the transfer was on the BULK OUT endpoint	
+	if(CONF_USB_CDCD_ACM_DATA_BULKOUT_EPADDR == ep) {	
+        outbuf.head			 = 0;
+        outbuf.tail			 = count;
+        outbuf.lastCode		 = rc;
+        outbuf.outInProgress = false;
+	}
+	
+	atomic_leave_critical(&__atomic);
+	
+	return false;		// The example code returns false on success... ?
 }
 
 /**
@@ -48,24 +61,34 @@ static bool usb_out_complete(const uint8_t ep, const enum usb_xfer_code rc, cons
  */
 static bool usb_in_complete(const uint8_t ep, const enum usb_xfer_code rc, const uint32_t count)
 {
-	inComplete = 1;
-	/* No error returns false ... probably because false is 0? */
-	return false;
+	
+	volatile hal_atomic_t __atomic;
+	atomic_enter_critical(&__atomic);
+
+	// only modify state if the transfer was on the BULK IN endpoint
+	if(CONF_USB_CDCD_ACM_DATA_BULKIN_EPADDR == ep) {
+		inbuf.waiting -= count;
+		inbuf.lastCode = rc;
+	}
+
+	atomic_leave_critical(&__atomic);
+
+	return false;		// The example code returns false on success... ?
 }
 
 /**
  * \brief Callback invoked when Line State Change
  *
- * this function is called when there is a change to the RTS and DTS control
+ * This function is called when there is a change to the RTS and DTS control
  * lines on the serial connection. 
  *
  */
 static bool usb_line_state_changed(usb_cdc_control_signal_t newState)
 {
-	static bool callbacks_registered = false;
+	static bool callbacks_registered = false;	// prevents callbacks from being registered twice
 	
-	dtr_flag = newState.rs232.DTR;
-	rts_flag = newState.rs232.RTS;
+	ctrlBuf.dtr = newState.rs232.DTR;
+	ctrlBuf.rts = newState.rs232.RTS;
 			
 	if (cdcdf_acm_is_enabled() && !callbacks_registered) {
 		callbacks_registered = true;
@@ -78,77 +101,157 @@ static bool usb_line_state_changed(usb_cdc_control_signal_t newState)
 	return false;
 }
 
-/**
- * \brief CDC ACM Init
- */
-static void cdc_device_acm_init(void)
+int32_t usb_start(void)
 {
+	int32_t err = ERR_NONE;
+	
+	// Initialize the static values to their defaults
+	inbuf.waiting        = 0;
+	outbuf.head          = 0;
+	outbuf.tail		     = 0;
+	outbuf.outInProgress = false;
+	ctrlBuf.dtr          = false;
+	ctrlBuf.rts          = false;
+	ctrlBuf.devState     = USB_Detached;
+	
 	/* usb stack init */
-	usbdc_init(ctrl_buffer);
+	err = usbdc_init(ctrlBuf.buff);
 
 	/* usbdc_register_funcion inside */
-	cdcdf_acm_init();
+	err = cdcdf_acm_init();
 
-	usbdc_start(single_desc);
+	// start and attach the USB device
+	err = usbdc_start(single_desc);
 	usbdc_attach();
+
+	err = cdcdf_acm_register_callback(CDCDF_ACM_CB_STATE_C, (FUNC_PTR)usb_line_state_changed);
+	
+	return err;
 }
 
-void usb_init(void)
-{
-	cdc_device_acm_init();
-	ring_buffer_init(&rx_buff);
-	cdcdf_acm_register_callback(CDCDF_ACM_CB_STATE_C, (FUNC_PTR)usb_line_state_changed);
+int32_t usb_stop(void)
+{	
+	cdcdf_acm_stop_xfer();
+	usbdc_detach();
+	usbdc_stop();
+	
+	cdcdf_acm_deinit();
+	usbdc_deinit();
+	
+	return ERR_NONE;	
 }
 
-// TODO - make this non-blocking
-void usb_flush(void)
+// TODO - incorporate VBUS detection
+USB_State_t usb_state(void)
+{	
+	ctrlBuf.devState = (USB_State_t)usbdc_get_state();
+	return ctrlBuf.devState;
+}
+
+bool usb_dtr(void)
 {
-	if(tx_idx > 0)
-	{
-		inComplete = 0;
-		cdcdf_acm_write(tx_buff, tx_idx);
+	return ctrlBuf.dtr;
+}
+
+bool usb_rts(void)
+{
+	return ctrlBuf.rts;
+}
+
+void usb_haltTraffic(void) {
+    cdcdf_acm_stop_xfer();
+    inbuf.waiting        = 0;
+    outbuf.head          = 0;
+    outbuf.tail		     = 0;
+    outbuf.outInProgress = false;
+}
+
+/************************ TRANSMITTING DATA *************************************/
+int32_t usb_write(void* outData, uint32_t BUFFER_SIZE) 
+{
+	int32_t err = ERR_BUSY;
+	
+	// This check IS needed. cdcdf_acm_write() will drop data if bus is busy and does
+	// not appear to return an error message.
+	if(0 == inbuf.waiting) {
+		volatile hal_atomic_t __atomic;
+		atomic_enter_critical(&__atomic);
+		inbuf.waiting  = BUFFER_SIZE;
+		atomic_leave_critical(&__atomic);
 		
-		/* Block until data is sent and then reset index */
-		while(inComplete == 0);
-		tx_idx = 0;
+		err = cdcdf_acm_write((uint8_t*)outData, BUFFER_SIZE);
 	}
+	
+	return  err;
 }
 
-void usb_put(uint8_t outChar)
+bool usb_isInBusy(void) {
+    return (0 != inbuf.waiting);
+    }
+
+
+/************************ RECEIVING DATA ****************************************/
+int32_t usb_available()
 {
-	tx_buff[tx_idx++] = outChar;
-	
-	/* If the buffer is full, flush it */
-	if(tx_idx == USB_BUFFER_SIZE) {
-		usb_flush();
+    int32_t retval = ERR_NONE;       // return value, defaulted to 0
+
+    // if the buffer is empty and a read is not in progress then request data
+    if( (outbuf.tail - outbuf.head) == 0 && !outbuf.outInProgress ) {
+        // request an OUT transfer. the head and tail will be adjusted in the callback function
+        // this function will return negative if it fails for some reason
+        retval = cdcdf_acm_read(outbuf.buff, USB_BUFFER_SIZE);
+    }
+    
+    // If read happened without error (or didn't happen at all) return the buffer size
+    if(retval >= 0) {
+        retval = (outbuf.tail - outbuf.head);
+    }
+    return retval;
+}
+
+int32_t usb_get(void)
+{
+	int32_t retval = ERR_NONE;       // return value, defaulted to 0
+	    
+	retval = usb_available();
+	if( retval > 0 ) {
+        volatile hal_atomic_t __atomic;
+        atomic_enter_critical(&__atomic);
+		retval = outbuf.buff[outbuf.head++];
+	    atomic_leave_critical(&__atomic);
+    }
+	else {
+		// must return error if there are no bytes to read, 0 is a valid byte value.
+		retval = ERR_FAILURE;
 	}
+	return retval;
 }
 
-// TODO make this non-blocking
-int usb_get(void)
+int32_t usb_read(void* receiveBuffer, uint32_t BUFFER_SIZE)
 {
-//	char retval;
-//	if(ring_buffer_dequeue(&rx_buff, &retval)) {
-//		return retval;
-//	}
-//	return -1;
+	int32_t letter;         // value received from USB OUT buffer
+    uint32_t i = 0;         // LCV and # of bytes received
+    uint8_t* buff = (uint8_t*)receiveBuffer;    // receive buffer cast as bytes
 	
-	int retval;
-	uint8_t inChar;
-	outComplete = 0;
-	retval = cdcdf_acm_read(&inChar, 1);
-	while(outComplete == 0); // block until data read
-	return (retval < 0 ? retval : inChar);
+	// Fill the provided buffer until there is is no more data or it is full
+	while(i < BUFFER_SIZE) {
+        letter = usb_get();
+        if(letter >= 0) {
+            buff[i++] = letter;
+        }
+		else {
+			// Abort the loop if the usb OUT buffer is empty
+			break;
+		}
+    }
+		
+	/* If there was an error, return error val. Else, return the number of bytes received. */
+	return i;
 }
 
-bool usb_configured(void) {
-	return usbdc_get_state() == USBD_S_CONFIG;
-}
-
-bool usb_dtr(void) {
-	return dtr_flag;
-}
-
-bool usb_rts(void) {
-	return rts_flag;
+int32_t usb_flushRx(void)
+{
+	outbuf.head = 0;
+	outbuf.tail = 0;
+	return ERR_NONE;
 }

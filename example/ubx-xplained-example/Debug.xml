@@ -16,7 +16,6 @@
       <Value>../../../ubxproto</Value>
       <Value>../../..</Value>
       <Value>..</Value>
-      <Value>../hpl/tc</Value>
       <Value>../Config</Value>
       <Value>../examples</Value>
       <Value>../hal/include</Value>
@@ -31,6 +30,7 @@
       <Value>../hpl/port</Value>
       <Value>../hpl/sercom</Value>
       <Value>../hpl/systick</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hpl/usb</Value>
       <Value>../hri</Value>
       <Value>../usb</Value>
@@ -61,7 +61,6 @@
     <ListValues>
       <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
       <Value>%24(PackRepoDir)\atmel\SAML21_DFP\1.2.120\saml21b\include</Value>
-      <Value>../hpl/tc</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -77,6 +76,7 @@
       <Value>../hpl/port</Value>
       <Value>../hpl/sercom</Value>
       <Value>../hpl/systick</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hpl/usb</Value>
       <Value>../hri</Value>
       <Value>../usb</Value>
@@ -90,7 +90,6 @@
     <ListValues>
       <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
       <Value>%24(PackRepoDir)\atmel\SAML21_DFP\1.2.120\saml21b\include</Value>
-      <Value>../hpl/tc</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -106,6 +105,7 @@
       <Value>../hpl/port</Value>
       <Value>../hpl/sercom</Value>
       <Value>../hpl/systick</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hpl/usb</Value>
       <Value>../hri</Value>
       <Value>../usb</Value>

@@ -7,6 +7,8 @@ Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "ubx-xplained-example", "ubx
 EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "gps-demo-xplained", "gps-demo-xplained\gps-demo-xplained.cproj", "{EFF79BA2-E19C-4B9A-8C83-9D329B7CBCB0}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "FeatherM0", "FeatherM0\FeatherM0.cproj", "{DCE6C7E3-EE26-4D79-826B-08594B9AD897}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -21,6 +23,10 @@ Global
 		{EFF79BA2-E19C-4B9A-8C83-9D329B7CBCB0}.Debug|ARM.Build.0 = Debug|ARM
 		{EFF79BA2-E19C-4B9A-8C83-9D329B7CBCB0}.Release|ARM.ActiveCfg = Release|ARM
 		{EFF79BA2-E19C-4B9A-8C83-9D329B7CBCB0}.Release|ARM.Build.0 = Release|ARM
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|ARM.ActiveCfg = Debug|ARM
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|ARM.Build.0 = Debug|ARM
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|ARM.ActiveCfg = Release|ARM
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|ARM.Build.0 = Release|ARM
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

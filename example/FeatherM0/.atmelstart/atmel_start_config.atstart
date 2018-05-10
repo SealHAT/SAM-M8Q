@@ -1,5 +1,13 @@
 format_version: '2'
 name: FeatherM0
+versions:
+  api: '1.0'
+  backend: 1.2.132
+  commit: release1.2
+  content: 1.0.898
+  content_pack_name: unknown
+  format: '2'
+  frontend: 1.2.1708
 board:
   identifier: CustomBoard
   device: SAMD21G18A-MF
@@ -246,8 +254,8 @@ drivers:
         - name: CPU
           input: CPU
         configuration: {}
-  wire:
-    user_label: wire
+  GPS_I2C:
+    user_label: GPS_I2C
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::SERCOM3::driver_config_definition::I2C.Master.Standard~2FFast-mode::HAL:Driver:I2C.Master.Sync
     functionality: I2C
     api: HAL:Driver:I2C_Master_Sync
@@ -361,17 +369,6 @@ drivers:
       ctrl_prescaler: '1024'
       dbgctrl_control: false
       dbgctrl_dbgrun: false
-      evctrl_alarmeo: false
-      evctrl_control: false
-      evctrl_ovfeo: false
-      evctrl_pereo0: false
-      evctrl_pereo1: false
-      evctrl_pereo2: false
-      evctrl_pereo3: false
-      evctrl_pereo4: false
-      evctrl_pereo5: false
-      evctrl_pereo6: false
-      evctrl_pereo7: false
       freqcorr_control: false
       freqcorr_sign: false
       freqcorr_value: 0
@@ -384,7 +381,18 @@ drivers:
       readreq_control: false
       readreq_rcont: true
       readreq_rreq: false
+      rtc_alarmeo: false
       rtc_arch_init_reset: true
+      rtc_evctrl_control: false
+      rtc_ovfeo: false
+      rtc_pereo0: false
+      rtc_pereo1: false
+      rtc_pereo2: false
+      rtc_pereo3: false
+      rtc_pereo4: false
+      rtc_pereo5: false
+      rtc_pereo6: false
+      rtc_pereo7: false
     optional_signals: []
     variant: null
     clocks:
@@ -824,6 +832,13 @@ pads:
     mode: Digital input
     user_label: PA12
     configuration: null
+  TX_RDY:
+    name: PA15
+    definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA15
+    mode: Digital input
+    user_label: TX_RDY
+    configuration:
+      pad_pull_config: Pull-up
   LED_BUILTIN:
     name: PA17
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA17

@@ -1,5 +1,13 @@
 format_version: '2'
 name: My Project
+versions:
+  api: '1.0'
+  backend: 1.2.132
+  commit: release1.2
+  content: 1.0.898
+  content_pack_name: unknown
+  format: '2'
+  frontend: 1.2.1708
 board:
   identifier: SAML21XplainedPro
   device: SAML21J18B-AU
@@ -576,49 +584,9 @@ drivers:
     variant: null
     clocks:
       domain_group: null
-  SPI_0:
-    user_label: SPI_0
-    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::SERCOM0::driver_config_definition::SPI.Master::HAL:Driver:SPI.Master.Sync
-    functionality: SPI
-    api: HAL:Driver:SPI_Master_Sync
-    configuration:
-      spi_master_advanced: true
-      spi_master_arch_cpha: Sample input on leading edge
-      spi_master_arch_cpol: SCK is low when idle
-      spi_master_arch_dbgstop: Keep running
-      spi_master_arch_dord: MSB first
-      spi_master_arch_ibon: In data stream
-      spi_master_arch_runstdby: false
-      spi_master_baud_rate: 1000000
-      spi_master_character_size: 8 bits
-      spi_master_dummybyte: 511
-      spi_master_rx_enable: true
-    optional_signals: []
-    variant:
-      specification: TXPO=0, RXPO=2
-      required_signals:
-      - name: SERCOM0/PAD/0
-        pad: PA04
-        label: MOSI
-      - name: SERCOM0/PAD/1
-        pad: PA05
-        label: SCK
-      - name: SERCOM0/PAD/2
-        pad: PA06
-        label: MISO
-    clocks:
-      domain_group:
-        nodes:
-        - name: Core
-          input: Generic clock generator 0
-        - name: Slow
-          input: Generic clock generator 3
-        configuration:
-          core_gclk_selection: Generic clock generator 0
-          slow_gclk_selection: Generic clock generator 3
   I2C_GPS:
     user_label: I2C_GPS
-    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::SERCOM4::driver_config_definition::I2C.Master.Standard~2FFast-mode::HAL:Driver:I2C.Master.Sync
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::SERCOM3::driver_config_definition::I2C.Master.Standard~2FFast-mode::HAL:Driver:I2C.Master.Sync
     functionality: I2C
     api: HAL:Driver:I2C_Master_Sync
     configuration:
@@ -636,11 +604,11 @@ drivers:
     variant:
       specification: SDA=0, SCL=1
       required_signals:
-      - name: SERCOM4/PAD/0
-        pad: PB12
+      - name: SERCOM3/PAD/0
+        pad: PA22
         label: SDA
-      - name: SERCOM4/PAD/1
-        pad: PB13
+      - name: SERCOM3/PAD/1
+        pad: PA23
         label: SCL
     clocks:
       domain_group:
@@ -663,35 +631,6 @@ drivers:
     variant: null
     clocks:
       domain_group: null
-  TIMER_0:
-    user_label: TIMER_0
-    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::TC0::driver_config_definition::Timer::HAL:Driver:Timer
-    functionality: Timer
-    api: HAL:Driver:Timer
-    configuration:
-      tc_arch_dbgrun: false
-      tc_arch_evact: Event action disabled
-      tc_arch_mceo0: false
-      tc_arch_mceo1: false
-      tc_arch_ondemand: false
-      tc_arch_ovfeo: false
-      tc_arch_presync: Reload or reset counter on next GCLK
-      tc_arch_runstdby: false
-      tc_arch_tcei: false
-      tc_arch_tcinv: false
-      timer_advanced_configuration: false
-      timer_event_control: false
-      timer_prescaler: No division
-      timer_tick: 1000
-    optional_signals: []
-    variant: null
-    clocks:
-      domain_group:
-        nodes:
-        - name: TC
-          input: Generic clock generator 2
-        configuration:
-          tc_gclk_selection: Generic clock generator 2
   USB_DEVICE_INSTANCE:
     user_label: USB_DEVICE_INSTANCE
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::USB::driver_config_definition::USB.Device::HAL:Driver:USB.Device
@@ -734,26 +673,6 @@ drivers:
         configuration:
           usb_gclk_selection: Generic clock generator 1
 pads:
-  PA04:
-    name: PA04
-    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA04
-    mode: Digital output
-    user_label: PA04
-    configuration:
-      pad_initial_level: High
-  PA05:
-    name: PA05
-    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA05
-    mode: Digital output
-    user_label: PA05
-    configuration: null
-  PA06:
-    name: PA06
-    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA06
-    mode: Digital input
-    user_label: PA06
-    configuration:
-      pad_pull_config: Pull-up
   SPI_SS:
     name: PA07
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA07
@@ -767,17 +686,24 @@ pads:
     mode: Peripheral IO
     user_label: LED_DEBUG
     configuration: null
-  PB12:
-    name: PB12
-    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PB12
+  TX_RDY:
+    name: PA15
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA15
+    mode: Digital input
+    user_label: TX_RDY
+    configuration:
+      pad_pull_config: Pull-up
+  PA22:
+    name: PA22
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA22
     mode: I2C
-    user_label: PB12
+    user_label: PA22
     configuration: null
-  PB13:
-    name: PB13
-    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PB13
+  PA23:
+    name: PA23
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21J18B-AU::pad::PA23
     mode: I2C
-    user_label: PB13
+    user_label: PA23
     configuration: null
   PA24:
     name: PA24

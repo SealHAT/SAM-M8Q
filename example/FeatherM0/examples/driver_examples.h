@@ -16,7 +16,7 @@ void analog_in_example(void);
 
 void hash_chk_example(void);
 
-void wire_example(void);
+void GPS_I2C_example(void);
 
 void delay_example(void);
 

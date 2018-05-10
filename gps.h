@@ -23,6 +23,7 @@ extern "C" {
 
 /* i2c defines */
 #define I2C_TIMEOUT	(4)
+#define CFG_TIMEOUT (4)
 
 #define M8Q_REG_R(ADDR)			((uint8_t)(ADDR << 1) | 0x1)
 #define M8Q_REG_W(ADDR)			((uint8_t)(ADDR << 1) | 0x0)
@@ -136,6 +137,21 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
  * @return 1 if successful, 0 if i2c transmission times out
  */
 uint8_t gps_write_i2c(const uint8_t *DATA, const uint8_t SIZE);
+
+/**
+ * gps_read_i2c
+ *
+ * Sends a message to from I2C slave. This uses the "current" 
+ *  read address scheme where the data register is start and 
+ *  next address for all transmissions. This allows for reading
+ *  without sending a new address, but disallows choosing an
+ *  address to read.
+ * 
+ * @param data received from the device is stored here
+ * @param size of the data in bytes to send
+ * @return 1 if successful, 0 if i2c transmission times out
+ */
+uint8_t gps_read_i2c(uint8_t *data, const uint8_t SIZE);
 
 /**
  * gps_getfix

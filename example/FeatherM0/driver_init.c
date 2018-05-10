@@ -12,6 +12,7 @@
 #include <hal_init.h>
 #include <hpl_gclk_base.h>
 #include <hpl_pm_base.h>
+
 #include <hpl_adc_base.h>
 
 struct crc_sync_descriptor   hash_chk;
@@ -19,7 +20,7 @@ struct spi_m_sync_descriptor spi_dev;
 
 struct adc_sync_descriptor analog_in;
 
-struct i2c_m_sync_desc wire;
+struct i2c_m_sync_desc GPS_I2C;
 
 void analog_in_PORT_init(void)
 {
@@ -60,7 +61,7 @@ void hash_chk_init(void)
 	crc_sync_init(&hash_chk, DSU);
 }
 
-void wire_PORT_init(void)
+void GPS_I2C_PORT_init(void)
 {
 
 	gpio_set_pin_pull_mode(PA22,
@@ -84,18 +85,18 @@ void wire_PORT_init(void)
 	gpio_set_pin_function(PA23, PINMUX_PA23C_SERCOM3_PAD1);
 }
 
-void wire_CLOCK_init(void)
+void GPS_I2C_CLOCK_init(void)
 {
 	_pm_enable_bus_clock(PM_BUS_APBC, SERCOM3);
 	_gclk_enable_channel(SERCOM3_GCLK_ID_CORE, CONF_GCLK_SERCOM3_CORE_SRC);
 	_gclk_enable_channel(SERCOM3_GCLK_ID_SLOW, CONF_GCLK_SERCOM3_SLOW_SRC);
 }
 
-void wire_init(void)
+void GPS_I2C_init(void)
 {
-	wire_CLOCK_init();
-	i2c_m_sync_init(&wire, SERCOM3);
-	wire_PORT_init();
+	GPS_I2C_CLOCK_init();
+	i2c_m_sync_init(&GPS_I2C, SERCOM3);
+	GPS_I2C_PORT_init();
 }
 
 void spi_dev_PORT_init(void)
@@ -275,6 +276,21 @@ void system_init(void)
 {
 	init_mcu();
 
+	// GPIO on PA15
+
+	// Set pin direction to input
+	gpio_set_pin_direction(TX_RDY, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(TX_RDY,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_UP);
+
+	gpio_set_pin_function(TX_RDY, GPIO_PIN_FUNCTION_OFF);
+
 	// GPIO on PA17
 
 	// Set pin direction to output
@@ -292,7 +308,7 @@ void system_init(void)
 	analog_in_init();
 	hash_chk_init();
 
-	wire_init();
+	GPS_I2C_init();
 
 	spi_dev_init();
 

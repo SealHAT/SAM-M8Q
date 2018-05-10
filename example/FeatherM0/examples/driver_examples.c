@@ -73,14 +73,14 @@ void hash_chk_example(void)
 		;
 }
 
-void wire_example(void)
+void GPS_I2C_example(void)
 {
-	struct io_descriptor *wire_io;
+	struct io_descriptor *GPS_I2C_io;
 
-	i2c_m_sync_get_io_descriptor(&wire, &wire_io);
-	i2c_m_sync_enable(&wire);
-	i2c_m_sync_set_slaveaddr(&wire, 0x12, I2C_M_SEVEN);
-	io_write(wire_io, (uint8_t *)"Hello World!", 12);
+	i2c_m_sync_get_io_descriptor(&GPS_I2C, &GPS_I2C_io);
+	i2c_m_sync_enable(&GPS_I2C);
+	i2c_m_sync_set_slaveaddr(&GPS_I2C, 0x12, I2C_M_SEVEN);
+	io_write(GPS_I2C_io, (uint8_t *)"Hello World!", 12);
 }
 
 /**
