@@ -142,7 +142,7 @@
 // <i> Enable 32 Khz Output
 // <id> osc32k_arch_en32k
 #ifndef CONF_OSC32K_EN32K
-#define CONF_OSC32K_EN32K 1
+#define CONF_OSC32K_EN32K 0
 #endif
 
 // <q> Enable 1K
@@ -447,7 +447,7 @@
 // <i> Indicates whether Bypass coarse lock is enabled or not
 // <id> dfll48m_arch_bplckc
 #ifndef CONF_DFLL_BPLCKC
-#define CONF_DFLL_BPLCKC 1
+#define CONF_DFLL_BPLCKC 0
 #endif
 
 // <q> Quick Lock Disable
@@ -461,7 +461,7 @@
 // <i> Chill Cycle Disable
 // <id> dfll48m_arch_ccdis
 #ifndef CONF_DFLL_CCDIS
-#define CONF_DFLL_CCDIS 1
+#define CONF_DFLL_CCDIS 0
 #endif
 
 // <q> On Demand

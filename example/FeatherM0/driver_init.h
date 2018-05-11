@@ -35,16 +35,16 @@ extern "C" {
 extern struct adc_sync_descriptor analog_in;
 extern struct crc_sync_descriptor hash_chk;
 
-extern struct i2c_m_sync_desc       wire;
+extern struct i2c_m_sync_desc       I2C_DEV;
 extern struct spi_m_sync_descriptor spi_dev;
 
 void analog_in_PORT_init(void);
 void analog_in_CLOCK_init(void);
 void analog_in_init(void);
 
-void wire_CLOCK_init(void);
-void wire_init(void);
-void wire_PORT_init(void);
+void I2C_DEV_CLOCK_init(void);
+void I2C_DEV_init(void);
+void I2C_DEV_PORT_init(void);
 
 void spi_dev_PORT_init(void);
 void spi_dev_CLOCK_init(void);

@@ -55,6 +55,8 @@ extern void clearUBXMsgBuffer(const UBXMsgBuffer *buffer);
  */
 extern void alignUBXmessage(UBXMsg **msg, uint8_t *BUFF, const int SIZE);
 
+extern UBXMsgBuffer getACK_ACK();
+
 #ifdef __cplusplus
 }
 #endif

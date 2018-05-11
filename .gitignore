@@ -61,6 +61,7 @@
 #Build Directories
 [Dd]ebug/
 [Rr]elease/
+.vs/
 
 #Build Results
 *.o
