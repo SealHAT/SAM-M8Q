@@ -304,6 +304,10 @@ void system_init(void)
 	                   false);
 
 	gpio_set_pin_function(LED_BUILTIN, GPIO_PIN_FUNCTION_OFF);
+	
+	gpio_set_pin_direction(DBG, GPIO_DIRECTION_OUT);
+	gpio_set_pin_level(DBG, true);
+	gpio_set_pin_function(DBG, GPIO_PIN_FUNCTION_OFF);
 
 	analog_in_init();
 	hash_chk_init();
