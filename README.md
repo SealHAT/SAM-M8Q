@@ -1,2 +1,2 @@
-# CAM-M8
-breakout board and libraries for CAM-M8 family GPS modules
+# SAM-M8Q
+breakout board and libraries for SAM-M8 family GPS modules
