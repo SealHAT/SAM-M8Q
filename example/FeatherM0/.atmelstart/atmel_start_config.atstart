@@ -254,8 +254,8 @@ drivers:
         - name: CPU
           input: CPU
         configuration: {}
-  GPS_I2C:
-    user_label: GPS_I2C
+  I2C_DEV:
+    user_label: I2C_DEV
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::SERCOM3::driver_config_definition::I2C.Master.Standard~2FFast-mode::HAL:Driver:I2C.Master.Sync
     functionality: I2C
     api: HAL:Driver:I2C_Master_Sync
@@ -845,20 +845,26 @@ pads:
     mode: Digital output
     user_label: LED_BUILTIN
     configuration: null
+  DBG:
+    name: PA20
+    definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA20
+    mode: Digital output
+    user_label: DBG
+    configuration: null
   SDA:
     name: PA22
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA22
     mode: I2C
     user_label: SDA
     configuration:
-      pad_pull_config: Pull-up
+      pad_pull_config: 'Off'
   SCL:
     name: PA23
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA23
     mode: I2C
     user_label: SCL
     configuration:
-      pad_pull_config: Pull-up
+      pad_pull_config: 'Off'
   USB_N:
     name: PA24
     definition: Atmel:SAMD21_Drivers:0.0.1::SAMD21G18A-MF::pad::PA24

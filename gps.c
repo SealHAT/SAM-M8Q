@@ -87,7 +87,8 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC)
         gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
 
 		/* verify that the message was received */
-        gps_read_i2c((uint8_t*)ubx_buf.data, sizeof(UBXACK_ACK));
+		ubx_buf = getACK_ACK();
+        gps_read_i2c((uint8_t*)ubx_buf.data, ubx_buf.size);
         msg = (UBXMsg*)ubx_buf.data;
         
 		/* repeat until timeout or acknowledge from device */
@@ -381,8 +382,7 @@ uint8_t gps_write_i2c(const uint8_t *DATA, const uint8_t SIZE)
 	uint16_t timeout = 0;
 	
     /* add the address and message to the buffer */
-	memcpy(&GPS_SDABUF[1], DATA, SIZE);
-    GPS_SDABUF[0] = M8Q_REG_W(M8Q_DATA_ADDR);
+	memcpy(&GPS_SDABUF[0], DATA, SIZE);
 	
     /* set up the i2c packet */
 	gps_i2c_msg.addr	= M8Q_SLAVE_ADDR;
@@ -406,12 +406,11 @@ uint8_t gps_read_i2c(uint8_t *data, const uint8_t SIZE)
 
     /* add the address and empty the buffer */
     memset(GPS_SDABUF, 0x00, SIZE);
-    GPS_SDABUF[0] = M8Q_REG_R(M8Q_DATA_ADDR);
 
     /* set up the i2c packet */
     gps_i2c_msg.addr    = M8Q_SLAVE_ADDR;
     gps_i2c_msg.len     = SIZE;
-    gps_i2c_msg.flags   = I2C_M_STOP;
+    gps_i2c_msg.flags   = I2C_M_STOP | I2C_M_RD;
     gps_i2c_msg.buffer  = GPS_SDABUF;
 
     /* send, repeat until successful or timeout */

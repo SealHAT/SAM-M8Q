@@ -103,6 +103,21 @@ UBXMsgBuffer createBuffer(int payloadSize)
     return buffer;
 }
 
+UBXMsgBuffer getACK_ACK()
+{
+	int payloadSize = sizeof(UBXACK_ACK);
+	UBXMsgBuffer buffer;
+	UBXMsg* msg = 0;
+	buffer = createBuffer(payloadSize);
+	msg = (UBXMsg*)buffer.data;
+	initMsg(msg, payloadSize, UBXMsgClassACK, UBXMsgIdACK_ACK);
+	msg->payload.ACK_ACK.msgClass = UBXMsgClassACK;
+	msg->payload.ACK_ACK.msgId = UBXMsgIdACK_ACK;
+	completeMsg(&buffer, payloadSize);
+	
+	return buffer;
+}
+
 UBXMsgBuffer getAID_ALPSRV(UBXMsg* clientMgs, const UBXAlpFileInfo *fileInfo)
 {
     int requestedAlpSize = (clientMgs->payload.AID_ALPSRV.size << 1);

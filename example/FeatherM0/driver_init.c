@@ -20,7 +20,7 @@ struct spi_m_sync_descriptor spi_dev;
 
 struct adc_sync_descriptor analog_in;
 
-struct i2c_m_sync_desc GPS_I2C;
+struct i2c_m_sync_desc I2C_DEV;
 
 void analog_in_PORT_init(void)
 {
@@ -61,7 +61,7 @@ void hash_chk_init(void)
 	crc_sync_init(&hash_chk, DSU);
 }
 
-void GPS_I2C_PORT_init(void)
+void I2C_DEV_PORT_init(void)
 {
 
 	gpio_set_pin_pull_mode(SDA,
@@ -70,7 +70,7 @@ void GPS_I2C_PORT_init(void)
 	                       // <GPIO_PULL_OFF"> Off
 	                       // <GPIO_PULL_UP"> Pull-up
 	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_UP);
+	                       GPIO_PULL_OFF);
 
 	gpio_set_pin_function(SDA, PINMUX_PA22C_SERCOM3_PAD0);
 
@@ -80,23 +80,23 @@ void GPS_I2C_PORT_init(void)
 	                       // <GPIO_PULL_OFF"> Off
 	                       // <GPIO_PULL_UP"> Pull-up
 	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_UP);
+	                       GPIO_PULL_OFF);
 
 	gpio_set_pin_function(SCL, PINMUX_PA23C_SERCOM3_PAD1);
 }
 
-void GPS_I2C_CLOCK_init(void)
+void I2C_DEV_CLOCK_init(void)
 {
 	_pm_enable_bus_clock(PM_BUS_APBC, SERCOM3);
 	_gclk_enable_channel(SERCOM3_GCLK_ID_CORE, CONF_GCLK_SERCOM3_CORE_SRC);
 	_gclk_enable_channel(SERCOM3_GCLK_ID_SLOW, CONF_GCLK_SERCOM3_SLOW_SRC);
 }
 
-void GPS_I2C_init(void)
+void I2C_DEV_init(void)
 {
-	GPS_I2C_CLOCK_init();
-	i2c_m_sync_init(&GPS_I2C, SERCOM3);
-	GPS_I2C_PORT_init();
+	I2C_DEV_CLOCK_init();
+	i2c_m_sync_init(&I2C_DEV, SERCOM3);
+	I2C_DEV_PORT_init();
 }
 
 void spi_dev_PORT_init(void)
@@ -304,15 +304,25 @@ void system_init(void)
 	                   false);
 
 	gpio_set_pin_function(LED_BUILTIN, GPIO_PIN_FUNCTION_OFF);
-	
+
+	// GPIO on PA20
+
+	// Set pin direction to output
 	gpio_set_pin_direction(DBG, GPIO_DIRECTION_OUT);
-	gpio_set_pin_level(DBG, true);
+
+	gpio_set_pin_level(DBG,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   false);
+
 	gpio_set_pin_function(DBG, GPIO_PIN_FUNCTION_OFF);
 
 	analog_in_init();
 	hash_chk_init();
 
-	GPS_I2C_init();
+	I2C_DEV_init();
 
 	spi_dev_init();
 

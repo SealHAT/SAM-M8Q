@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Atmel Studio Solution File, Format Version 11.00
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "ubx-xplained-example", "ubx-xplained-example\ubx-xplained-example.cproj", "{C4BB48E8-6D4F-4E52-A98B-357409D3041F}"
-EndProject
-Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "gps-demo-xplained", "gps-demo-xplained\gps-demo-xplained.cproj", "{EFF79BA2-E19C-4B9A-8C83-9D329B7CBCB0}"
-EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "FeatherM0", "FeatherM0\FeatherM0.cproj", "{DCE6C7E3-EE26-4D79-826B-08594B9AD897}"
 EndProject
 Global
@@ -15,14 +11,6 @@ Global
 		Release|ARM = Release|ARM
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C4BB48E8-6D4F-4E52-A98B-357409D3041F}.Debug|ARM.ActiveCfg = Debug|ARM
-		{C4BB48E8-6D4F-4E52-A98B-357409D3041F}.Debug|ARM.Build.0 = Debug|ARM
-		{C4BB48E8-6D4F-4E52-A98B-357409D3041F}.Release|ARM.ActiveCfg = Release|ARM
-		{C4BB48E8-6D4F-4E52-A98B-357409D3041F}.Release|ARM.Build.0 = Release|ARM
-		{EFF79BA2-E19C-4B9A-8C83-9D329B7CBCB0}.Debug|ARM.ActiveCfg = Debug|ARM
-		{EFF79BA2-E19C-4B9A-8C83-9D329B7CBCB0}.Debug|ARM.Build.0 = Debug|ARM
-		{EFF79BA2-E19C-4B9A-8C83-9D329B7CBCB0}.Release|ARM.ActiveCfg = Release|ARM
-		{EFF79BA2-E19C-4B9A-8C83-9D329B7CBCB0}.Release|ARM.Build.0 = Release|ARM
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|ARM.ActiveCfg = Debug|ARM
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|ARM.Build.0 = Debug|ARM
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|ARM.ActiveCfg = Release|ARM
