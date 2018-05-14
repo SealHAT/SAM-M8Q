@@ -18,8 +18,11 @@
 extern "C" {
 #endif
 
-#define GPS_BUFFSIZE  (256)
-#define UBX_FFTCNT	  (32)
+#define GPS_BUFFSIZE	(256)
+#define UBX_FFTCNT		(32)
+#define GPS_FIFOSIZE	(2048U)
+#define M8Q_TXR_PIO		(6U)	/* The pin to use for TxReady						*/
+#define M8Q_TXR_POL		(1U)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
 
 /* i2c defines */
 #define I2C_TIMEOUT	(4)
@@ -42,6 +45,8 @@ typedef enum {
 	GPS_NORXMSG = 0x04,
 	GPS_NOTXMSG = 0x08
 } GPS_ERROR;
+
+extern uint8_t GPS_FIFO[GPS_FIFOSIZE];
 
 /**
  * utc_time_t enum
@@ -121,8 +126,8 @@ uint8_t gps_init_spi(struct spi_m_sync_descriptor *spi_desc);
  * Initializes and starts the GPS module with the default sampling 
  * and messaging rates
  * 
- * @param spi device descriptor from AtmelStart configuration
- * @return true if successful, false if initialization fails
+ * @param i2c device descriptor from AtmelStart configuration
+ * @return 1 if successful, 0 if initialization fails
  */
 uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
 
@@ -136,7 +141,7 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
  * @param size of the data in bytes to send
  * @return 1 if successful, 0 if i2c transmission times out
  */
-uint8_t gps_write_i2c(const uint8_t *DATA, const uint8_t SIZE);
+uint8_t gps_write_i2c(const uint8_t *DATA, const uint16_t SIZE);
 
 /**
  * gps_read_i2c
@@ -151,7 +156,7 @@ uint8_t gps_write_i2c(const uint8_t *DATA, const uint8_t SIZE);
  * @param size of the data in bytes to send
  * @return 1 if successful, 0 if i2c transmission times out
  */
-uint8_t gps_read_i2c(uint8_t *data, const uint8_t SIZE);
+uint8_t gps_read_i2c(uint8_t *data, const uint16_t SIZE);
 
 /**
  * gps_getfix
@@ -220,7 +225,11 @@ uint8_t gps_selftest();
 uint8_t cfgUBXoverSPI(uint8_t ffCnt);
 //uint8_t cfgPSMOO(uint8_t period);
 
-
+/************************************************************************/
+/* gps_readfifo															*/
+/************************************************************************/
+uint8_t gps_readfifo();
+uint8_t gps_cfgprt(const UBXMsg MSG);
   
 #ifdef __cplusplus
 }
