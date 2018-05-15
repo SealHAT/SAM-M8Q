@@ -447,8 +447,8 @@ typedef enum
 {
     UBXPRTModeEvenParity = 0,
     UBXPRTModeOddParity = 1,
-    UBXPRTModeNoParity = 1 << 3,
-    UBXPRTModeReserved = 1 << 2
+    UBXPRTModeNoParity = 4,
+    UBXPRTModeReserved = 2
 } UBXPRTModeParity;
 
 typedef enum
@@ -456,20 +456,23 @@ typedef enum
     UBXPRTMode1StopBit = 0,
     UBXPRTMode1dot5StopBit = 1,
     UBXPRTMode2StopBit = 2,
-    UBXPRTMode0dot5StopBit = 3,
+    UBXPRTMode0dot5StopBit = 3
 } UBXPRTModeStopBits;
 
 typedef enum
 {
-    UBXPRTInProtoInUBX = 1,
+    UBXPRTInProtoInNone = 0,
+    UBXPRTInProtoInUBX  = 1,
     UBXPRTInProtoInNMEA = 1 << 1,
-    UBXPRTInProtoInRTCM = 1 << 2
+    UBXPRTInProtoInRTCM = 1 << 2,
+    UBXPRTInProtoInRTCM3 = 1 << 5
 } UBXPRTInProtoMask;
 
 typedef enum
 {
     UBXPRTOutProtoOutUBX = 1,
-    UBXPRTOutProtoOutNMEA = 1 << 1
+    UBXPRTOutProtoOutNMEA = 1 << 1,
+    UBXPRTOutProtoOutRTCM3 = 1 << 5
 } UBXPRTOutProtoMask;
 
 typedef enum
@@ -1203,7 +1206,7 @@ typedef struct
 typedef struct
 {
     UBXX4_t blank0:4;
-    UBXX4_t reserved1:1;
+    UBXX4_t reserved0:1;
     UBXX4_t blank1:1;
     UBXX4_t charLen:2; //See UBXPRTModeCharLen to fill this field
     UBXX4_t blank2:1;

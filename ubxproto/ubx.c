@@ -967,6 +967,8 @@ UBXMsgBuffer setCFG_PRT(UBXCFG_PRT cfg)
 		break;
 		case UBXPRTUART :
 		msg->payload.CFG_PRT.mode.UBX_UART = cfg.mode.UBX_UART;
+        msg->payload.CFG_PRT.mode.UBX_UART.reserved0 = 1U;
+        msg->payload.CFG_PRT.option.UARTbaudRate = cfg.option.UARTbaudRate;
 		break;
 		case UBXPRTUSB :
 		msg->payload.CFG_PRT.mode.UBX_USB = cfg.mode.UBX_USB;

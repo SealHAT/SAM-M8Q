@@ -5,6 +5,8 @@
 
 int main(void)
 {
+    UBXMsgBuffer buff;
+    UBXMsg *msg;
 	uint16_t blink = 5000;
 	/* Initializes MCU, drivers and middleware */
 	i2c_unblock_bus(SDA,SCL);
@@ -23,7 +25,8 @@ int main(void)
 		blink = 100;
 		gpio_set_pin_level(LED_BUILTIN, false);
 	}
-
+    buff = getCFG_PRT_POLL_OPT(UBXPRTDDC);
+    msg = (UBXMsg*)buff.data;
 	for (;;)
 	{
 		if (gpio_get_pin_level(TX_RDY) == false) {

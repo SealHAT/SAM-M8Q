@@ -67,9 +67,14 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC)
 	i2c_m_sync_set_slaveaddr(&gps_i2c_desc, M8Q_SLAVE_ADDR, I2C_M_SEVEN);
 	
 	/* disable other ports (Default: UART,USB,DDC enabled; SPI disabled) */
-	ubx_msg.payload.CFG_PRT.portID			= UBXPRTUART;
-	ubx_msg.payload.CFG_PRT.inProtoMask		= 0U;
-	ubx_msg.payload.CFG_PRT.outProtoMask	= 0U;
+	ubx_msg.payload.CFG_PRT.portID			        = UBXPRTUART;
+    ubx_msg.payload.CFG_PRT.reserved0               = 1U;
+    ubx_msg.payload.CFG_PRT.mode.UBX_UART.charLen   = UBXPRTMode8BitCharLen;
+    ubx_msg.payload.CFG_PRT.mode.UBX_UART.nStopBits = UBXPRTMode1StopBit;
+    ubx_msg.payload.CFG_PRT.mode.UBX_UART.parity    = UBXPRTModeNoParity;
+    ubx_msg.payload.CFG_PRT.inProtoMask		        = UBXPRTInProtoInUBX|UBXPRTInProtoInNMEA;
+	ubx_msg.payload.CFG_PRT.outProtoMask	        = 0U;
+    ubx_msg.payload.CFG_PRT.option.UARTbaudRate     = 9600U;
 	if (!gps_cfgprt(ubx_msg)) {
 		return 0;
 	}
@@ -88,7 +93,7 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC)
 	ubx_msg.payload.CFG_PRT.txReady.pin			    = M8Q_TXR_PIO;			/* PIO06 is TxD on the SAM-M8Q			*/
 	ubx_msg.payload.CFG_PRT.txReady.thres			= GPS_FIFOSIZE / 8;		/* Given value is multiplied by 8 bytes */
 	ubx_msg.payload.CFG_PRT.mode.UBX_DDC.slaveAddr  = M8Q_SLAVE_ADDR;
-	ubx_msg.payload.CFG_PRT.inProtoMask			    = UBXPRTInProtoInUBX;
+	ubx_msg.payload.CFG_PRT.inProtoMask			    = UBXPRTInProtoInUBX|UBXPRTInProtoInNMEA;
 	ubx_msg.payload.CFG_PRT.outProtoMask			= UBXPRTOutProtoOutUBX;
 	ubx_msg.payload.CFG_PRT.flags					= UBXPRTExtendedTxTimeout;
 	retval = gps_cfgprt(ubx_msg);
