@@ -12,11 +12,7 @@ int main(void)
 	/* Initializes MCU, drivers and middleware */
 	i2c_unblock_bus(SDA,SCL);
 	atmel_start_init();
-	
-	/* turn on led for 5 seconds to indicate startup */
-	gpio_set_pin_level(LED_BUILTIN, true);
-	delay_ms(blink);
-	gpio_set_pin_level(LED_BUILTIN, false);
+	gpio_set_pin_level(TX_RDY, true);
 
 	/* set up the device for DDC (i2c) communication */
     if (GPS_SUCCESS == gps_init_i2c(&I2C_DEV)) {
@@ -42,16 +38,16 @@ int main(void)
     buf = getCFG_PRT_POLL_OPT(UBXPRTDDC);
 	if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)buf.data, buf.size)) {
 		buf = getCFG_PRT();
-		retval = gps_read_i2c_poll((uint8_t*)buf.data, buf.size);
+		retval = gps_read_i2c_search((uint8_t*)buf.data, buf.size);
 		msg = (UBXMsg*)buf.data;
 	} else {
 		delay_ms(1000);
 	}
 	
-	if (msg->payload.CFG_PRT.txReady.en != 1U &&
-		msg->payload.CFG_PRT.txReady.pol != 0U &&
-		msg->payload.CFG_PRT.txReady.pin != 6U && 
-		msg->payload.CFG_PRT.txReady.thres !=  GPS_FIFOSIZE / 8) {
+	if ((msg->payload.CFG_PRT.txReady.en    == 1U			) &&
+		(msg->payload.CFG_PRT.txReady.pol   == M8Q_TXR_POL	) &&
+		(msg->payload.CFG_PRT.txReady.pin   == M8Q_TXR_PIO	) && 
+		(msg->payload.CFG_PRT.txReady.thres ==  (M8Q_TXR_CNT >> 3))) {
 			gpio_toggle_pin_level(LED_BUILTIN);
 			delay_ms(500);
 			gpio_toggle_pin_level(LED_BUILTIN);

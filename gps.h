@@ -20,9 +20,10 @@ extern "C" {
 
 #define GPS_BUFFSIZE	(256)
 #define UBX_FFTCNT		(32)
-#define GPS_FIFOSIZE	(2048U)
-#define M8Q_TXR_PIO		(6U)	/* The pin to use for TxReady						*/
-#define M8Q_TXR_POL		(1U)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
+#define GPS_FIFOSIZE	(2048)
+#define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
+#define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
+#define M8Q_TXR_POL		(1)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
 
 /* i2c defines */
 #define I2C_TIMEOUT	(4)
@@ -132,6 +133,25 @@ uint8_t gps_init_spi(struct spi_m_sync_descriptor *spi_desc);
 uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
 
 /**
+ * gps_disable_nmea
+ *
+ * Disables the default NMEA messages on all ports
+ * 
+ * @return 0 if successful, 1 if initialization fails
+ */
+uint8_t gps_disable_nmea();
+
+/**
+ * gps_init_msgs
+ *
+ * Initializes the minimal periodic messages (position) at 
+ *	a default rate.
+ * 
+ * @return 0 if successful, 1 if initialization fails
+ */
+uint8_t gps_init_msgs();
+
+/**
  * gps_write_i2c
  *
  * Sends a message to the I2C slave. M8Q does not support individual
@@ -174,6 +194,8 @@ uint8_t gps_read_i2c(uint8_t *data, const uint16_t SIZE);
  * @return 1 if successful, 0 if i2c transmission times out
  */
 uint8_t gps_read_i2c_poll(uint8_t *data, const uint16_t SIZE);
+
+uint8_t gps_read_i2c_search(uint8_t *data, const uint16_t SIZE);
 
 /**
  * gps_getfix

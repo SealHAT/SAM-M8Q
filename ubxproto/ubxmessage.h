@@ -80,6 +80,7 @@ typedef enum
     UBXMsgClassAID = 0x0B,
     UBXMsgClassTIM = 0x0D,
     UBXMsgClassLOG = 0x21,
+	UBXMsgClassNMEA = 0xF0,
     UBXMsgClassInvalid = 255
 } UBXMessageClass;
 
@@ -171,6 +172,25 @@ typedef enum
     UBXMsgIdTIM_TP = 0x01,
     UBXMsgIdTIM_VRFY = 0x06,
 
+	UBXMsgIdNMEA_DTM = 0x0A,
+	UBXMsgIdNMEA_GBQ = 0x44,
+	UBXMsgIdNMEA_GBS = 0x09,
+	UBXMsgIdNMEA_GGA = 0x00,
+	UBXMsgIdNMEA_GLL = 0x01,
+	UBXMsgIdNMEA_GLQ = 0x43,
+	UBXMsgIdNMEA_GNQ = 0x42,
+	UBXMsgIdNMEA_GNS = 0x0D,
+	UBXMsgIdNMEA_GPQ = 0x40,
+	UBXMsgIdNMEA_GRS = 0x06,
+	UBXMsgIdNMEA_GSA = 0x02,
+	UBXMsgIdNMEA_GST = 0x07,
+	UBXMsgIdNMEA_GSV = 0x03,
+	UBXMsgIdNMEA_RMC = 0x04,
+	UBXMsgIdNMEA_TXT = 0x41,
+	UBXMsgIdNMEA_VLW = 0x0F,
+	UBXMsgIdNMEA_VTG = 0x05,
+	UBXMsgIdNMEA_ZDA = 0x08,
+	
     UBXMsgIdInvalid = 0xFF
 } UBXMessageId;
 
