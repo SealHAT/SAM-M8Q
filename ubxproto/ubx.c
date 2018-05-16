@@ -26,10 +26,10 @@
 
 #include "ubxmessage.h"
 #include "ubx.h"
-#include "malloc.h"
 #include "memory.h"
 
 #define HTOBE16(x)      ((x << 8) | (x >> 8))   /* 16 bit endian swap*/
+static char ubxStaticBuffer[210];
 
 void fletcherChecksum(unsigned char* buffer, int size, unsigned char* checkSumA, unsigned char* checkSumB)
 {
@@ -45,7 +45,8 @@ void fletcherChecksum(unsigned char* buffer, int size, unsigned char* checkSumA,
 
 extern void clearUBXMsgBuffer(const UBXMsgBuffer* buffer)
 {
-    free(buffer->data);
+    //free(buffer->data);
+	memset(buffer->data, 0x00, buffer->size);
 }
 
 /* SealHAT */
@@ -98,7 +99,8 @@ UBXMsgBuffer createBuffer(int payloadSize)
 {
     UBXMsgBuffer buffer = {0, 0};
     buffer.size = UBX_HEADER_SIZE + payloadSize + UBX_CHECKSUM_SIZE;
-    buffer.data = (char*)malloc(buffer.size);
+    //buffer.data = (char*)malloc(buffer.size);
+	buffer.data = ubxStaticBuffer;
     memset(buffer.data, 0, buffer.size);
     return buffer;
 }
