@@ -248,7 +248,24 @@ uint8_t gps_cfgprt(const UBXMsg MSG)
 
 uint8_t gps_readfifo()
 {
-	return gps_read_i2c_poll(GPS_FIFO, M8Q_TXR_CNT);
+	uint16_t timeout = 0;
+
+    /* add the address and empty the buffer */
+
+    /* set up the i2c packet */
+    gps_i2c_msg.addr    = M8Q_SLAVE_ADDR;
+    gps_i2c_msg.len     = GPS_FIFOSIZE;
+    gps_i2c_msg.flags   = I2C_M_STOP | I2C_M_RD;
+    gps_i2c_msg.buffer  = GPS_FIFO;
+
+    /* send, repeat until successful or timeout */
+    while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
+        if (timeout++ == I2C_TIMEOUT*4) {
+            return GPS_FAILURE;
+        }
+    }
+	
+    return GPS_SUCCESS;
 }
 // 
 // uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln)
@@ -617,7 +634,9 @@ uint8_t gps_read_i2c_search(uint8_t *data, const uint16_t SIZE)
 		
 		memcpy(data, GPS_SDABUF, SIZE);
 		return GPS_SUCCESS;
+	} else {
+		
 	}	
-	
+	_i2c_m_sync_send_stop(&gps_i2c_desc.device);
 	return GPS_FAILURE;
 }
