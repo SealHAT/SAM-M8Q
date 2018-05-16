@@ -124,6 +124,7 @@ extern UBXMsgBuffer getCFG_PM2(UBXCFG_PM2Flags flags,
                                       UBXU2_t minAcqTime);
 extern UBXMsgBuffer getCFG_PRT_POLL();
 extern UBXMsgBuffer getCFG_PRT_POLL_OPT(UBXU1_t portId);
+extern UBXMsgBuffer getCFG_PRT();
 extern UBXMsgBuffer getCFG_PRT_UART();
 extern UBXMsgBuffer getCFG_PRT_USB();
 extern UBXMsgBuffer getCFG_PRT_SPI();

@@ -159,6 +159,23 @@ uint8_t gps_write_i2c(const uint8_t *DATA, const uint16_t SIZE);
 uint8_t gps_read_i2c(uint8_t *data, const uint16_t SIZE);
 
 /**
+ * gps_read_i2c_pol
+ *
+ * Sends a message to from I2C slave. This uses the "current" 
+ *  read address scheme where the data register is start and 
+ *  next address for all transmissions. This allows for reading
+ *  without sending a new address, but disallows choosing an
+ *  address to read. 
+ * Pol version checks for 0xff and discards, continuing to 
+ *	read until valid data is presented.
+ * 
+ * @param data received from the device is stored here
+ * @param size of the data in bytes to send
+ * @return 1 if successful, 0 if i2c transmission times out
+ */
+uint8_t gps_read_i2c_poll(uint8_t *data, const uint16_t SIZE);
+
+/**
  * gps_getfix
  *
  * Polls the GPS module for a single fix and the minimum recommended 
