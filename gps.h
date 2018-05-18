@@ -246,7 +246,7 @@ bool gps_setprofile(const GPS_PROFILE profile);
 
 
 //TODO    encapsulate these helper functions
-uint8_t gps_selftest();
+bool gps_selftest();
 //uint8_t cfgPSMOO(uint8_t period);
 
 /************************************************************************/
@@ -255,6 +255,7 @@ uint8_t gps_selftest();
 uint8_t gps_readfifo();
 uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SIZE);
 uint8_t gps_cfgprt(const UBXMsg MSG);
+
   
 #ifdef __cplusplus
 }

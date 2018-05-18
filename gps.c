@@ -588,3 +588,43 @@ uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SI
 	
 	return i;
 }
+
+bool gps_selftest()
+{
+	GPS_ERROR   ack;
+	UBXMsg		*msg;
+	
+	/* pol the device for hardware configuration */
+	ubx_buf = getMON_HW_POLL();
+	if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+		/* read back the hardware configuration */
+		ubx_buf = getMON_HW();
+		ack = gps_read_i2c_poll((uint8_t*)ubx_buf.data, ubx_buf.size);
+		msg = (UBXMsg*)ubx_buf.data;
+	} else {
+		return GPS_FAILURE;
+	}
+	
+	/* poll the device for port configuration */
+	ubx_buf = getCFG_PRT_POLL_OPT(UBXPRTDDC);
+	if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+		ubx_buf = getCFG_PRT();
+		ack = gps_read_i2c_search((uint8_t*)ubx_buf.data, ubx_buf.size);
+		msg = (UBXMsg*)ubx_buf.data;
+	} else {
+		return GPS_FAILURE;
+	}
+	
+	/* verify the FIFO and watermark settings */
+	if ((msg->payload.CFG_PRT.txReady.en    == 1U			) &&
+		(msg->payload.CFG_PRT.txReady.pol   == M8Q_TXR_POL	) &&
+		(msg->payload.CFG_PRT.txReady.pin   == M8Q_TXR_PIO	) &&
+		(msg->payload.CFG_PRT.txReady.thres == (M8Q_TXR_CNT >> 3))) 
+	{
+		ack = GPS_SUCCESS;
+	} else {
+		ack = GPS_FAILURE;
+	}
+	
+	return (ack == GPS_SUCCESS);
+}
