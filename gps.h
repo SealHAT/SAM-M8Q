@@ -18,11 +18,12 @@
 extern "C" {
 #endif
 
-#define GPS_BUFFSIZE	(256)
-#define UBX_FFTCNT		(32)
+#define GPS_LOGSIZE		(20)
+#define GPS_BUFFSIZE	(2048)
 #define GPS_FIFOSIZE	(2048)
 #define GPS_INVALID_LAT	(9999999999)
 #define GPS_INVALID_LON	(9999999999)
+
 #define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
 #define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
 #define M8Q_TXR_POL		(1)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
