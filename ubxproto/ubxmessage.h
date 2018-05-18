@@ -80,6 +80,7 @@ typedef enum
     UBXMsgClassAID = 0x0B,
     UBXMsgClassTIM = 0x0D,
     UBXMsgClassLOG = 0x21,
+	UBXMsgClassNMEA = 0xF0,
     UBXMsgClassInvalid = 255
 } UBXMessageClass;
 
@@ -171,6 +172,25 @@ typedef enum
     UBXMsgIdTIM_TP = 0x01,
     UBXMsgIdTIM_VRFY = 0x06,
 
+	UBXMsgIdNMEA_DTM = 0x0A,
+	UBXMsgIdNMEA_GBQ = 0x44,
+	UBXMsgIdNMEA_GBS = 0x09,
+	UBXMsgIdNMEA_GGA = 0x00,
+	UBXMsgIdNMEA_GLL = 0x01,
+	UBXMsgIdNMEA_GLQ = 0x43,
+	UBXMsgIdNMEA_GNQ = 0x42,
+	UBXMsgIdNMEA_GNS = 0x0D,
+	UBXMsgIdNMEA_GPQ = 0x40,
+	UBXMsgIdNMEA_GRS = 0x06,
+	UBXMsgIdNMEA_GSA = 0x02,
+	UBXMsgIdNMEA_GST = 0x07,
+	UBXMsgIdNMEA_GSV = 0x03,
+	UBXMsgIdNMEA_RMC = 0x04,
+	UBXMsgIdNMEA_TXT = 0x41,
+	UBXMsgIdNMEA_VLW = 0x0F,
+	UBXMsgIdNMEA_VTG = 0x05,
+	UBXMsgIdNMEA_ZDA = 0x08,
+	
     UBXMsgIdInvalid = 0xFF
 } UBXMessageId;
 
@@ -447,8 +467,8 @@ typedef enum
 {
     UBXPRTModeEvenParity = 0,
     UBXPRTModeOddParity = 1,
-    UBXPRTModeNoParity = 1 << 3,
-    UBXPRTModeReserved = 1 << 2
+    UBXPRTModeNoParity = 4,
+    UBXPRTModeReserved = 2
 } UBXPRTModeParity;
 
 typedef enum
@@ -456,20 +476,23 @@ typedef enum
     UBXPRTMode1StopBit = 0,
     UBXPRTMode1dot5StopBit = 1,
     UBXPRTMode2StopBit = 2,
-    UBXPRTMode0dot5StopBit = 3,
+    UBXPRTMode0dot5StopBit = 3
 } UBXPRTModeStopBits;
 
 typedef enum
 {
-    UBXPRTInProtoInUBX = 1,
+    UBXPRTInProtoInNone = 0,
+    UBXPRTInProtoInUBX  = 1,
     UBXPRTInProtoInNMEA = 1 << 1,
-    UBXPRTInProtoInRTCM = 1 << 2
+    UBXPRTInProtoInRTCM = 1 << 2,
+    UBXPRTInProtoInRTCM3 = 1 << 5
 } UBXPRTInProtoMask;
 
 typedef enum
 {
     UBXPRTOutProtoOutUBX = 1,
-    UBXPRTOutProtoOutNMEA = 1 << 1
+    UBXPRTOutProtoOutNMEA = 1 << 1,
+    UBXPRTOutProtoOutRTCM3 = 1 << 5
 } UBXPRTOutProtoMask;
 
 typedef enum
@@ -1203,7 +1226,7 @@ typedef struct
 typedef struct
 {
     UBXX4_t blank0:4;
-    UBXX4_t reserved1:1;
+    UBXX4_t reserved0:1;
     UBXX4_t blank1:1;
     UBXX4_t charLen:2; //See UBXPRTModeCharLen to fill this field
     UBXX4_t blank2:1;

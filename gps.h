@@ -18,8 +18,15 @@
 extern "C" {
 #endif
 
-#define GPS_BUFFSIZE  (256)
-#define UBX_FFTCNT	  (32)
+#define GPS_LOGSIZE		(20)
+#define GPS_BUFFSIZE	(2048)
+#define GPS_FIFOSIZE	(2048)
+#define GPS_INVALID_LAT	(9999999999)
+#define GPS_INVALID_LON	(9999999999)
+
+#define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
+#define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
+#define M8Q_TXR_POL		(1)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
 
 /* i2c defines */
 #define I2C_TIMEOUT	(4)
@@ -27,6 +34,8 @@ extern "C" {
 
 #define M8Q_REG_R(ADDR)			((uint8_t)(ADDR << 1) | 0x1)
 #define M8Q_REG_W(ADDR)			((uint8_t)(ADDR << 1) | 0x0)
+
+extern uint8_t GPS_FIFO[GPS_FIFOSIZE];
 
 typedef enum {
 	M8Q_SLAVE_ADDR		= 0x42,
@@ -55,40 +64,19 @@ typedef struct utc_time_t {
     uint8_t        hour;             /**< 0 .. 23                      */
     uint8_t        minute;           /**< 0 .. 59                      */
     uint8_t        second;           /**< 0 .. 60                      */ 
-    uint16_t       millis;           /**< 0 .. 999                     */
+    uint16_t       nano;			 /**< 0 .. 999                     */
 } utc_time_t;
 
-/**
- * utc_time_t enum
- *
- * This type represents A location message, parsed from the NMEA data
- * Received from the gps module
- */
-typedef struct location_t {
-    utc_time_t     time;             /**< UTC date/time                */
-    uint16_t       mask;             /**<                              */
-    uint8_t        correction;       /**< GPS/UTC offset               */
-    uint8_t        type;             /**< fix type                     */
-    int32_t        latitude;         /**< (WGS84) degrees, 1e7         */
-    int32_t        longitude;        /**< (WGS84) degrees, 1e7         */
-    int32_t        altitude;         /**< (MSL) m, 1e3                 */
-    int32_t        separation;       /**< (WGS84) = (MSL) + separation */
-    uint32_t       speed;            /**< m/s, 1e3                     */
-    uint32_t       course;           /**< degrees, 1e5                 */
-    int32_t        climb;            /**< m/s, 1e3                     */
-    uint32_t       ehpe;             /**< m, 1e3                       */
-    uint32_t       evpe;             /**< m, 1e3                       */
-    uint8_t        quality;          /**< fix quality                  */
-    uint8_t        numsv;            /**< fix numsv                    */
-    uint16_t       pdop;             /**< 1e2                          */
-    uint16_t       hdop;             /**< 1e2                          */
-    uint16_t       vdop;             /**< 1e2                          */
-    uint32_t       ticks;            /**< system tick                  */
-} location_t;
+typedef struct min_pvt_t {
+	bool        vaild;
+    UBXI4_t     lon;
+    UBXI4_t     lat;
+} min_pvt_t;
 
-// typedef struct pvtsoln_t {
-//     
-// };
+typedef struct gps_log_t {
+	min_pvt_t   position;
+    utc_time_t  time;             /**< UTC date/time                */
+} gps_log_t;
 
 /**
  * GPS_PROFILE enum
@@ -105,26 +93,34 @@ typedef enum
 } GPS_PROFILE;
 
 /**
- * gps_init_spi
- *
- * Initializes and starts the GPS module with the default sampling 
- * and messaging rates
- * 
- * @param spi device descriptor from AtmelStart configuration
- * @return true if successful, false if initialization fails
- */
-uint8_t gps_init_spi(struct spi_m_sync_descriptor *spi_desc);
-
-/**
  * gps_init_i2c
  *
  * Initializes and starts the GPS module with the default sampling 
  * and messaging rates
  * 
- * @param spi device descriptor from AtmelStart configuration
- * @return true if successful, false if initialization fails
+ * @param i2c device descriptor from AtmelStart configuration
+ * @return 1 if successful, 0 if initialization fails
  */
 uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
+
+/**
+ * gps_disable_nmea
+ *
+ * Disables the default NMEA messages on all ports
+ * 
+ * @return 0 if successful, 1 if initialization fails
+ */
+uint8_t gps_disable_nmea();
+
+/**
+ * gps_init_msgs
+ *
+ * Initializes the minimal periodic messages (position) at 
+ *	a default rate.
+ * 
+ * @return 0 if successful, 1 if initialization fails
+ */
+uint8_t gps_init_msgs();
 
 /**
  * gps_write_i2c
@@ -136,7 +132,7 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
  * @param size of the data in bytes to send
  * @return 1 if successful, 0 if i2c transmission times out
  */
-uint8_t gps_write_i2c(const uint8_t *DATA, const uint8_t SIZE);
+uint8_t gps_write_i2c(const uint8_t *DATA, const uint16_t SIZE);
 
 /**
  * gps_read_i2c
@@ -151,7 +147,42 @@ uint8_t gps_write_i2c(const uint8_t *DATA, const uint8_t SIZE);
  * @param size of the data in bytes to send
  * @return 1 if successful, 0 if i2c transmission times out
  */
-uint8_t gps_read_i2c(uint8_t *data, const uint8_t SIZE);
+uint8_t gps_read_i2c(uint8_t *data, const uint16_t SIZE);
+
+/**
+ * gps_read_i2c_poll
+ *
+ * Sends a message to from I2C slave. This uses the "current" 
+ *  read address scheme where the data register is start and 
+ *  next address for all transmissions. This allows for reading
+ *  without sending a new address, but disallows choosing an
+ *  address to read. 
+ * Poll version checks for 0xff and discards, continuing to 
+ *	read until valid data is presented.
+ * 
+ * @param data received from the device is stored here
+ * @param size of the data in bytes to send
+ * @return 1 if successful, 0 if i2c transmission times out
+ */
+uint8_t gps_read_i2c_poll(uint8_t *data, const uint16_t SIZE);
+
+/**
+ * gps_read_i2c_search
+ *
+ * Sends a message to from I2C slave. This uses the "current" 
+ *  read address scheme where the data register is start and 
+ *  next address for all transmissions. This allows for reading
+ *  without sending a new address, but disallows choosing an
+ *  address to read. 
+ * Search version discards all messages that do not match the
+ *  header information in *data and returns the first message
+ *  that does.
+ * 
+ * @param data received from the device is stored here
+ * @param size of the data in bytes to send
+ * @return 1 if successful, 0 if i2c transmission times out
+ */
+uint8_t gps_read_i2c_search(uint8_t *data, const uint16_t SIZE);
 
 /**
  * gps_getfix
@@ -162,7 +193,7 @@ uint8_t gps_read_i2c(uint8_t *data, const uint8_t SIZE);
  * @param fix reference to a gps location structure
  * @return 0 if successful, integer status code otherwise
  */
-uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln);
+/*uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln);*/
 
 /**
  * gps_gettime
@@ -216,10 +247,15 @@ bool gps_setprofile(const GPS_PROFILE profile);
 
 
 //TODO    encapsulate these helper functions
-uint8_t gps_selftest();
-uint8_t cfgUBXoverSPI(uint8_t ffCnt);
+bool gps_selftest();
 //uint8_t cfgPSMOO(uint8_t period);
 
+/************************************************************************/
+/* gps_readfifo															*/
+/************************************************************************/
+uint8_t gps_readfifo();
+uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SIZE);
+uint8_t gps_cfgprt(const UBXMsg MSG);
 
   
 #ifdef __cplusplus

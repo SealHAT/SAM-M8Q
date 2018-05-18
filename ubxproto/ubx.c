@@ -26,10 +26,10 @@
 
 #include "ubxmessage.h"
 #include "ubx.h"
-#include "malloc.h"
 #include "memory.h"
 
 #define HTOBE16(x)      ((x << 8) | (x >> 8))   /* 16 bit endian swap*/
+static char ubxStaticBuffer[210];
 
 void fletcherChecksum(unsigned char* buffer, int size, unsigned char* checkSumA, unsigned char* checkSumB)
 {
@@ -45,11 +45,12 @@ void fletcherChecksum(unsigned char* buffer, int size, unsigned char* checkSumA,
 
 extern void clearUBXMsgBuffer(const UBXMsgBuffer* buffer)
 {
-    free(buffer->data);
+    //free(buffer->data);
+	memset(buffer->data, 0x00, buffer->size);
 }
 
 /* SealHAT */
-void alignUBXmessage(UBXMsg **msg, uint8_t *BUFF, const int SIZE)
+uint16_t alignUBXmessage(UBXMsg **msg, const uint8_t *BUFF, const int SIZE)
 {
     int         i;
     uint8_t     val[2];     /* Character iterator       */
@@ -60,7 +61,7 @@ void alignUBXmessage(UBXMsg **msg, uint8_t *BUFF, const int SIZE)
     header = NULL;
 
     /* Find start of UBX message */
-    while(val[1] == 0xff && (i < (SIZE - 1)))
+    while(val[1] != 0xb5 && (i < (SIZE - 1)))
     {
         val[1] = BUFF[++i];
     }
@@ -76,7 +77,8 @@ void alignUBXmessage(UBXMsg **msg, uint8_t *BUFF, const int SIZE)
     {
         *msg = (UBXMsg*)&BUFF[i];
     }
-
+	
+	return i;
 }
 
 void completeMsg(UBXMsgBuffer* buffer, int payloadSize)
@@ -98,7 +100,8 @@ UBXMsgBuffer createBuffer(int payloadSize)
 {
     UBXMsgBuffer buffer = {0, 0};
     buffer.size = UBX_HEADER_SIZE + payloadSize + UBX_CHECKSUM_SIZE;
-    buffer.data = (char*)malloc(buffer.size);
+    //buffer.data = (char*)malloc(buffer.size);
+	buffer.data = ubxStaticBuffer;
     memset(buffer.data, 0, buffer.size);
     return buffer;
 }
@@ -910,6 +913,16 @@ UBXMsgBuffer getCFG_PRT_POLL()
     return buffer;
 }
 
+UBXMsgBuffer getCFG_PRT()
+{
+	int payloadSize = sizeof(UBXCFG_PRT);
+	UBXMsgBuffer buffer = createBuffer(payloadSize);
+	UBXMsg* msg = (UBXMsg*)buffer.data;
+	initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PRT);
+	completeMsg(&buffer, payloadSize);
+	return buffer;
+}
+
 UBXMsgBuffer getCFG_PRT_POLL_OPT(UBXU1_t portId)
 {
     int payloadSize = sizeof(UBXCFG_PRT_POLL_OPT);
@@ -958,18 +971,40 @@ UBXMsgBuffer setCFG_PRT(UBXCFG_PRT cfg)
 	UBXMsgBuffer buffer = createBuffer(payloadSize);
 	UBXMsg* msg = (UBXMsg*)buffer.data;
 	initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PRT);
-
+	
 	msg->payload.CFG_PRT.portID = cfg.portID;
-	msg->payload.CFG_PRT.txReady = cfg.txReady;
+	msg->payload.CFG_PRT.reserved0 = 0U;
+	msg->payload.CFG_PRT.txReady.en = cfg.txReady.en;
+	msg->payload.CFG_PRT.txReady.pin = cfg.txReady.pin;
+	msg->payload.CFG_PRT.txReady.pol = cfg.txReady.pol;
+	msg->payload.CFG_PRT.txReady.thres = cfg.txReady.thres;
+	msg->payload.CFG_PRT.inProtoMask = cfg.inProtoMask;
+	msg->payload.CFG_PRT.outProtoMask = cfg.outProtoMask;
+	msg->payload.CFG_PRT.flags = cfg.flags;
+	msg->payload.CFG_PRT.reserved5[0] = 0U;
+	msg->payload.CFG_PRT.reserved5[1] = 0U;
+	
 	switch(msg->payload.CFG_PRT.portID) {
 		case UBXPRTDDC :
+		msg->payload.CFG_PRT.mode.UBX_DDC.blank0 = 0U;
 		msg->payload.CFG_PRT.mode.UBX_DDC.slaveAddr = cfg.mode.UBX_DDC.slaveAddr;
+		msg->payload.CFG_PRT.mode.UBX_DDC.blank1 = 0U;
+		msg->payload.CFG_PRT.option.OtherReserved = 0U;
 		break;
 		case UBXPRTUART :
-		msg->payload.CFG_PRT.mode.UBX_UART = cfg.mode.UBX_UART;
+        msg->payload.CFG_PRT.mode.UBX_UART.reserved0 = 1U;
+		msg->payload.CFG_PRT.mode.UBX_UART.blank0 = 0U;
+		msg->payload.CFG_PRT.mode.UBX_UART.blank1 = 0U;
+		msg->payload.CFG_PRT.mode.UBX_UART.blank2 = 0U;
+		msg->payload.CFG_PRT.mode.UBX_UART.blank3 = 0U;
+		msg->payload.CFG_PRT.mode.UBX_UART.charLen = cfg.mode.UBX_UART.charLen;
+		msg->payload.CFG_PRT.mode.UBX_UART.nStopBits = cfg.mode.UBX_UART.nStopBits;
+		msg->payload.CFG_PRT.mode.UBX_UART.parity = cfg.mode.UBX_UART.parity;
+        msg->payload.CFG_PRT.option.UARTbaudRate = cfg.option.UARTbaudRate;
 		break;
 		case UBXPRTUSB :
-		msg->payload.CFG_PRT.mode.UBX_USB = cfg.mode.UBX_USB;
+		msg->payload.CFG_PRT.option.OtherReserved = 0U;
+		msg->payload.CFG_PRT.flags = 0U;
 		break;
 		case UBXPRTSPI :
 		msg->payload.CFG_PRT.mode.UBX_SPI = cfg.mode.UBX_SPI;
@@ -978,10 +1013,8 @@ UBXMsgBuffer setCFG_PRT(UBXCFG_PRT cfg)
 		/* error */
 		break;
 	}
-	msg->payload.CFG_PRT.inProtoMask = cfg.inProtoMask;
-	msg->payload.CFG_PRT.outProtoMask = cfg.outProtoMask;
-	msg->payload.CFG_PRT.flags = cfg.flags;
-
+	
+	
 	completeMsg(&buffer,payloadSize);
 	return buffer;
 }
@@ -1235,6 +1268,16 @@ UBXMsgBuffer getMON_VER_POLL()
     return buffer;
 }
 
+UBXMsgBuffer getMON_VER()
+{
+	int payloadSize = sizeof(UBXMON_VER);
+	UBXMsgBuffer buffer = createBuffer(payloadSize);
+	UBXMsg* msg = (UBXMsg*)buffer.data;
+	initMsg(msg, payloadSize, UBXMsgClassMON, UBXMsgIdMON_HW);
+	completeMsg(&buffer, payloadSize);
+	return buffer;
+}
+
 UBXMsgBuffer getMON_HW_POLL()
 {
 	int payloadSize = 0;
@@ -1244,6 +1287,17 @@ UBXMsgBuffer getMON_HW_POLL()
 	completeMsg(&buffer, payloadSize);
 	return buffer;
 }
+
+UBXMsgBuffer getMON_HW()
+{
+	int payloadSize = sizeof(UBXMON_HW);
+	UBXMsgBuffer buffer = createBuffer(payloadSize);
+	UBXMsg* msg = (UBXMsg*)buffer.data;
+	initMsg(msg, payloadSize, UBXMsgClassMON, UBXMsgIdMON_HW);
+	completeMsg(&buffer, payloadSize);
+	return buffer;
+}
+
 
 UBXMsgBuffer getRXM_ALM_POLL()
 {
