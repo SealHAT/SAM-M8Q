@@ -525,3 +525,65 @@ uint8_t gps_read_i2c_search(uint8_t *data, const uint16_t SIZE)
 	_i2c_m_sync_send_stop(&gps_i2c_desc.device);
 	return GPS_FAILURE;
 }
+
+uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SIZE)
+{
+	uint8_t i;			/* log entry index				*/
+	uint16_t offset;	/* position to read from FIFO	*/
+	UBXMsg *ubx_msg_p;	/* pointer to message in FIFO	*/
+	
+	i = 0;
+	offset = 0;
+	ubx_msg_p = NULL;
+	
+	/* parse messages until  the LOG array is full, or the FIFO is empty */
+	while (i < LOG_SIZE && offset < GPS_FIFOSIZE) {
+		/* find the first ubx message and update the position */
+		offset += alignUBXmessage(ubx_msg_p, &FIFO[offset], GPS_FIFOSIZE - offset);
+	
+		/* extract the data from the message according to the message type */
+		if (ubx_msg_p != NULL) {
+			switch (ubx_msg_p->hdr.msgId) {
+				case UBXMsgIdNAV_PVT :
+					log[i].position.vaild	= (bool)ubx_msg_p->payload.NAV_PVT.flags.gnssFixOk;
+					if(log[i].position.vaild) {
+						log[i].position.lat		= ubx_msg_p->payload.NAV_PVT.lat;
+						log[i].position.lon		= ubx_msg_p->payload.NAV_PVT.lon;
+					} else {
+						log[i].position.lat		= (UBXI4_t)GPS_INVALID_LAT;
+						log[i].position.lon		= (UBXI4_t)GPS_INVALID_LON;
+					}
+					log[i].time.year		= ubx_msg_p->payload.NAV_PVT.year;
+					log[i].time.month		= ubx_msg_p->payload.NAV_PVT.month;
+					log[i].time.day			= ubx_msg_p->payload.NAV_PVT.day;
+					log[i].time.hour		= ubx_msg_p->payload.NAV_PVT.hour;
+					log[i].time.minute		= ubx_msg_p->payload.NAV_PVT.min;
+					log[i].time.second		= ubx_msg_p->payload.NAV_PVT.sec;
+					log[i].time.nano		= ubx_msg_p->payload.NAV_PVT.nano;
+					break;
+				case UBXMsgIdNAV_TIMEUTC :
+					log[i].position.vaild	= false;
+					log[i].position.lat		= (UBXI4_t)GPS_INVALID_LAT;
+					log[i].position.lon		= (UBXI4_t)GPS_INVALID_LON;
+					log[i].time.year		= ubx_msg_p->payload.NAV_TIMEUTC.year;
+					log[i].time.month		= ubx_msg_p->payload.NAV_TIMEUTC.month;
+					log[i].time.day			= ubx_msg_p->payload.NAV_TIMEUTC.day;
+					log[i].time.hour		= ubx_msg_p->payload.NAV_TIMEUTC.hour;
+					log[i].time.minute		= ubx_msg_p->payload.NAV_TIMEUTC.min;
+					log[i].time.second		= ubx_msg_p->payload.NAV_TIMEUTC.sec;
+					log[i].time.nano		= ubx_msg_p->payload.NAV_TIMEUTC.nano;
+					break;
+				/* add cases to support other messages */
+				default:
+					/* discard */
+					break;
+			}
+		}
+		/* increment the index and update the offset */
+		offset += ubx_msg_p->hdr.length;
+		ubx_msg_p = NULL;
+		i++;
+	}
+	
+	return i;
+}

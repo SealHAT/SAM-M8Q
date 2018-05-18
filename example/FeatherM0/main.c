@@ -3,6 +3,8 @@
 #include "Utilities/seal_UTIL.h"
 #include "gps.h"
 
+static gps_log_t log[20];
+
 int main(void)
 {
 	uint8_t retval = 0;
@@ -65,6 +67,7 @@ int main(void)
 		if (gpio_get_pin_level(TX_RDY) == false) {
 			gps_readfifo();
 			gpio_toggle_pin_level(LED_BUILTIN);
+			gps_parsefifo(GPS_FIFO, log, 20);
 			delay_ms(100);
 			gpio_toggle_pin_level(LED_BUILTIN);
 		}

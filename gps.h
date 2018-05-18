@@ -21,6 +21,8 @@ extern "C" {
 #define GPS_BUFFSIZE	(256)
 #define UBX_FFTCNT		(32)
 #define GPS_FIFOSIZE	(2048)
+#define GPS_INVALID_LAT	(9999999999)
+#define GPS_INVALID_LON	(9999999999)
 #define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
 #define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
 #define M8Q_TXR_POL		(1)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
@@ -61,18 +63,18 @@ typedef struct utc_time_t {
     uint8_t        hour;             /**< 0 .. 23                      */
     uint8_t        minute;           /**< 0 .. 59                      */
     uint8_t        second;           /**< 0 .. 60                      */ 
-    uint16_t       millis;           /**< 0 .. 999                     */
+    uint16_t       nano;			 /**< 0 .. 999                     */
 } utc_time_t;
 
 typedef struct min_pvt_t {
+	bool        vaild;
     UBXI4_t     lon;
     UBXI4_t     lat;
-    bool        vaild;
 } min_pvt_t;
 
 typedef struct gps_log_t {
+	min_pvt_t   position;
     utc_time_t  time;             /**< UTC date/time                */
-    min_pvt_t   position;
 } gps_log_t;
 
 /**
@@ -190,7 +192,7 @@ uint8_t gps_read_i2c_search(uint8_t *data, const uint16_t SIZE);
  * @param fix reference to a gps location structure
  * @return 0 if successful, integer status code otherwise
  */
-uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln);
+/*uint8_t gps_getfix(location_t *fix, UBXNAV_PVT *soln);*/
 
 /**
  * gps_gettime
@@ -251,6 +253,7 @@ uint8_t gps_selftest();
 /* gps_readfifo															*/
 /************************************************************************/
 uint8_t gps_readfifo();
+uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SIZE);
 uint8_t gps_cfgprt(const UBXMsg MSG);
   
 #ifdef __cplusplus

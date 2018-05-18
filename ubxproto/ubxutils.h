@@ -52,8 +52,9 @@ extern void clearUBXMsgBuffer(const UBXMsgBuffer *buffer);
  * @param msg pointer to a UBXMsg struct
  * @param BUFF pointer to an array containing a ubx message preceded by a number of 0xff chars
  * @param SIZE size of the BUFF array
+ * @returns the offset to the start of the message
  */
-extern void alignUBXmessage(UBXMsg **msg, uint8_t *BUFF, const int SIZE);
+extern uint16_t alignUBXmessage(UBXMsg *msg, const uint8_t *BUFF, const int SIZE);
 
 extern UBXMsgBuffer getACK_ACK();
 
