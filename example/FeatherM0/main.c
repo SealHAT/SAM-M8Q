@@ -67,8 +67,7 @@ int main(void)
 		if (gpio_get_pin_level(TX_RDY) == false) {
 			gps_readfifo();
 			gpio_toggle_pin_level(LED_BUILTIN);
-			gps_parsefifo(GPS_FIFO, log, 20);
-			delay_ms(100);
+			retval = gps_parsefifo(GPS_FIFO, log, 20);
 			gpio_toggle_pin_level(LED_BUILTIN);
 		}
 	}

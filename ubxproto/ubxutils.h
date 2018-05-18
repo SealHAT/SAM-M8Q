@@ -54,7 +54,7 @@ extern void clearUBXMsgBuffer(const UBXMsgBuffer *buffer);
  * @param SIZE size of the BUFF array
  * @returns the offset to the start of the message
  */
-extern uint16_t alignUBXmessage(UBXMsg *msg, const uint8_t *BUFF, const int SIZE);
+extern uint16_t alignUBXmessage(UBXMsg **msg, const uint8_t *BUFF, const int SIZE);
 
 extern UBXMsgBuffer getACK_ACK();
 

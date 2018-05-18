@@ -539,7 +539,7 @@ uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SI
 	/* parse messages until  the LOG array is full, or the FIFO is empty */
 	while (i < LOG_SIZE && offset < GPS_FIFOSIZE) {
 		/* find the first ubx message and update the position */
-		offset += alignUBXmessage(ubx_msg_p, &FIFO[offset], GPS_FIFOSIZE - offset);
+		offset += alignUBXmessage(&ubx_msg_p, &FIFO[offset], GPS_FIFOSIZE - offset);
 	
 		/* extract the data from the message according to the message type */
 		if (ubx_msg_p != NULL) {
@@ -560,6 +560,7 @@ uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SI
 					log[i].time.minute		= ubx_msg_p->payload.NAV_PVT.min;
 					log[i].time.second		= ubx_msg_p->payload.NAV_PVT.sec;
 					log[i].time.nano		= ubx_msg_p->payload.NAV_PVT.nano;
+					i++;
 					break;
 				case UBXMsgIdNAV_TIMEUTC :
 					log[i].position.vaild	= false;
@@ -572,6 +573,7 @@ uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SI
 					log[i].time.minute		= ubx_msg_p->payload.NAV_TIMEUTC.min;
 					log[i].time.second		= ubx_msg_p->payload.NAV_TIMEUTC.sec;
 					log[i].time.nano		= ubx_msg_p->payload.NAV_TIMEUTC.nano;
+					i++;
 					break;
 				/* add cases to support other messages */
 				default:
@@ -582,7 +584,6 @@ uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SI
 		/* increment the index and update the offset */
 		offset += ubx_msg_p->hdr.length;
 		ubx_msg_p = NULL;
-		i++;
 	}
 	
 	return i;

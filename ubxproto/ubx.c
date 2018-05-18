@@ -50,7 +50,7 @@ extern void clearUBXMsgBuffer(const UBXMsgBuffer* buffer)
 }
 
 /* SealHAT */
-uint16_t alignUBXmessage(UBXMsg *msg, const uint8_t *BUFF, const int SIZE)
+uint16_t alignUBXmessage(UBXMsg **msg, const uint8_t *BUFF, const int SIZE)
 {
     int         i;
     uint8_t     val[2];     /* Character iterator       */
@@ -61,7 +61,7 @@ uint16_t alignUBXmessage(UBXMsg *msg, const uint8_t *BUFF, const int SIZE)
     header = NULL;
 
     /* Find start of UBX message */
-    while(val[1] == 0xff && (i < (SIZE - 1)))
+    while(val[1] != 0xb5 && (i < (SIZE - 1)))
     {
         val[1] = BUFF[++i];
     }
@@ -75,7 +75,7 @@ uint16_t alignUBXmessage(UBXMsg *msg, const uint8_t *BUFF, const int SIZE)
     }
     else
     {
-        msg = (UBXMsg*)&BUFF[i];
+        *msg = (UBXMsg*)&BUFF[i];
     }
 	
 	return i;
