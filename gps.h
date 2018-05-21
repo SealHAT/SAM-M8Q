@@ -20,8 +20,8 @@ extern "C" {
 
 #define GPS_LOGSIZE		(20)
 #define GPS_FIFOSIZE	(2048)
-#define GPS_INVALID_LAT	(9999999999)
-#define GPS_INVALID_LON	(9999999999)
+#define GPS_INVALID_LAT	(-1)
+#define GPS_INVALID_LON	(-1)
 
 #define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
 #define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
@@ -56,23 +56,23 @@ typedef enum {
  *
  * This type represents the UTC time data as given by the GPS device
  */
-typedef struct utc_time_t {
-    uint8_t        year;             /**< 0 .. 257 (1980 == 0)         */
-    uint8_t        month;            /**< 1 .. 12                      */
-    uint8_t        day;              /**< 1 .. 31                      */
-    uint8_t        hour;             /**< 0 .. 23                      */
-    uint8_t        minute;           /**< 0 .. 59                      */
-    uint8_t        second;           /**< 0 .. 60                      */ 
-    uint16_t       nano;			 /**< 0 .. 999                     */
+typedef struct __attribute__((__packed__)) {
+    UBXU2_t		year;             /**< 0 .. 257 (1980 == 0)         */
+    uint8_t     month;            /**< 1 .. 12                      */
+    uint8_t     day;              /**< 1 .. 31                      */
+    uint8_t     hour;             /**< 0 .. 23                      */
+    uint8_t     minute;           /**< 0 .. 59                      */
+    uint8_t     second;           /**< 0 .. 60                      */ 
+    UBXI4_t		nano;			 /**< 0 .. 999                     */
 } utc_time_t;
 
-typedef struct min_pvt_t {
+typedef struct __attribute__((__packed__)) {
 	bool        vaild;
-    UBXI4_t     lon;
-    UBXI4_t     lat;
+    UBXI4_t     lon;	/* int32_t */
+    UBXI4_t     lat;	/* int32_t */
 } min_pvt_t;
 
-typedef struct gps_log_t {
+typedef struct __attribute__((__packed__)) {
 	min_pvt_t   position;
     utc_time_t  time;             /**< UTC date/time                */
 } gps_log_t;
