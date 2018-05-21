@@ -484,11 +484,11 @@ bool gps_selftest()
 	return ack;
 }
 
-int16_t gps_checkfifo()
+int32_t gps_checkfifo()
 {
 	uint8_t buf[2];
 	uint16_t timeout = 0;
-	int16_t	 *retval = 0;
+	int32_t	 retval = 0;
 	
 	buf[0] = M8Q_BYTES_HI_ADDR;
 
@@ -546,7 +546,7 @@ int16_t gps_checkfifo()
 			}
 		}
 		
-		retval = (int16_t*)buf;
+		retval = (buf[0] << 8) | (buf[1] << 0);
 		
-	return retval[0];
+	return retval;
 }

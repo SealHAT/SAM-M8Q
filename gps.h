@@ -19,7 +19,6 @@ extern "C" {
 #endif
 
 #define GPS_LOGSIZE		(20)
-#define GPS_BUFFSIZE	(1024)
 #define GPS_FIFOSIZE	(2048)
 #define GPS_INVALID_LAT	(9999999999)
 #define GPS_INVALID_LON	(9999999999)
@@ -256,7 +255,7 @@ bool gps_selftest();
 uint8_t gps_readfifo();
 uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SIZE);
 uint8_t gps_cfgprt(const UBXMsg MSG);
-int16_t gps_checkfifo();
+int32_t gps_checkfifo();
 
   
 #ifdef __cplusplus
