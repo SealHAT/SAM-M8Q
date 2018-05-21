@@ -12,14 +12,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "ubx.h"
+#include "ubxproto/ubx.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define GPS_LOGSIZE		(20)
-#define GPS_BUFFSIZE	(2048)
+#define GPS_BUFFSIZE	(1024)
 #define GPS_FIFOSIZE	(2048)
 #define GPS_INVALID_LAT	(9999999999)
 #define GPS_INVALID_LON	(9999999999)
@@ -29,8 +29,8 @@ extern "C" {
 #define M8Q_TXR_POL		(1)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
 
 /* i2c defines */
-#define I2C_TIMEOUT	(4)
-#define CFG_TIMEOUT (4)
+#define I2C_TIMEOUT	(8)
+#define CFG_TIMEOUT (8)
 
 #define M8Q_REG_R(ADDR)			((uint8_t)(ADDR << 1) | 0x1)
 #define M8Q_REG_W(ADDR)			((uint8_t)(ADDR << 1) | 0x0)
@@ -256,6 +256,7 @@ bool gps_selftest();
 uint8_t gps_readfifo();
 uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SIZE);
 uint8_t gps_cfgprt(const UBXMsg MSG);
+int16_t gps_checkfifo();
 
   
 #ifdef __cplusplus
