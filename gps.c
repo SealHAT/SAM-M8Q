@@ -6,7 +6,7 @@ static struct   i2c_m_sync_desc	gps_i2c_desc;
 static struct   _i2c_m_msg		gps_i2c_msg;
 static          UBXMsg          ubx_msg;
 static          UBXMsgBuffer    ubx_buf;
-int32_t	gps_err;
+int32_t	                        gps_err;
 
 uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC) 
 {
@@ -244,7 +244,7 @@ uint8_t gps_write_i2c(const uint8_t *DATA, const uint16_t SIZE)
 	gps_i2c_msg.addr	= M8Q_SLAVE_ADDR;
 	gps_i2c_msg.len		= SIZE;
 	gps_i2c_msg.flags	= I2C_M_STOP;
-	gps_i2c_msg.buffer	= DATA;
+	gps_i2c_msg.buffer	= (uint8_t*)DATA;
 	
     /* send, repeat until successful or timeout */
 	while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {

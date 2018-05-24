@@ -63,7 +63,7 @@ typedef struct __attribute__((__packed__)) {
     uint8_t     hour;             /**< 0 .. 23                      */
     uint8_t     minute;           /**< 0 .. 59                      */
     uint8_t     second;           /**< 0 .. 60                      */ 
-    UBXI4_t		nano;			 /**< 0 .. 999                     */
+    UBXI4_t		nano;			  /**< 0 .. 999                     */
 } utc_time_t;
 
 typedef struct __attribute__((__packed__)) {
