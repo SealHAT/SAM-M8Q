@@ -12,9 +12,11 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC)
 {
 	gps_i2c_desc = *I2C_DESC;
 	
+    /* enable and set up the i2c device     */
 	gps_err = i2c_m_sync_enable(&gps_i2c_desc);
 	gps_err = i2c_m_sync_set_slaveaddr(&gps_i2c_desc, M8Q_SLAVE_ADDR, I2C_M_SEVEN);	
 	
+    /* reset the device to default settings */
 	ubx_buf = getCFG_RST(0,0);
 	gps_err = gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
 	delay_ms(500);
@@ -400,14 +402,14 @@ uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SI
 		if (ubx_msg_p != NULL) {
 			switch (ubx_msg_p->hdr.msgId) {
 				case UBXMsgIdNAV_PVT :
-					log[i].position.vaild	= (bool)ubx_msg_p->payload.NAV_PVT.flags.gnssFixOk;
-					if(log[i].position.vaild) {
-						log[i].position.lat		= ubx_msg_p->payload.NAV_PVT.lat;
-						log[i].position.lon		= ubx_msg_p->payload.NAV_PVT.lon;
-					} else {
-						log[i].position.lat		= (UBXI4_t)GPS_INVALID_LAT;
-						log[i].position.lon		= (UBXI4_t)GPS_INVALID_LON;
-					}
+					log[i].position.fixOk	= (bool)ubx_msg_p->payload.NAV_PVT.flags.gnssFixOk;
+					log[i].position.lat		= ubx_msg_p->payload.NAV_PVT.lat;
+					log[i].position.lon		= ubx_msg_p->payload.NAV_PVT.lon;
+                    #if (GPS_VERBOSE_LOG == 1)
+                    log[i].position.fixType = ubx_msg_p->payload.NAV_PVT.fixType;
+                    log[i].position.hAcc    = ubx_msg_p->payload.NAV_PVT.hAcc;
+                    log[i].position.vAcc    = ubx_msg_p->payload.NAV_PVT.vAcc;
+                    #endif
 					log[i].time.year		= ubx_msg_p->payload.NAV_PVT.year;
 					log[i].time.month		= ubx_msg_p->payload.NAV_PVT.month;
 					log[i].time.day			= ubx_msg_p->payload.NAV_PVT.day;
@@ -418,9 +420,14 @@ uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SI
 					i++;
 					break;
 				case UBXMsgIdNAV_TIMEUTC :
-					log[i].position.vaild	= false;
+					log[i].position.fixOk	= false;
 					log[i].position.lat		= (UBXI4_t)GPS_INVALID_LAT;
 					log[i].position.lon		= (UBXI4_t)GPS_INVALID_LON;
+                    #if (GPS_VERBOSE_LOG == 1)
+                    log[i].position.fixType = UBXGPSTimeOnlyFix;
+                    log[i].position.hAcc    = 0;
+                    log[i].position.vAcc    = 0;
+                    #endif
 					log[i].time.year		= ubx_msg_p->payload.NAV_TIMEUTC.year;
 					log[i].time.month		= ubx_msg_p->payload.NAV_TIMEUTC.month;
 					log[i].time.day			= ubx_msg_p->payload.NAV_TIMEUTC.day;

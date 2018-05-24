@@ -22,6 +22,7 @@ extern "C" {
 #define GPS_FIFOSIZE	(2048)
 #define GPS_INVALID_LAT	(-1)
 #define GPS_INVALID_LON	(-1)
+#define GPS_VERBOSE_LOG (1)
 
 #define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
 #define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
@@ -66,10 +67,16 @@ typedef struct __attribute__((__packed__)) {
     UBXI4_t		nano;			  /**< 0 .. 999                     */
 } utc_time_t;
 
+
 typedef struct __attribute__((__packed__)) {
-	bool        vaild;
+	bool        fixOk;
     UBXI4_t     lon;	/* int32_t */
     UBXI4_t     lat;	/* int32_t */
+#if (GPS_VERBOSE_LOG == 1)
+    UBXU1_t     fixType;
+    UBXU4_t     hAcc;
+    UBXU4_t     vAcc;
+#endif
 } min_pvt_t;
 
 typedef struct __attribute__((__packed__)) {
