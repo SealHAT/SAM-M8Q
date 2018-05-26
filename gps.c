@@ -64,11 +64,15 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC)
 		return GPS_FAILURE;
 	}
 
+    /* configure the power sampling scheme */
+    if (GPS_FAILURE == gps_cfgpsmoo(30000)) {/* 30 minutes */
+        return GPS_FAILURE;
+    }
+
     /* set the desired messages to start streaming */
 	if (GPS_FAILURE == gps_init_msgs()) {
 		return GPS_FAILURE;
 	}
-	
 	
 	return GPS_SUCCESS;
 }
@@ -565,14 +569,17 @@ GPS_ERROR gps_cfgpsmoo(uint32_t period)
     GPS_ERROR       result  = GPS_FAILURE;
     uint16_t        timeout = 0;
 
+    memset(&ubx_msg, 0x00, sizeof(ubx_msg));
     /* set the power mode variables for UBX protocol v18 */
     ubx_msg.payload.CFG_PM2.version = 0x02; 
+    ubx_msg.payload.CFG_PM2.maxStartupStateDur = 0;
 
     /* set the power mode flags for minimal ON/OFF operation */
     ubx_msg.payload.CFG_PM2.flags.mode = UBXPM2OnOffOperation;
     ubx_msg.payload.CFG_PM2.flags.extIntSelect  = 0;
     ubx_msg.payload.CFG_PM2.flags.extIntWake    = 0;
     ubx_msg.payload.CFG_PM2.flags.extIntBackup  = 0;
+    ubx_msg.payload.CFG_PM2.flags.extIntInactive= 0;
     ubx_msg.payload.CFG_PM2.flags.limitPeakCurr = UBXPM2LimitCurrentEnabled;
     ubx_msg.payload.CFG_PM2.flags.waitTimeFix   = 1; /* need time fix before starting */
     ubx_msg.payload.CFG_PM2.flags.updateRTC     = 0;
@@ -584,13 +591,17 @@ GPS_ERROR gps_cfgpsmoo(uint32_t period)
     ubx_msg.payload.CFG_PM2.gridOffset      = 0;
     ubx_msg.payload.CFG_PM2.onTime          = 0;
     ubx_msg.payload.CFG_PM2.minAcqTime      = 0;
+    ubx_msg.payload.CFG_PM2.extintInactivityMs = 0;
   
     /* set up CFG messages */
+    uint8_t data[56] = {0xB5, 0x62, 0x06, 0x3B, 0x30, 0x00, 0x02, 0x06, 0x00, 0x00, 0x00, 0x84, 0x40, 0x01, 0x30, 0x75,
+                        0x00, 0x00, 0xc0, 0xe1, 0xe4, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x01, 0x00, 0x00, 0x4f,
+                        0xc1, 0x03, 0x00, 0x87, 0x02, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x64, 0x40, 0x01, 0x00, 0x00,
+                        0x00, 0x00, 0x00, 0xd5, 0x5a};
     do {
         /* build the UBX message  */
-        ubx_buf = getCFG_PM2( ubx_msg.payload.CFG_PM2.flags, ubx_msg.payload.CFG_PM2.updatePeriod,
-                              ubx_msg.payload.CFG_PM2.searchPeriod, ubx_msg.payload.CFG_PM2.gridOffset,
-                              ubx_msg.payload.CFG_PM2.onTime, ubx_msg.payload.CFG_PM2.minAcqTime );
+        clearUBXMsgBuffer(&ubx_buf);
+        ubx_buf = getCFG_PM2(ubx_msg.payload.CFG_PM2);
 
         if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
             	

@@ -116,12 +116,7 @@ extern UBXMsgBuffer getCFG_NVS(UBXX4_t clearMask, //See UBXCFGMask CFG_NVS secti
                                       UBXX1_t deviceMask //See UBXCFGDeviceMask to fill this field
                                       );
 extern UBXMsgBuffer getCFG_PM2_POLL();
-extern UBXMsgBuffer getCFG_PM2(UBXCFG_PM2Flags flags,
-                                      UBXU4_t updatePeriod,
-                                      UBXU4_t searchPeriod,
-                                      UBXU4_t gridOffset,
-                                      UBXU2_t onTime,
-                                      UBXU2_t minAcqTime);
+extern UBXMsgBuffer getCFG_PM2(UBXCFG_PM2 cfg);
 extern UBXMsgBuffer getCFG_PRT_POLL();
 extern UBXMsgBuffer getCFG_PRT_POLL_OPT(UBXU1_t portId);
 extern UBXMsgBuffer getCFG_PRT();

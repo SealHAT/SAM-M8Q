@@ -36,7 +36,7 @@ extern "C" {
 #define M8Q_REG_W(ADDR)			((uint8_t)(ADDR << 1) | 0x0)
 
 /* power saving defines */
-#define GPS_SEARCH_DIV  (15) /* fraction of update period time to retry aquisitions */
+#define GPS_SEARCH_DIV  (2) /* fraction of update period time to retry acquisitions */
 
 extern uint8_t GPS_FIFO[GPS_FIFOSIZE];
 
