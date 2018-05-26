@@ -35,6 +35,9 @@ extern "C" {
 #define M8Q_REG_R(ADDR)			((uint8_t)(ADDR << 1) | 0x1)
 #define M8Q_REG_W(ADDR)			((uint8_t)(ADDR << 1) | 0x0)
 
+/* power saving defines */
+#define GPS_SEARCH_DIV  (2) /* fraction of update period time to retry acquisitions */
+
 extern uint8_t GPS_FIFO[GPS_FIFOSIZE];
 
 typedef enum {
@@ -246,15 +249,25 @@ bool gps_wake();
  * Configure the GPS module with a predefined sampling/power 
  * scheme
  *
- * @param profile preconfigured sampling profile
+ * @param profile pre-configured sampling profile
  * @returns true if successful, false if profile not set
  */
 bool gps_setprofile(const GPS_PROFILE profile);
 
+/**
+ * gps_cfgpsmoo
+ *
+ * Configures the ON/OFF power-saving mode of the UBX GPS device
+ *  by setting the minimum state variables to allow for periodic GPS
+ *  acquisition without tracking
+ *
+ * @param period the period of time in ms to attempt to obtain a fix
+ * @returns if an error occurred during configuration
+ */
+GPS_ERROR gps_cfgpsmoo(uint32_t period);
+GPS_ERROR gps_cfgpsmoo_18(uint32_t period);
 
-//TODO    encapsulate these helper functions
-bool gps_selftest();
-//uint8_t cfgPSMOO(uint8_t period);
+GPS_ERROR gps_selftest();
 
 /************************************************************************/
 /* gps_readfifo															*/

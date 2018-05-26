@@ -887,18 +887,34 @@ UBXMsgBuffer getCFG_PM2_POLL()
     return buffer;
 }
 
-UBXMsgBuffer getCFG_PM2(UBXCFG_PM2Flags flags, UBXU4_t updatePeriod, UBXU4_t searchPeriod, UBXU4_t gridOffset, UBXU2_t onTime, UBXU2_t minAcqTime)
+UBXMsgBuffer getCFG_PM2(UBXCFG_PM2 cfg)
 {
     int payloadSize = sizeof(UBXCFG_PM2);
     UBXMsgBuffer buffer = createBuffer(payloadSize);
     UBXMsg* msg = (UBXMsg*)buffer.data;
     initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PM2);
-    msg->payload.CFG_PM2.flags = flags;
-    msg->payload.CFG_PM2.updatePeriod = updatePeriod;
-    msg->payload.CFG_PM2.searchPeriod = searchPeriod;
-    msg->payload.CFG_PM2.gridOffset = gridOffset;
-    msg->payload.CFG_PM2.onTime = onTime;
-    msg->payload.CFG_PM2.minAcqTime = minAcqTime;
+    msg->payload.CFG_PM2 = cfg;
+    completeMsg(&buffer, payloadSize);
+    return buffer;
+}
+
+UBXMsgBuffer getCFG_PMS_POLL()
+{
+    int payloadSize = 0;
+    UBXMsgBuffer buffer = createBuffer(payloadSize);
+    UBXMsg *msg = (UBXMsg*)buffer.data;
+    initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PMS);
+    completeMsg(&buffer, payloadSize);
+    return buffer;
+}
+
+UBXMsgBuffer setCFG_PMS(UBXCFG_PMS cfg)
+{
+    int payloadSize = sizeof(UBXCFG_PMS);
+    UBXMsgBuffer buffer = createBuffer(payloadSize);
+    UBXMsg *msg = (UBXMsg*)buffer.data;
+    initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PMS);
+    msg->payload.CFG_PMS = cfg;
     completeMsg(&buffer, payloadSize);
     return buffer;
 }

@@ -112,6 +112,7 @@ typedef enum
     UBXMsgIdCFG_NMEA = 0x17,
     UBXMsgIdCFG_NVS = 0x22,
     UBXMsgIdCFG_PM2 = 0x3B,
+    UBXMsgIdCFG_PMS = 0x86,
     UBXMsgIdCFG_PRT = 0x00,
     UBXMsgIdCFG_RATE = 0x08,
     UBXMsgIdCFG_RINV = 0x34,
@@ -454,6 +455,16 @@ typedef enum
     UBXPM2CyclicTrackOperation = 0x01
 } UBXPM2Mode;
 
+typedef enum
+{
+    UBXPMSFullPower     = 0x00,
+    UBXPMSBalanced      = 0x01,
+    UBXPMSInterval      = 0x02,
+    UBXPMSAggressive1Hz = 0x03,
+    UBXPMSAggressive2Hz = 0x04,
+    UBXPMSAggressive4Hz = 0x05,
+    UBXPMSInvalid       = 0xFF
+} UBXPMSpowerSetupValue;
 
 typedef enum
 {
@@ -1169,6 +1180,44 @@ typedef struct {
     //No payload
 //} UBXCFG_PM2_POLL;
 
+// typedef struct
+// {
+//     UBXX4_t blank1:1;
+//     UBXX4_t reserved:3;
+//     UBXX4_t extIntSelect:1;
+//     UBXX4_t extIntWake:1;
+//     UBXX4_t extIntBackup:1;
+//     UBXX4_t blank2:1;
+//     UBXX4_t limitPeakCurr:2; //See UBXPM2LimitPeakCurrent to fill this field
+//     UBXX4_t waitTimeFix:1;
+//     UBXX4_t updateRTC:1;
+//     UBXX4_t updateEPH:1;
+//     UBXX4_t blank3:3;
+//     UBXX4_t doNotEnterOff:1;
+//     UBXX4_t mode:2; //See UBXPM2Mode to fill this field
+// } UBXCFG_PM2Flags; /* proto < 17 */
+
+// typedef struct {
+//     UBXU1_t version;
+//     UBXU1_t reserved1;
+//     UBXU1_t reserved2;
+//     UBXU1_t reserved3;
+//     UBXCFG_PM2Flags flags;
+//     UBXU4_t updatePeriod;
+//     UBXU4_t searchPeriod;
+//     UBXU4_t gridOffset;
+//     UBXU2_t onTime;
+//     UBXU2_t minAcqTime;
+//     UBXU2_t reserved4;
+//     UBXU2_t reserved5;
+//     UBXU4_t reserved6;
+//     UBXU4_t reserved7;
+//     UBXU1_t reserved8;
+//     UBXU1_t reserved9;
+//     UBXU2_t reserved10;
+//     UBXU4_t reserved11;
+// } UBXCFG_PM2; /* proto < 17 */
+
 typedef struct
 {
     UBXX4_t blank1:1;
@@ -1176,36 +1225,40 @@ typedef struct
     UBXX4_t extIntSelect:1;
     UBXX4_t extIntWake:1;
     UBXX4_t extIntBackup:1;
-    UBXX4_t blank2:1;
+    UBXX4_t extIntInactive:1;
     UBXX4_t limitPeakCurr:2; //See UBXPM2LimitPeakCurrent to fill this field
     UBXX4_t waitTimeFix:1;
     UBXX4_t updateRTC:1;
     UBXX4_t updateEPH:1;
-    UBXX4_t blank3:3;
+    UBXX4_t blank2:3;
     UBXX4_t doNotEnterOff:1;
     UBXX4_t mode:2; //See UBXPM2Mode to fill this field
-} UBXCFG_PM2Flags;
+    UBXX4_t blank3:13;
+} UBXCFG_PM2Flags; /* proto < 17 */
 
 typedef struct {
     UBXU1_t version;
     UBXU1_t reserved1;
+    UBXU1_t maxStartupStateDur;
     UBXU1_t reserved2;
-    UBXU1_t reserved3;
     UBXCFG_PM2Flags flags;
     UBXU4_t updatePeriod;
     UBXU4_t searchPeriod;
     UBXU4_t gridOffset;
     UBXU2_t onTime;
     UBXU2_t minAcqTime;
-    UBXU2_t reserved4;
-    UBXU2_t reserved5;
-    UBXU4_t reserved6;
-    UBXU4_t reserved7;
-    UBXU1_t reserved8;
-    UBXU1_t reserved9;
-    UBXU2_t reserved10;
-    UBXU4_t reserved11;
+    UBXU1_t reserved3[20];
+    UBXU4_t extintInactivityMs;
 } UBXCFG_PM2;
+
+/* sealHAT addition */
+typedef struct {
+    UBXU1_t version;            /* 0x00 for this version (proto18) */
+    UBXU1_t powerSetupValue;    /* enum UBXPMSpowerSetupValue */
+    UBXU2_t period;             /* pos update/search T, min 5 (10 rec) */
+    UBXU2_t onTime;             /* < perioid, only valid for interval */
+    UBXU1_t reserved[2];
+} UBXCFG_PMS;
 
 //typedef struct {
     //No payload
@@ -2051,6 +2104,7 @@ typedef union
     UBXCFG_NMEA CFG_NMEA;
     UBXCFG_NVS CFG_NVS;
     UBXCFG_PM2 CFG_PM2;
+    UBXCFG_PMS CFG_PMS;
     UBXCFG_PRT_POLL_OPT CFG_PRT_POLL_OPT;
     UBXCFG_PRT CFG_PRT;
     UBXCFG_RATE CFG_RATE;
