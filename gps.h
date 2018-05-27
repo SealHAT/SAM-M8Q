@@ -18,10 +18,11 @@
 extern "C" {
 #endif
 
-#define GPS_LOGSIZE		(20)
-#define GPS_FIFOSIZE	(2048)
+#define GPS_LOGSIZE		(10)
+#define GPS_FIFOSIZE	(1024)
 #define GPS_INVALID_LAT	(-1)
 #define GPS_INVALID_LON	(-1)
+#define GPS_VERBOSE_LOG (1)
 
 #define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
 #define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
@@ -33,6 +34,9 @@ extern "C" {
 
 #define M8Q_REG_R(ADDR)			((uint8_t)(ADDR << 1) | 0x1)
 #define M8Q_REG_W(ADDR)			((uint8_t)(ADDR << 1) | 0x0)
+
+/* power saving defines */
+#define GPS_SEARCH_DIV  (2) /* fraction of update period time to retry acquisitions */
 
 extern uint8_t GPS_FIFO[GPS_FIFOSIZE];
 
@@ -66,10 +70,16 @@ typedef struct __attribute__((__packed__)) {
     UBXI4_t		nano;			  /**< 0 .. 999                     */
 } utc_time_t;
 
+
 typedef struct __attribute__((__packed__)) {
-	bool        vaild;
+	bool        fixOk;
     UBXI4_t     lon;	/* int32_t */
     UBXI4_t     lat;	/* int32_t */
+#if (GPS_VERBOSE_LOG == 1)
+    UBXU1_t     fixType;
+    UBXU4_t     hAcc;
+    UBXU4_t     vAcc;
+#endif
 } min_pvt_t;
 
 typedef struct __attribute__((__packed__)) {
@@ -239,15 +249,27 @@ bool gps_wake();
  * Configure the GPS module with a predefined sampling/power 
  * scheme
  *
- * @param profile preconfigured sampling profile
+ * @param profile pre-configured sampling profile
  * @returns true if successful, false if profile not set
  */
 bool gps_setprofile(const GPS_PROFILE profile);
 
+/**
+ * gps_cfgpsmoo
+ *
+ * Configures the ON/OFF power-saving mode of the UBX GPS device
+ *  by setting the minimum state variables to allow for periodic GPS
+ *  acquisition without tracking
+ *
+ * @param period the period of time in ms to attempt to obtain a fix
+ * @returns if an error occurred during configuration
+ */
+GPS_ERROR gps_cfgpsmoo(uint32_t period);
+GPS_ERROR gps_cfgpsmoo_18(uint32_t period);
 
-//TODO    encapsulate these helper functions
-bool gps_selftest();
-//uint8_t cfgPSMOO(uint8_t period);
+GPS_ERROR gps_savecfg();
+
+GPS_ERROR gps_verifyprt();
 
 /************************************************************************/
 /* gps_readfifo															*/
@@ -256,6 +278,7 @@ uint8_t gps_readfifo();
 uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SIZE);
 uint8_t gps_cfgprt(const UBXMsg MSG);
 int32_t gps_checkfifo();
+GPS_ERROR gps_ack();
 
   
 #ifdef __cplusplus
