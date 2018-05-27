@@ -18,8 +18,8 @@
 extern "C" {
 #endif
 
-#define GPS_LOGSIZE		(20)
-#define GPS_FIFOSIZE	(2048)
+#define GPS_LOGSIZE		(10)
+#define GPS_FIFOSIZE	(1024)
 #define GPS_INVALID_LAT	(-1)
 #define GPS_INVALID_LON	(-1)
 #define GPS_VERBOSE_LOG (1)
@@ -267,7 +267,9 @@ bool gps_setprofile(const GPS_PROFILE profile);
 GPS_ERROR gps_cfgpsmoo(uint32_t period);
 GPS_ERROR gps_cfgpsmoo_18(uint32_t period);
 
-GPS_ERROR gps_selftest();
+GPS_ERROR gps_savecfg();
+
+GPS_ERROR gps_verifyprt();
 
 /************************************************************************/
 /* gps_readfifo															*/
@@ -276,6 +278,7 @@ uint8_t gps_readfifo();
 uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SIZE);
 uint8_t gps_cfgprt(const UBXMsg MSG);
 int32_t gps_checkfifo();
+GPS_ERROR gps_ack();
 
   
 #ifdef __cplusplus
