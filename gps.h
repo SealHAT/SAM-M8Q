@@ -268,7 +268,7 @@ GPS_ERROR gps_cfgpsmoo(uint32_t period);
 GPS_ERROR gps_cfgpsmoo_18(uint32_t period);
 
 GPS_ERROR gps_savecfg();
-
+GPS_ERROR gps_clearcfg();
 GPS_ERROR gps_verifyprt();
 
 /************************************************************************/
