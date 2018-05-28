@@ -18,8 +18,8 @@
 extern "C" {
 #endif
 
-#define GPS_LOGSIZE		(10)
-#define GPS_FIFOSIZE	(1024)
+#define GPS_FIFOSIZE	(512)
+#define GPS_LOGSIZE		(5)
 #define GPS_INVALID_LAT	(-1)
 #define GPS_INVALID_LON	(-1)
 #define GPS_VERBOSE_LOG (1)
@@ -38,7 +38,7 @@ extern "C" {
 /* power saving defines */
 #define GPS_SEARCH_DIV  (2) /* fraction of update period time to retry acquisitions */
 
-extern uint8_t GPS_FIFO[GPS_FIFOSIZE];
+//extern uint8_t GPS_FIFO[GPS_FIFOSIZE];
 
 typedef enum {
 	M8Q_SLAVE_ADDR		= 0x42,
@@ -275,7 +275,7 @@ GPS_ERROR gps_verifyprt();
 /* gps_readfifo															*/
 /************************************************************************/
 uint8_t gps_readfifo();
-uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SIZE);
+uint8_t gps_parsefifo(gps_log_t *log, const uint16_t LOG_SIZE);
 uint8_t gps_cfgprt(const UBXMsg MSG);
 int32_t gps_checkfifo();
 GPS_ERROR gps_ack();

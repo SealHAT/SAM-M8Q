@@ -1,6 +1,6 @@
 #include "gps.h"
 
-uint8_t	GPS_FIFO[GPS_FIFOSIZE];
+static uint8_t	GPS_FIFO[GPS_FIFOSIZE];
 
 static struct   i2c_m_sync_desc	gps_i2c_desc;
 static struct   _i2c_m_msg		gps_i2c_msg;
@@ -281,7 +281,7 @@ uint8_t gps_read_i2c_poll(uint8_t *data, const uint16_t SIZE)
 	return GPS_SUCCESS;
 }
 
-uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SIZE)
+uint8_t gps_parsefifo(gps_log_t *log, const uint16_t LOG_SIZE)
 {
 	uint8_t i;			/* log entry index				*/
 	uint16_t offset;	/* position to read from FIFO	*/
@@ -294,7 +294,7 @@ uint8_t gps_parsefifo(const uint8_t *FIFO, gps_log_t *log, const uint16_t LOG_SI
 	/* parse messages until  the LOG array is full, or the FIFO is empty */
 	while (i < LOG_SIZE && offset < GPS_FIFOSIZE) {
 		/* find the first UBX message and update the position */
-		offset += alignUBXmessage(&ubx_msg_p, &FIFO[offset], GPS_FIFOSIZE - offset);
+		offset += alignUBXmessage(&ubx_msg_p, &GPS_FIFO[offset], GPS_FIFOSIZE - offset);
 	
 		/* extract the data from the message according to the message type */
 		if (ubx_msg_p != NULL) {
