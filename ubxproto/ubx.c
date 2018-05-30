@@ -950,19 +950,6 @@ UBXMsgBuffer getCFG_PRT_POLL_OPT(UBXU1_t portId)
     return buffer;
 }
 
-UBXMsgBuffer getCFG_PRT_UART()
-{
-    //TODO
-    UBXMsgBuffer buffer = createBuffer(0);
-    return buffer;
-}
-
-UBXMsgBuffer getCFG_PRT_USB()
-{
-    //TODO
-    UBXMsgBuffer buffer = createBuffer(0);
-    return buffer;
-}
 
 // UBXMsgBuffer setCFG_PRT(UBXCFGPortIds id, UBXCFG_PRTTxReady txr, UBXCFG_PRTMode mode, 
 // 						UBXPRTInProtoMask ipmask, UBXPRTOutProtoMask opmask, UBXPRTFlags flags)
@@ -1033,20 +1020,6 @@ UBXMsgBuffer setCFG_PRT(UBXCFG_PRT cfg)
 	
 	completeMsg(&buffer,payloadSize);
 	return buffer;
-}
-
-UBXMsgBuffer getCFG_PRT_SPI()
-{
-    //TODO
-    UBXMsgBuffer buffer = createBuffer(0);
-    return buffer;
-}
-
-UBXMsgBuffer getCFG_PRT_DDC()
-{
-    //TODO
-    UBXMsgBuffer buffer = createBuffer(0);
-    return buffer;
 }
 
 UBXMsgBuffer getCFG_RATE_POLL()

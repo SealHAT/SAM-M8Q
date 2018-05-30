@@ -22,6 +22,7 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC)
 	gps_err = gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
 	delay_ms(500);
 	
+    /* disable the default nmea messages */
 	if (GPS_FAILURE == gps_disable_nmea()) {
 		return GPS_FAILURE;
 	}
@@ -69,23 +70,6 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC)
     if (GPS_FAILURE == gps_verifyprt()) {
         return GPS_FAILURE;
     }
-    
-    /* set the desired messages to start streaming */
-	if (GPS_FAILURE == gps_init_msgs()) {
-		return GPS_FAILURE;
-	}
-	
-    /* configure the power sampling scheme */
-    if (GPS_FAILURE == gps_cfgpsmoo(30000)) {/* 30 minutes */
-        return GPS_FAILURE;
-    }
- 
-//     /* configure the power sampling scheme */
-//     if (GPS_FAILURE == gps_cfgpsmoo_18(30)) {
-//         return GPS_FAILURE;
-//     }
-    
-    gps_readfifo();
 
 	return GPS_SUCCESS;
 }
@@ -121,7 +105,6 @@ uint8_t gps_disable_nmea()
 
 uint8_t gps_init_msgs()
 {
-	UBXMsg          *ack_msg;
 	uint8_t         result  = GPS_FAILURE;
 	uint16_t        timeout = 0;
 	
@@ -162,7 +145,6 @@ uint8_t gps_init_msgs()
 
 uint8_t gps_cfgprt(const UBXMsg MSG)
 {
-	UBXMsg          *ack_msg;
 	uint8_t         result  = GPS_FAILURE;
 	uint16_t        timeout = 0;
 	
@@ -454,7 +436,6 @@ int32_t gps_checkfifo()
 
 GPS_ERROR gps_cfgpsmoo(uint32_t period)
 {
-    UBXMsg          *ack_msg;
     GPS_ERROR       result  = GPS_FAILURE;
     uint16_t        timeout = 0;
 
@@ -501,7 +482,6 @@ GPS_ERROR gps_cfgpsmoo(uint32_t period)
 
 GPS_ERROR gps_cfgpsmoo_18(uint32_t period)
 {
-    UBXMsg          *ack_msg;
     GPS_ERROR       result  = GPS_FAILURE;
     uint16_t        timeout = 0;
 
@@ -589,9 +569,9 @@ GPS_ERROR gps_clearcfg()
 
 GPS_ERROR gps_ack()
 {
-    UBXMsg*         ack_msg;
-    UBXMsgBuffer    ack_buf;
-    char            ack_data[10];
+//     UBXMsg*         ack_msg;
+//     UBXMsgBuffer    ack_buf;
+//     char            ack_data[10];
     GPS_ERROR       result = GPS_FAILURE;
     
 // 	/* get acknowledge message and verify */
@@ -607,4 +587,16 @@ GPS_ERROR gps_ack()
     
     result = GPS_SUCCESS;
     return result;
+}
+
+GPS_ERROR gps_setrate(const uint32_t period)
+{
+    /* configure the power sampling scheme */
+    if (GPS_FAILURE == gps_cfgpsmoo(period)) {
+        return GPS_FAILURE;
+    }
+    
+    // TODO verify rate and change message rate to match
+    
+    return GPS_SUCCESS;
 }

@@ -23,22 +23,20 @@ extern "C" {
 #define GPS_INVALID_LAT	(-1)
 #define GPS_INVALID_LON	(-1)
 #define GPS_VERBOSE_LOG (1)
+/* power saving defines */
+#define GPS_SEARCH_DIV  (2) /* fraction of update period time to retry acquisitions */
 
-#define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
-#define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
-#define M8Q_TXR_POL		(1)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
 
 /* i2c defines */
 #define I2C_TIMEOUT	(8)
 #define CFG_TIMEOUT (8)
 
+#define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
+#define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
+#define M8Q_TXR_POL		(1)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
+
 #define M8Q_REG_R(ADDR)			((uint8_t)(ADDR << 1) | 0x1)
 #define M8Q_REG_W(ADDR)			((uint8_t)(ADDR << 1) | 0x0)
-
-/* power saving defines */
-#define GPS_SEARCH_DIV  (2) /* fraction of update period time to retry acquisitions */
-
-//extern uint8_t GPS_FIFO[GPS_FIFOSIZE];
 
 typedef enum {
 	M8Q_SLAVE_ADDR		= 0x42,
@@ -219,10 +217,10 @@ uint8_t gps_gettime(utc_time_t *time);
  *
  * Configure the GPS module to sample at a given rate
  *
- * @param period sampling rate of gps in seconds
- * @return true if succesful, false if sampling rate not set
+ * @param period sampling rate of GPS in seconds
+ * @return true if successful, false if sampling rate not set
  */
-bool gps_setrate(const uint32_t period);
+GPS_ERROR gps_setrate(const uint32_t period);
 
 /**
  * gps_sleep
@@ -231,7 +229,7 @@ bool gps_setrate(const uint32_t period);
  *
  * @return true if successful, false if device fails to sleep
  */
-bool gps_sleep();
+GPS_ERROR gps_sleep();
 
 /**
  * gps_wake
@@ -241,7 +239,7 @@ bool gps_sleep();
  *
  * @return true if successful, false if device fails to sleep
  */
-bool gps_wake();
+GPS_ERROR gps_wake();
 
 /**
  * gps_setprofile
@@ -252,14 +250,15 @@ bool gps_wake();
  * @param profile pre-configured sampling profile
  * @returns true if successful, false if profile not set
  */
-bool gps_setprofile(const GPS_PROFILE profile);
+GPS_ERROR gps_setprofile(const GPS_PROFILE profile);
 
 /**
- * gps_cfgpsmoo
+ * gps_cfgpsmoo/gps_cfgpsmoo_18
  *
  * Configures the ON/OFF power-saving mode of the UBX GPS device
  *  by setting the minimum state variables to allow for periodic GPS
- *  acquisition without tracking
+ *  acquisition without tracking. The 18 version does the same, but 
+ *  is only available for protocol v18 and is not well documented.
  *
  * @param period the period of time in ms to attempt to obtain a fix
  * @returns if an error occurred during configuration
@@ -267,17 +266,79 @@ bool gps_setprofile(const GPS_PROFILE profile);
 GPS_ERROR gps_cfgpsmoo(uint32_t period);
 GPS_ERROR gps_cfgpsmoo_18(uint32_t period);
 
+/**
+ * gps_savecfg
+ * 
+ *  Saves all of the current GPS configuration settings
+ *  
+ *  @returns Messaging success, 0 if successful
+ */
 GPS_ERROR gps_savecfg();
+
+/**
+ * gps_clear
+ * 
+ *  clears all of the current GPS configuration settings
+ *  
+ *  @returns Messaging success, 0 if successful
+ */
 GPS_ERROR gps_clearcfg();
+
+/**
+ * gps_verifyprt
+ * 
+ *  checks the port settings to ensure they have been configured
+ *  as requested by gps_cfgprt. necessary as tx_rdy settings are 
+ *  not included in ACK/NAK response
+ *  
+ *  @returns 0 if the configuration matches
+ */
 GPS_ERROR gps_verifyprt();
 
-/************************************************************************/
-/* gps_readfifo															*/
-/************************************************************************/
+/**
+ * gps_readfifo
+ *  extracts the entire ublox fifo from the device to a local array
+ *  @returns 0 if successful
+ */
 uint8_t gps_readfifo();
+
+/**
+ * gps_parsefifo
+ *  extracts the message contents from the local copy of the FIFO
+ *  requires that the fifo has been saved with gps_readfifo
+ *  currently supports messages:
+ *      NAV_PVT, NAV_UTC
+ *  @param log pointer to the array of records for storing on a device
+ *  @param LOG_SIZE size of record array
+ *  @returns 0 if successful
+ */
 uint8_t gps_parsefifo(gps_log_t *log, const uint16_t LOG_SIZE);
+
+/**
+ * gps_cfgprt
+ *  configures the ublox communication ports to the settings specified
+ *  by MSG. When used with gps_verifyprt, MSG should configure tx_rdy
+ *  settings on the DDC port
+ *  
+ *  @param MSG struct of port settings to configure
+ *  @returns 0 if successful
+ */
 uint8_t gps_cfgprt(const UBXMsg MSG);
+
+/**
+ * gps_checkfifo
+ *  poll the ddc port for the number of messages currently in the UBX fifo
+ *  
+ *  @returns number of bytes in fifo
+ */
 int32_t gps_checkfifo();
+
+/**
+ * gps_ack
+ *  performs a UBX ack/nak check, to be called after CFG messages when needed
+ *  
+ *  @returns 0 if ACK
+ */
 GPS_ERROR gps_ack();
 
   
