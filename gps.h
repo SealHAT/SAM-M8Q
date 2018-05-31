@@ -217,7 +217,7 @@ uint8_t gps_gettime(utc_time_t *time);
  *
  * Configure the GPS module to sample at a given rate
  *
- * @param period sampling rate of GPS in seconds
+ * @param period sampling rate of GPS in ms
  * @return true if successful, false if sampling rate not set
  */
 GPS_ERROR gps_setrate(const uint32_t period);

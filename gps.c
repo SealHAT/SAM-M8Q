@@ -106,27 +106,8 @@ uint8_t gps_disable_nmea()
 uint8_t gps_init_msgs()
 {
 	uint8_t         result  = GPS_FAILURE;
-	uint16_t        timeout = 0;
-	
-	/* set default 1Hz rate */
-	do {
-		/* send message disable particular message on all IO ports */
-		ubx_buf = getCFG_RATE(10000,1,0);
-		if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
-            if (GPS_FAILURE == gps_savecfg()) {
-                return GPS_FAILURE;
-            }
-			result = gps_ack();
-		}
-		/* repeat until timeout or successful acknowledge from device */
-	} while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
-	
-	if (GPS_FAILURE == result) {
-		return GPS_FAILURE;
-	}
-	result = GPS_FAILURE;
-	timeout = 0;
-	
+	uint16_t        timeout = 0;	
+
 	/* set up NAV messages */
 	do {
 		/* send message disable particular message on all IO ports */
@@ -591,10 +572,34 @@ GPS_ERROR gps_ack()
 
 GPS_ERROR gps_setrate(const uint32_t period)
 {
+    uint8_t         result  = GPS_FAILURE;
+    uint16_t        timeout = 0;
+        
+    /* set default 1Hz rate */
+    do {
+        /* send message disable particular message on all IO ports */
+        ubx_buf = getCFG_RATE(period,1,0);
+        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+            if (GPS_FAILURE == gps_savecfg()) {
+                return GPS_FAILURE;
+            }
+            result = gps_ack();
+        }
+        /* repeat until timeout or successful acknowledge from device */
+    } while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
+    	
+    if (GPS_FAILURE == result) {
+        return GPS_FAILURE;
+    }
+    result = GPS_FAILURE;
+    timeout = 0;
+    	
+        
     /* configure the power sampling scheme */
     if (GPS_FAILURE == gps_cfgpsmoo(period)) {
         return GPS_FAILURE;
     }
+    
     
     // TODO verify rate and change message rate to match
     
