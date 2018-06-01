@@ -473,7 +473,7 @@ GPS_ERROR gps_cfgpsmoo(uint32_t period)
     memset(&ubx_msg, 0x00, sizeof(ubx_msg));
     /* set the power mode variables for UBX protocol v18 */
     ubx_msg.payload.CFG_PM2.version = 0x02; 
-    ubx_msg.payload.CFG_PM2.maxStartupStateDur = 15;
+    ubx_msg.payload.CFG_PM2.maxStartupStateDur = GPS_SEARCH_MAX;
 
     /* set the power mode flags for minimal ON/OFF operation */
     ubx_msg.payload.CFG_PM2.flags.mode = UBXPM2OnOffOperation;
@@ -482,13 +482,13 @@ GPS_ERROR gps_cfgpsmoo(uint32_t period)
     ubx_msg.payload.CFG_PM2.flags.extIntBackup  = 0;
     ubx_msg.payload.CFG_PM2.flags.extIntInactive= 0;
     ubx_msg.payload.CFG_PM2.flags.limitPeakCurr = UBXPM2LimitCurrentEnabled;
-    ubx_msg.payload.CFG_PM2.flags.waitTimeFix   = 1; /* need time fix before starting */
+    ubx_msg.payload.CFG_PM2.flags.waitTimeFix   = 0; /* need time fix before starting */
     ubx_msg.payload.CFG_PM2.flags.updateRTC     = 0;
     ubx_msg.payload.CFG_PM2.flags.doNotEnterOff = 0;
 
     /* set the power mode timing variables */
     ubx_msg.payload.CFG_PM2.updatePeriod    = (UBXU4_t)(period);
-    ubx_msg.payload.CFG_PM2.searchPeriod    = (UBXU4_t)(period/GPS_SEARCH_DIV);
+    ubx_msg.payload.CFG_PM2.searchPeriod    = (UBXU4_t)(period*GPS_SEARCH_MUL);
     ubx_msg.payload.CFG_PM2.gridOffset      = 0;
     ubx_msg.payload.CFG_PM2.onTime          = 0;
     ubx_msg.payload.CFG_PM2.minAcqTime      = 0;

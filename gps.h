@@ -24,8 +24,9 @@ extern "C" {
 #define GPS_INVALID_LON	(-1)
 #define GPS_VERBOSE_LOG (1)
 /* power saving defines */
-#define GPS_SEARCH_DIV  (2) /* fraction of update period time to retry acquisitions */
-
+#define GPS_SEARCH_DIV  (2)     /* fraction of update period time to retry acquisitions     */
+#define GPS_SEARCH_MUL  (2)     /* multiplier of update period time to retry acquisitions   */
+#define GPS_SEARCH_MAX  (10)    /* maximum time to spend in acquisition state               */
 
 /* i2c defines */
 #define GPS_I2C_TIMEOUT	(8)
