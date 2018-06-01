@@ -18,8 +18,8 @@
 extern "C" {
 #endif
 
-#define GPS_FIFOSIZE	(512)
-#define GPS_LOGSIZE		(5)
+#define GPS_FIFOSIZE	(208)
+#define GPS_LOGSIZE		(2)
 #define GPS_INVALID_LAT	(-1)
 #define GPS_INVALID_LON	(-1)
 #define GPS_VERBOSE_LOG (1)
@@ -28,10 +28,10 @@ extern "C" {
 
 
 /* i2c defines */
-#define I2C_TIMEOUT	(8)
-#define CFG_TIMEOUT (8)
+#define GPS_I2C_TIMEOUT	(8)
+#define GPS_CFG_TIMEOUT (8)
 
-#define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
+#define M8Q_TXR_CNT		(0x0D)
 #define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
 #define M8Q_TXR_POL		(1)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
 
@@ -108,7 +108,16 @@ typedef enum
  * @param i2c device descriptor from AtmelStart configuration
  * @return 1 if successful, 0 if initialization fails
  */
-uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
+GPS_ERROR gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
+
+/**
+ * gps_reconfig
+ *  
+ *  checks the device RAM for saved settings and ensures they are 
+ *  loaded. reconfigures the device from scratch if the settings 
+ *  are not available
+ */
+GPS_ERROR gps_reconfig();
 
 /**
  * gps_disable_nmea
@@ -267,13 +276,29 @@ GPS_ERROR gps_cfgpsmoo(uint32_t period);
 GPS_ERROR gps_cfgpsmoo_18(uint32_t period);
 
 /**
+ * gps_checkconfig
+ *  verifies that the current configuration is the desired one set by
+ *  gps_cfgprts. will attempt to load saved configurations and check.
+ */
+GPS_ERROR gps_checkconfig();
+
+/**
  * gps_savecfg
  * 
- *  Saves all of the current GPS configuration settings
+ *  saves all of the current GPS configuration settings
  *  
  *  @returns Messaging success, 0 if successful
  */
-GPS_ERROR gps_savecfg();
+GPS_ERROR gps_savecfg(const uint16_t MASK);
+
+/**
+ * gps_savecfg
+ * 
+ *  loads all of the current GPS configuration settings
+ *  
+ *  @returns Messaging success, 0 if successful
+ */
+GPS_ERROR gps_loadcfg(const uint16_t MASK);
 
 /**
  * gps_clear
@@ -282,7 +307,7 @@ GPS_ERROR gps_savecfg();
  *  
  *  @returns Messaging success, 0 if successful
  */
-GPS_ERROR gps_clearcfg();
+GPS_ERROR gps_clearcfg(const uint16_t MASK);
 
 /**
  * gps_verifyprt
@@ -324,6 +349,13 @@ uint8_t gps_parsefifo(gps_log_t *log, const uint16_t LOG_SIZE);
  *  @returns 0 if successful
  */
 uint8_t gps_cfgprt(const UBXMsg MSG);
+
+/**
+ * gps_cfgprts
+ *  concatenates each port communication message into one message to 
+ *  reduce blocking time
+ */
+GPS_ERROR gps_cfgprts();
 
 /**
  * gps_checkfifo

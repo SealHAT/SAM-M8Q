@@ -184,13 +184,13 @@ UBXMsgBuffer getCFG_MSG_RATE(UBXMessageClass msgClass, UBXMessageId msgId, UBXU1
 
 UBXMsgBuffer getCFG_MSG_RATES(UBXMessageClass msgClass, UBXMessageId msgId, UBXU1_t rate[])
 {
-    int payloadSize = sizeof(UBXCFG_MSG_RATES);
+    int payloadSize = 8;
     UBXMsgBuffer buffer  = createBuffer(payloadSize);
     UBXMsg* msg = (UBXMsg*)buffer.data;
     initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_MSG);
     msg->payload.CFG_MSG_RATES.msgClass = msgClass;
     msg->payload.CFG_MSG_RATES.msgId = msgId;
-    memcpy(msg->payload.CFG_MSG_RATES.rate, rate, 6*sizeof(UBXU1_t));
+    memcpy(msg->payload.CFG_MSG_RATES.rate, rate, 6);
     completeMsg(&buffer, payloadSize);
     return buffer;
 }
