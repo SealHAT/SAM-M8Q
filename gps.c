@@ -661,3 +661,18 @@ GPS_ERROR gps_enablepsm()
 
     return result;
 }
+
+
+GPS_ERROR gps_sleep()
+{
+    /* controlled GNSS stop */
+    ubx_buf = getCFG_RST(0x08, 0);
+    return gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
+}
+
+GPS_ERROR gps_wake()
+{
+    /* controlled GNSS stop */
+    ubx_buf = getCFG_RST(0x09, 0);
+    return gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
+}
