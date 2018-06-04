@@ -156,7 +156,7 @@ GPS_ERROR gps_init_channels()
     UBXMsg      *msg;
     /* Hard-coded message to dissable GLONASS while keeping GPS from u-blox */
     // TODO remove and code in actual satelite configs
-    uint8_t     buf[0x3C] = {0x00,0x00,0x20,0x07,0x00,0x08,
+    uint8_t     buf[0x3E] = {0x00,0x00,0x20,0x07,0x00,0x08,
                              0x10,0x00,0x01,0x00,0x01,0x01,
                              0x01,0x01,0x03,0x00,0x01,0x00,
                              0x01,0x01,0x02,0x04,0x08,0x00,
@@ -165,12 +165,12 @@ GPS_ERROR gps_init_channels()
                              0x04,0x00,0x08,0x00,0x00,0x00,
                              0x01,0x01,0x05,0x00,0x03,0x00,
                              0x01,0x00,0x01,0x01,0x06,0x08,
-                             0x0E,0x00,0x00,0x00,0x01,0x01};
+                             0x0E,0x00,0x00,0x00,0x01,0x01, 0x2e, 0x85};
     
     UBXCFG_GNSS_PART part[7];
     ubx_buf = getCFG_GNSS(0,0,32,7,part);
     msg = (UBXMsg*)ubx_buf.data;
-    memcpy(&ubx_buf.data[6], (char*)buf, msg->hdr.length);
+    memcpy(&ubx_buf.data[6], (char*)buf, msg->hdr.length + 2);
     do {
         /* send message disable particular message on all IO ports */
         if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
