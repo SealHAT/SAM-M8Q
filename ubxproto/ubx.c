@@ -905,7 +905,7 @@ UBXMsgBuffer getCFG_PM2(UBXCFG_PM2 cfg)
     UBXMsg* msg = (UBXMsg*)buffer.data;
     initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PM2);
     memcpy(&msg->payload.CFG_PM2, &cfg, payloadSize);
-  //  msg->payload.CFG_PM2 = cfg;
+    msg->payload.CFG_PM2 = cfg;
     completeMsg(&buffer, payloadSize);
     return buffer;
 }
