@@ -30,6 +30,7 @@
 
 #define HTOBE16(x)      ((x << 8) | (x >> 8))   /* 16 bit endian swap*/
 static char ubxStaticBuffer[210];
+static char ackStaticBuffer[10];
 
 void fletcherChecksum(unsigned char* buffer, int size, unsigned char* checkSumA, unsigned char* checkSumB)
 {
@@ -106,12 +107,22 @@ UBXMsgBuffer createBuffer(int payloadSize)
     return buffer;
 }
 
+UBXMsgBuffer createAckBuffer(int payloadSize)
+{
+    UBXMsgBuffer buffer = {0, 0};
+    buffer.size = UBX_HEADER_SIZE + payloadSize + UBX_CHECKSUM_SIZE;
+    //buffer.data = (char*)malloc(buffer.size);
+    buffer.data = ackStaticBuffer;
+    memset(buffer.data, 0, buffer.size);
+    return buffer;
+}
+
 UBXMsgBuffer getACK_ACK()
 {
 	int payloadSize = sizeof(UBXACK_ACK);
 	UBXMsgBuffer buffer;
 	UBXMsg* msg = 0;
-	buffer = createBuffer(payloadSize);
+	buffer = createAckBuffer(payloadSize);
 	msg = (UBXMsg*)buffer.data;
 	initMsg(msg, payloadSize, UBXMsgClassACK, UBXMsgIdACK_ACK);
 	msg->payload.ACK_ACK.msgClass = UBXMsgClassACK;
@@ -893,7 +904,8 @@ UBXMsgBuffer getCFG_PM2(UBXCFG_PM2 cfg)
     UBXMsgBuffer buffer = createBuffer(payloadSize);
     UBXMsg* msg = (UBXMsg*)buffer.data;
     initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PM2);
-    msg->payload.CFG_PM2 = cfg;
+    memcpy(&msg->payload.CFG_PM2, &cfg, payloadSize);
+  //  msg->payload.CFG_PM2 = cfg;
     completeMsg(&buffer, payloadSize);
     return buffer;
 }
