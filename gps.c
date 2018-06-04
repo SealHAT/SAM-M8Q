@@ -46,7 +46,7 @@ GPS_ERROR gps_reconfig()
 //     gps_write_i2c((const uint8_t*)ubx_buf.data,ubx_buf.size);
 //     delay_ms(500);
     gps_disable_nmea();
-
+    gps_init_channels();
     /* configure the serial ports */
     if (GPS_SUCCESS != gps_cfgprts()) {
         return GPS_FAILURE;
@@ -147,6 +147,42 @@ uint8_t gps_disable_nmea()
     }        
 	
 	return result;
+}
+
+GPS_ERROR gps_init_channels()
+{
+    uint8_t     result  = GPS_FAILURE;
+    uint16_t    timeout = 0;
+    UBXMsg      *msg;
+    /* Hard-coded message to dissable GLONASS while keeping GPS from u-blox */
+    // TODO remove and code in actual satelite configs
+    uint8_t     buf[0x3C] = {0x00,0x00,0x20,0x07,0x00,0x08,
+                             0x10,0x00,0x01,0x00,0x01,0x01,
+                             0x01,0x01,0x03,0x00,0x01,0x00,
+                             0x01,0x01,0x02,0x04,0x08,0x00,
+                             0x00,0x00,0x01,0x01,0x03,0x08,
+                             0x10,0x00,0x00,0x00,0x01,0x01,
+                             0x04,0x00,0x08,0x00,0x00,0x00,
+                             0x01,0x01,0x05,0x00,0x03,0x00,
+                             0x01,0x00,0x01,0x01,0x06,0x08,
+                             0x0E,0x00,0x00,0x00,0x01,0x01};
+    
+    UBXCFG_GNSS_PART part[7];
+    ubx_buf = getCFG_GNSS(0,0,32,7,part);
+    msg = (UBXMsg*)ubx_buf.data;
+    memcpy(&ubx_buf.data[6], (char*)buf, msg->hdr.length);
+    do {
+        /* send message disable particular message on all IO ports */
+        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+            if (GPS_SUCCESS == gps_ack()) {
+                result = gps_savecfg(0xFFFE);
+            }
+            	
+        }
+        /* repeat until timeout or successful acknowledge from device */
+    } while (result == GPS_FAILURE && timeout++ < GPS_CFG_TIMEOUT);
+    
+    return result;
 }
 
 uint8_t gps_init_msgs()

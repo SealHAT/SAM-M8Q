@@ -374,7 +374,7 @@ int32_t gps_checkfifo();
  */
 GPS_ERROR gps_ack();
 
-  
+GPS_ERROR gps_init_channels();
 #ifdef __cplusplus
 }
 #endif
