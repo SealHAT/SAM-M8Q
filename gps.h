@@ -87,20 +87,6 @@ typedef struct __attribute__((__packed__)) {
 } gps_log_t;
 
 /**
- * GPS_PROFILE enum
- *
- * Each represents a predefined configuration scheme for the CAM8 
- * gps module, implementation left to GNSS device header
- */
-typedef enum
-{
-    /* TODO: Verify accuracy/current of schemes */
-    GPS_PSMOO1H,    /**< 1hr rate, 7cm accuracy, 246 uA avg current    */
-    GPS_PSMOO30S    /**< 30s rate, 7cm accuracy, 26 mA avg current     */
-    /* TODO: Add profiles as they are tested */
-} GPS_PROFILE;
-
-/**
  * gps_init_i2c
  *
  * Initializes and starts the GPS module with the default sampling 
@@ -252,17 +238,6 @@ GPS_ERROR gps_sleep();
 GPS_ERROR gps_wake();
 
 /**
- * gps_setprofile
- *
- * Configure the GPS module with a predefined sampling/power 
- * scheme
- *
- * @param profile pre-configured sampling profile
- * @returns true if successful, false if profile not set
- */
-GPS_ERROR gps_setprofile(const GPS_PROFILE profile);
-
-/**
  * gps_cfgpsmoo/gps_cfgpsmoo_18
  *
  * Configures the ON/OFF power-saving mode of the UBX GPS device
@@ -275,6 +250,14 @@ GPS_ERROR gps_setprofile(const GPS_PROFILE profile);
  */
 GPS_ERROR gps_cfgpsmoo(uint32_t period);
 GPS_ERROR gps_cfgpsmoo_18(uint32_t period);
+
+/**
+ * gps_enablepsm
+ *  enables the power saving mode as configured in gps_cfgpsmoo. This
+ *  needs to be called after configuring to start power saving mode
+ */
+GPS_ERROR gps_enablepsm();
+
 
 /**
  * gps_checkconfig

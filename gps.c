@@ -576,22 +576,6 @@ GPS_ERROR gps_cfgpsmoo_18(uint32_t period)
     if (GPS_SUCCESS != result) {
         return GPS_FAILURE;
     }
-    
-    timeout = 0;
-    result = GPS_FAILURE;
-
-    do {
-        /* build the UBX message  */
-        ubx_buf = getCFG_RXM(UBXRXMPowerSaveMode);
-
-        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
-            if (GPS_FAILURE == gps_savecfg(0xFFFE)) {
-                return GPS_FAILURE;
-            }
-            result = gps_ack();
-        }
-        /* repeat until timeout or successful acknowledge from device */
-    } while (result == GPS_FAILURE && timeout++ < GPS_CFG_TIMEOUT);
 
     return result;
 }
@@ -686,9 +670,45 @@ GPS_ERROR gps_setrate(const uint32_t period)
     } while (result == GPS_FAILURE && timeout++ < GPS_CFG_TIMEOUT);
 
     /* configure the power sampling scheme */
-    if (GPS_FAILURE == result || GPS_FAILURE == gps_cfgpsmoo(period)) {
+    if (GPS_FAILURE == result || GPS_FAILURE == gps_cfgpsmoo(period) || GPS_FAILURE == gps_enablepsm()) {
         return GPS_FAILURE;
     }
     
     return GPS_SUCCESS;
+}
+
+GPS_ERROR gps_enablepsm() 
+{
+    GPS_ERROR       result  = GPS_FAILURE;
+    uint16_t        timeout = 0;
+
+    do {
+        /* build the UBX message  */
+        ubx_buf = getCFG_RXM(UBXRXMPowerSaveMode);
+
+        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+            if (GPS_FAILURE == gps_savecfg(0xFFFE)) {
+                return GPS_FAILURE;
+            }
+            result = gps_ack();
+        }
+        /* repeat until timeout or successful acknowledge from device */
+    } while (result == GPS_FAILURE && timeout++ < GPS_CFG_TIMEOUT);
+
+    return result;
+}
+
+
+GPS_ERROR gps_sleep()
+{
+    /* controlled GNSS stop */
+    ubx_buf = getCFG_RST(0x08, 0);
+    return gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
+}
+
+GPS_ERROR gps_wake()
+{
+    /* controlled GNSS stop */
+    ubx_buf = getCFG_RST(0x09, 0);
+    return gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
 }
