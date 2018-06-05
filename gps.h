@@ -32,7 +32,7 @@ extern "C" {
 #define GPS_I2C_TIMEOUT	(8)
 #define GPS_CFG_TIMEOUT (8)
 
-#define M8Q_TXR_CNT		(0x0D)
+#define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
 #define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
 #define M8Q_TXR_POL		(1)	/* TxReady polarity 0 - High-active, 1 - Low-active	*/
 
@@ -356,6 +356,8 @@ int32_t gps_checkfifo();
  *  @returns 0 if ACK
  */
 GPS_ERROR gps_ack();
+
+GPS_ERROR gps_nap(uint32_t ms);
 
 GPS_ERROR gps_init_channels();
 #ifdef __cplusplus
