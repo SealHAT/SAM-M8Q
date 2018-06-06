@@ -31,6 +31,7 @@ extern "C" {
 /* i2c defines */
 #define GPS_I2C_TIMEOUT	(8)
 #define GPS_CFG_TIMEOUT (8)
+#define GPS_MAX_MESSAGE (102)
 
 #define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
 #define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
@@ -104,7 +105,7 @@ GPS_ERROR gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
  *  loaded. reconfigures the device from scratch if the settings 
  *  are not available
  */
-GPS_ERROR gps_reconfig();
+GPS_ERROR gps_reconfig(uint32_t defaultrate);
 
 /**
  * gps_disable_nmea
@@ -187,6 +188,8 @@ uint8_t gps_read_i2c_poll(uint8_t *data, const uint16_t SIZE);
  */
 uint8_t gps_read_i2c_search(uint8_t *data, const uint16_t SIZE);
 
+uint8_t gps_read_i2c_clear();
+
 /**
  * gps_getfix
  *
@@ -249,6 +252,7 @@ GPS_ERROR gps_wake();
  * @returns if an error occurred during configuration
  */
 GPS_ERROR gps_cfgpsmoo(uint32_t period);
+GPS_ERROR gps_cfgpsmoo_magic(uint32_t period);
 GPS_ERROR gps_cfgpsmoo_18(uint32_t period);
 
 /**
