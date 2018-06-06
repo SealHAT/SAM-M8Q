@@ -23,17 +23,17 @@ uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC)
 GPS_ERROR gps_checkconfig() // TODO uncomment after fixing and adding support for saved configurations
 {
     GPS_ERROR result = GPS_FAILURE;
-    result = gps_verifyprt();
-
-    /* if the i2c port is not responsive attempt to configure */
-    if (GPS_FAILURE == result && GPS_SUCCESS == gps_cfgprts()) {
-        result = gps_verifyprt();
-    }
-    gps_readfifo();
-    /* if the ports are not configured load the saved values and check */
-    if (GPS_INVALID == result && GPS_SUCCESS == gps_loadcfg(0xFFFF)) {
-        result = gps_verifyprt();
-    }
+//     result = gps_verifyprt();
+// 
+//     /* if the i2c port is not responsive attempt to configure */
+//     if (GPS_FAILURE == result && GPS_SUCCESS == gps_cfgprts()) {
+//         result = gps_verifyprt();
+//     }
+//     gps_readfifo();
+//     /* if the ports are not configured load the saved values and check */
+//     if (GPS_INVALID == result && GPS_SUCCESS == gps_loadcfg(0xFFFF)) {
+//         result = gps_verifyprt();
+//     }
     
     /* will return failure on serial error, success, or invalid */
     return result;
@@ -43,10 +43,10 @@ GPS_ERROR gps_reconfig(uint32_t defaultrate)
 {
         
     /* do not bother checking error as the buffer will be populated by unwanted messages */
-    gps_clearcfg(0xFFFF);
-    ubx_buf = getCFG_RST(0,0);
-    gps_write_i2c((const uint8_t*)ubx_buf.data,ubx_buf.size);
-    delay_ms(100);
+    //gps_clearcfg(0xFFFF);
+    //ubx_buf = getCFG_RST(0,0);
+    //gps_write_i2c((const uint8_t*)ubx_buf.data,ubx_buf.size);
+    //delay_ms(100);
     if (GPS_SUCCESS != gps_disable_nmea()) {
         return GPS_FAILURE;
     }

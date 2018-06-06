@@ -29,8 +29,8 @@ extern "C" {
 #define GPS_SEARCH_MAX  (10)    /* maximum time to spend in acquisition state               */
 
 /* i2c defines */
-#define GPS_I2C_TIMEOUT	(8)
-#define GPS_CFG_TIMEOUT (8)
+#define GPS_I2C_TIMEOUT	(10)
+#define GPS_CFG_TIMEOUT (10)
 #define GPS_MAX_MESSAGE (102)
 
 #define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
