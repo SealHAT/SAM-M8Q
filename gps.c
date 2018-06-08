@@ -47,8 +47,9 @@ GPS_ERROR gps_reconfig(uint32_t defaultrate)
     //ubx_buf = getCFG_RST(0,0);
     //gps_write_i2c((const uint8_t*)ubx_buf.data,ubx_buf.size);
     //delay_ms(100);
+    gps_readfifo();
     if (GPS_SUCCESS != gps_disable_nmea()) {
-        return GPS_FAILURE;
+        //return GPS_FAILURE;
     }
     
     gps_readfifo();
