@@ -30,6 +30,7 @@
 
 #define HTOBE16(x)      ((x << 8) | (x >> 8))   /* 16 bit endian swap*/
 static char ubxStaticBuffer[210];
+static char ackStaticBuffer[10];
 
 void fletcherChecksum(unsigned char* buffer, int size, unsigned char* checkSumA, unsigned char* checkSumB)
 {
@@ -106,12 +107,22 @@ UBXMsgBuffer createBuffer(int payloadSize)
     return buffer;
 }
 
+UBXMsgBuffer createAckBuffer(int payloadSize)
+{
+    UBXMsgBuffer buffer = {0, 0};
+    buffer.size = UBX_HEADER_SIZE + payloadSize + UBX_CHECKSUM_SIZE;
+    //buffer.data = (char*)malloc(buffer.size);
+    buffer.data = ackStaticBuffer;
+    memset(buffer.data, 0, buffer.size);
+    return buffer;
+}
+
 UBXMsgBuffer getACK_ACK()
 {
 	int payloadSize = sizeof(UBXACK_ACK);
 	UBXMsgBuffer buffer;
 	UBXMsg* msg = 0;
-	buffer = createBuffer(payloadSize);
+	buffer = createAckBuffer(payloadSize);
 	msg = (UBXMsg*)buffer.data;
 	initMsg(msg, payloadSize, UBXMsgClassACK, UBXMsgIdACK_ACK);
 	msg->payload.ACK_ACK.msgClass = UBXMsgClassACK;
@@ -184,13 +195,13 @@ UBXMsgBuffer getCFG_MSG_RATE(UBXMessageClass msgClass, UBXMessageId msgId, UBXU1
 
 UBXMsgBuffer getCFG_MSG_RATES(UBXMessageClass msgClass, UBXMessageId msgId, UBXU1_t rate[])
 {
-    int payloadSize = sizeof(UBXCFG_MSG_RATES);
+    int payloadSize = 8;
     UBXMsgBuffer buffer  = createBuffer(payloadSize);
     UBXMsg* msg = (UBXMsg*)buffer.data;
     initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_MSG);
     msg->payload.CFG_MSG_RATES.msgClass = msgClass;
     msg->payload.CFG_MSG_RATES.msgId = msgId;
-    memcpy(msg->payload.CFG_MSG_RATES.rate, rate, 6*sizeof(UBXU1_t));
+    memcpy(msg->payload.CFG_MSG_RATES.rate, rate, 6);
     completeMsg(&buffer, payloadSize);
     return buffer;
 }
@@ -893,6 +904,7 @@ UBXMsgBuffer getCFG_PM2(UBXCFG_PM2 cfg)
     UBXMsgBuffer buffer = createBuffer(payloadSize);
     UBXMsg* msg = (UBXMsg*)buffer.data;
     initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PM2);
+    memcpy(&msg->payload.CFG_PM2, &cfg, payloadSize);
     msg->payload.CFG_PM2 = cfg;
     completeMsg(&buffer, payloadSize);
     return buffer;

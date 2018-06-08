@@ -18,18 +18,20 @@
 extern "C" {
 #endif
 
-#define GPS_FIFOSIZE	(512)
-#define GPS_LOGSIZE		(5)
+#define GPS_FIFOSIZE	(208)
+#define GPS_LOGSIZE		(2)
 #define GPS_INVALID_LAT	(-1)
 #define GPS_INVALID_LON	(-1)
 #define GPS_VERBOSE_LOG (1)
 /* power saving defines */
-#define GPS_SEARCH_DIV  (2) /* fraction of update period time to retry acquisitions */
-
+#define GPS_SEARCH_DIV  (2)     /* fraction of update period time to retry acquisitions     */
+#define GPS_SEARCH_MUL  (2)     /* multiplier of update period time to retry acquisitions   */
+#define GPS_SEARCH_MAX  (10)    /* maximum time to spend in acquisition state               */
 
 /* i2c defines */
-#define I2C_TIMEOUT	(8)
-#define CFG_TIMEOUT (8)
+#define GPS_I2C_TIMEOUT	(10)
+#define GPS_CFG_TIMEOUT (10)
+#define GPS_MAX_MESSAGE (102)
 
 #define M8Q_TXR_CNT		(GPS_FIFOSIZE >> 1)
 #define M8Q_TXR_PIO		(6)	/* The pin to use for TxReady						*/
@@ -86,20 +88,6 @@ typedef struct __attribute__((__packed__)) {
 } gps_log_t;
 
 /**
- * GPS_PROFILE enum
- *
- * Each represents a predefined configuration scheme for the CAM8 
- * gps module, implementation left to GNSS device header
- */
-typedef enum
-{
-    /* TODO: Verify accuracy/current of schemes */
-    GPS_PSMOO1H,    /**< 1hr rate, 7cm accuracy, 246 uA avg current    */
-    GPS_PSMOO30S    /**< 30s rate, 7cm accuracy, 26 mA avg current     */
-    /* TODO: Add profiles as they are tested */
-} GPS_PROFILE;
-
-/**
  * gps_init_i2c
  *
  * Initializes and starts the GPS module with the default sampling 
@@ -108,7 +96,16 @@ typedef enum
  * @param i2c device descriptor from AtmelStart configuration
  * @return 1 if successful, 0 if initialization fails
  */
-uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
+GPS_ERROR gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
+
+/**
+ * gps_reconfig
+ *  
+ *  checks the device RAM for saved settings and ensures they are 
+ *  loaded. reconfigures the device from scratch if the settings 
+ *  are not available
+ */
+GPS_ERROR gps_reconfig(uint32_t defaultrate);
 
 /**
  * gps_disable_nmea
@@ -191,6 +188,8 @@ uint8_t gps_read_i2c_poll(uint8_t *data, const uint16_t SIZE);
  */
 uint8_t gps_read_i2c_search(uint8_t *data, const uint16_t SIZE);
 
+uint8_t gps_read_i2c_clear();
+
 /**
  * gps_getfix
  *
@@ -217,7 +216,7 @@ uint8_t gps_gettime(utc_time_t *time);
  *
  * Configure the GPS module to sample at a given rate
  *
- * @param period sampling rate of GPS in seconds
+ * @param period sampling rate of GPS in ms
  * @return true if successful, false if sampling rate not set
  */
 GPS_ERROR gps_setrate(const uint32_t period);
@@ -242,17 +241,6 @@ GPS_ERROR gps_sleep();
 GPS_ERROR gps_wake();
 
 /**
- * gps_setprofile
- *
- * Configure the GPS module with a predefined sampling/power 
- * scheme
- *
- * @param profile pre-configured sampling profile
- * @returns true if successful, false if profile not set
- */
-GPS_ERROR gps_setprofile(const GPS_PROFILE profile);
-
-/**
  * gps_cfgpsmoo/gps_cfgpsmoo_18
  *
  * Configures the ON/OFF power-saving mode of the UBX GPS device
@@ -264,16 +252,41 @@ GPS_ERROR gps_setprofile(const GPS_PROFILE profile);
  * @returns if an error occurred during configuration
  */
 GPS_ERROR gps_cfgpsmoo(uint32_t period);
+GPS_ERROR gps_cfgpsmoo_magic(uint32_t period);
 GPS_ERROR gps_cfgpsmoo_18(uint32_t period);
+
+/**
+ * gps_enablepsm
+ *  enables the power saving mode as configured in gps_cfgpsmoo. This
+ *  needs to be called after configuring to start power saving mode
+ */
+GPS_ERROR gps_enablepsm();
+
+
+/**
+ * gps_checkconfig
+ *  verifies that the current configuration is the desired one set by
+ *  gps_cfgprts. will attempt to load saved configurations and check.
+ */
+GPS_ERROR gps_checkconfig();
 
 /**
  * gps_savecfg
  * 
- *  Saves all of the current GPS configuration settings
+ *  saves all of the current GPS configuration settings
  *  
  *  @returns Messaging success, 0 if successful
  */
-GPS_ERROR gps_savecfg();
+GPS_ERROR gps_savecfg(const uint16_t MASK);
+
+/**
+ * gps_savecfg
+ * 
+ *  loads all of the current GPS configuration settings
+ *  
+ *  @returns Messaging success, 0 if successful
+ */
+GPS_ERROR gps_loadcfg(const uint16_t MASK);
 
 /**
  * gps_clear
@@ -282,7 +295,7 @@ GPS_ERROR gps_savecfg();
  *  
  *  @returns Messaging success, 0 if successful
  */
-GPS_ERROR gps_clearcfg();
+GPS_ERROR gps_clearcfg(const uint16_t MASK);
 
 /**
  * gps_verifyprt
@@ -326,6 +339,13 @@ uint8_t gps_parsefifo(gps_log_t *log, const uint16_t LOG_SIZE);
 uint8_t gps_cfgprt(const UBXMsg MSG);
 
 /**
+ * gps_cfgprts
+ *  concatenates each port communication message into one message to 
+ *  reduce blocking time
+ */
+GPS_ERROR gps_cfgprts();
+
+/**
  * gps_checkfifo
  *  poll the ddc port for the number of messages currently in the UBX fifo
  *  
@@ -341,7 +361,9 @@ int32_t gps_checkfifo();
  */
 GPS_ERROR gps_ack();
 
-  
+GPS_ERROR gps_nap(uint32_t ms);
+
+GPS_ERROR gps_init_channels();
 #ifdef __cplusplus
 }
 #endif

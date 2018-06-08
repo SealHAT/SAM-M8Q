@@ -6,73 +6,157 @@ static struct   i2c_m_sync_desc	gps_i2c_desc;
 static struct   _i2c_m_msg		gps_i2c_msg;
 static          UBXMsg          ubx_msg;
 static          UBXMsgBuffer    ubx_buf;
-int32_t	                        gps_err;
+static          UBXMsgBuffer    ack_buf;
+
 
 uint8_t gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC) 
 {
 	gps_i2c_desc = *I2C_DESC;
-	
     /* enable and set up the i2c device     */
-	gps_err = i2c_m_sync_enable(&gps_i2c_desc);
-	gps_err = i2c_m_sync_set_slaveaddr(&gps_i2c_desc, M8Q_SLAVE_ADDR, I2C_M_SEVEN);	
-	
-    /* reset the device to default settings */
-    gps_clearcfg();
-	ubx_buf = getCFG_RST(0,0);
-	gps_err = gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
-	delay_ms(500);
-	
-    /* disable the default nmea messages */
-	if (GPS_FAILURE == gps_disable_nmea()) {
-		return GPS_FAILURE;
-	}
-
-	/* disable other ports (Default: UART,USB,DDC enabled; SPI disabled) */
-	ubx_msg.payload.CFG_PRT.portID			        = UBXPRTUART;
-    ubx_msg.payload.CFG_PRT.reserved0               = 0;
-	ubx_msg.payload.CFG_PRT.txReady.en				= 0;
-	ubx_msg.payload.CFG_PRT.txReady.pin				= 8;
-	ubx_msg.payload.CFG_PRT.txReady.thres			= 0;
-	ubx_msg.payload.CFG_PRT.txReady.pol				= 0;
-    ubx_msg.payload.CFG_PRT.mode.UBX_UART.charLen   = UBXPRTMode8BitCharLen;
-    ubx_msg.payload.CFG_PRT.mode.UBX_UART.nStopBits = UBXPRTMode1StopBit;
-    ubx_msg.payload.CFG_PRT.mode.UBX_UART.parity    = UBXPRTModeOddParity;
-	ubx_msg.payload.CFG_PRT.mode.UBX_UART.reserved0 = 0;
-    ubx_msg.payload.CFG_PRT.inProtoMask		        = 0U;
-	ubx_msg.payload.CFG_PRT.outProtoMask	        = 0U;
-    ubx_msg.payload.CFG_PRT.option.UARTbaudRate     = 0x2580;
-	if (GPS_FAILURE == gps_cfgprt(ubx_msg)) {
-		return GPS_FAILURE;
-	}
-	
-	ubx_msg.payload.CFG_PRT.portID			= UBXPRTUSB;
-	ubx_msg.payload.CFG_PRT.inProtoMask		= 0U;
-	ubx_msg.payload.CFG_PRT.outProtoMask	= 0U;
-	if (GPS_FAILURE == gps_cfgprt(ubx_msg)) {
-		return GPS_FAILURE;
-	}
-	
-    /* configure the device to communicate over DDC (i2c) with a FIFO interrupt */
-	ubx_msg.payload.CFG_PRT.portID					= UBXPRTDDC;
-	ubx_msg.payload.CFG_PRT.txReady.en				= 1U;					/* 0 - disabled, 1 - enabled			*/
-	ubx_msg.payload.CFG_PRT.txReady.pol			    = M8Q_TXR_POL;			/* 0 - High-active, 1 - Low-active		*/
-	ubx_msg.payload.CFG_PRT.txReady.pin			    = M8Q_TXR_PIO;			/* PIO06 is TxD on the SAM-M8Q			*/
-	ubx_msg.payload.CFG_PRT.txReady.thres			= M8Q_TXR_CNT >> 3;	/* Given value is multiplied by 8 bytes */
-	ubx_msg.payload.CFG_PRT.mode.UBX_DDC.slaveAddr  = M8Q_SLAVE_ADDR;
-	ubx_msg.payload.CFG_PRT.inProtoMask			    = UBXPRTInProtoInUBX;
-	ubx_msg.payload.CFG_PRT.outProtoMask			= UBXPRTOutProtoOutUBX|UBXPRTOutProtoOutNMEA;
-	ubx_msg.payload.CFG_PRT.flags					= UBXPRTExtendedTxTimeout;
-	if (GPS_FAILURE == gps_cfgprt(ubx_msg)) {
-		return GPS_FAILURE;
-	}
-    
-    gps_readfifo();
-    if (GPS_FAILURE == gps_verifyprt()) {
+    if (i2c_m_sync_enable(&gps_i2c_desc)) {
         return GPS_FAILURE;
     }
-
-	return GPS_SUCCESS;
+	i2c_m_sync_set_slaveaddr(&gps_i2c_desc, M8Q_SLAVE_ADDR, I2C_M_SEVEN);
+    return GPS_SUCCESS;
 }
+
+GPS_ERROR gps_checkconfig() // TODO uncomment after fixing and adding support for saved configurations
+{
+    GPS_ERROR result = GPS_FAILURE;
+//     result = gps_verifyprt();
+// 
+//     /* if the i2c port is not responsive attempt to configure */
+//     if (GPS_FAILURE == result && GPS_SUCCESS == gps_cfgprts()) {
+//         result = gps_verifyprt();
+//     }
+//     gps_readfifo();
+//     /* if the ports are not configured load the saved values and check */
+//     if (GPS_INVALID == result && GPS_SUCCESS == gps_loadcfg(0xFFFF)) {
+//         result = gps_verifyprt();
+//     }
+    
+    /* will return failure on serial error, success, or invalid */
+    return result;
+}
+
+GPS_ERROR gps_reconfig(uint32_t defaultrate)
+{
+        
+    /* do not bother checking error as the buffer will be populated by unwanted messages */
+    //gps_clearcfg(0xFFFF);
+    //ubx_buf = getCFG_RST(0,0);
+    //gps_write_i2c((const uint8_t*)ubx_buf.data,ubx_buf.size);
+    //delay_ms(100);
+    if (GPS_SUCCESS != gps_disable_nmea()) {
+        return GPS_FAILURE;
+    }
+    
+    gps_readfifo();
+    
+     if (GPS_SUCCESS != gps_init_msgs()) {
+         return GPS_FAILURE;
+     } 
+    
+    if (GPS_SUCCESS != gps_init_channels()) {
+        return GPS_FAILURE;
+    }
+    
+    /* configure the serial ports */
+    if (GPS_SUCCESS != gps_cfgprts()) {
+        return GPS_FAILURE;
+    }
+       
+    /* clear the fifo of any ack messages */
+    gps_readfifo();
+    
+    /* check that the ports were configured */
+    if (GPS_FAILURE == gps_verifyprt()) {
+        return GPS_FAILURE;
+    }        
+    
+
+    
+    gps_readfifo();
+    
+     if (GPS_SUCCESS != gps_cfgpsmoo(defaultrate)) {
+         return GPS_FAILURE;
+     }
+     
+//      if (GPS_SUCCESS != gps_setrate(defaultrate)) {
+//          return GPS_FAILURE;
+//      }
+     
+
+     
+     gps_readfifo();
+     
+     if (GPS_SUCCESS != gps_enablepsm()) {
+         return GPS_FAILURE;
+     }
+
+    return GPS_SUCCESS;
+}
+
+GPS_ERROR gps_cfgprts()
+{
+    UBXMsg      *msg;
+    GPS_ERROR   result  = GPS_FAILURE;
+    uint16_t    timeout = 0;
+        
+    /* utilizes UBX-Protocol format */
+    int payloadSize = sizeof(UBXCFG_PRT) * 3;
+    ubx_buf = createBuffer(payloadSize);
+    msg = (UBXMsg*)ubx_buf.data;
+    initMsg(msg, payloadSize, UBXMsgClassCFG, UBXMsgIdCFG_PRT);
+    /* disable other ports (Default: UART,USB,DDC enabled; SPI disabled) */
+    msg->payload.CFG_PRT.portID			            = UBXPRTUART;
+    msg->payload.CFG_PRT.reserved0                  = 0;
+    msg->payload.CFG_PRT.txReady.en				    = 0;
+    msg->payload.CFG_PRT.txReady.pin			    = 8;
+    msg->payload.CFG_PRT.txReady.thres			    = 0;
+    msg->payload.CFG_PRT.txReady.pol			    = 0;
+    msg->payload.CFG_PRT.mode.UBX_UART.charLen      = UBXPRTMode8BitCharLen;
+    msg->payload.CFG_PRT.mode.UBX_UART.nStopBits    = UBXPRTMode1StopBit;
+    msg->payload.CFG_PRT.mode.UBX_UART.parity       = UBXPRTModeOddParity;
+    msg->payload.CFG_PRT.mode.UBX_UART.reserved0    = 0;
+    msg->payload.CFG_PRT.inProtoMask		        = 0U;
+    msg->payload.CFG_PRT.outProtoMask	            = 0U;
+    msg->payload.CFG_PRT.option.UARTbaudRate        = 0x2580;
+    
+    msg = (UBXMsg*)&ubx_buf.data[20];
+    msg->payload.CFG_PRT.portID			            = UBXPRTUSB;
+    msg->payload.CFG_PRT.inProtoMask		        = 0U;
+    msg->payload.CFG_PRT.outProtoMask	            = 0U;
+    
+    msg = (UBXMsg*)&ubx_buf.data[40];
+    /* configure the device to communicate over DDC (i2c) with a FIFO interrupt */
+    msg->payload.CFG_PRT.portID					    = UBXPRTDDC;
+    msg->payload.CFG_PRT.txReady.en				    = 1U;					/* 0 - disabled, 1 - enabled			*/
+    msg->payload.CFG_PRT.txReady.pol			    = M8Q_TXR_POL;			/* 0 - High-active, 1 - Low-active		*/
+    msg->payload.CFG_PRT.txReady.pin			    = M8Q_TXR_PIO;			/* PIO06 is TxD on the SAM-M8Q			*/
+    msg->payload.CFG_PRT.txReady.thres		        = M8Q_TXR_CNT >> 3;	    /* Given value is multiplied by 8 bytes */
+    msg->payload.CFG_PRT.mode.UBX_DDC.slaveAddr     = M8Q_SLAVE_ADDR;
+    msg->payload.CFG_PRT.inProtoMask                = UBXPRTInProtoInUBX;
+    msg->payload.CFG_PRT.outProtoMask               = UBXPRTOutProtoOutUBX;
+    msg->payload.CFG_PRT.flags                      = UBXPRTExtendedTxTimeout;
+    
+    completeMsg(&ubx_buf, payloadSize);
+    
+    do {
+        /* send message to configure the DDC serial port and verify */
+        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+            if (GPS_SUCCESS == gps_ack()) {
+                result = gps_savecfg(0xFFFF);
+                //result = GPS_SUCCESS;
+            } else {
+                result = GPS_FAILURE;
+            }
+        }
+        /* repeat until timeout or successful acknowledge from device */
+    } while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT);
+    
+    return result;
+}    
 
 uint8_t gps_disable_nmea() 
 {
@@ -83,62 +167,124 @@ uint8_t gps_disable_nmea()
 	
 	/* disable default (NMEA) messages */
 	for(i = 0; i < 6; i++) {
-		
-		timeout = 0;
-		result = GPS_FAILURE;
-		
+	    ubx_buf = getCFG_MSG_RATES(UBXMsgClassNMEA, (UBXMessageId)i, rates);
 		do {
 			/* send message disable particular message on all IO ports */
 			ubx_buf = getCFG_MSG_RATES(UBXMsgClassNMEA, (UBXMessageId)i, rates);
 			if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
-                if (GPS_FAILURE == gps_savecfg()) {
-                    return GPS_FAILURE;
-                }
-				result = gps_ack();
+//                 if (GPS_SUCCESS == gps_ack()) {
+//                    result = gps_savecfg(0xFFFE);
+//                    //result = gps_ack();;
+//                }
+                result = GPS_SUCCESS;
 			}
 			/* repeat until timeout or successful acknowledge from device */
-		} while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
-	}
-	
+		} while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT*10);
+    }        
+    
+	i = 0; result = GPS_FAILURE; timeout = 0;
+    do {
+        if(GPS_SUCCESS == gps_ack()) {
+            i++;
+        }
+    }while(i < 6 && timeout++ < GPS_CFG_TIMEOUT);
+    
+    if(i == 6) {
+        result = GPS_SUCCESS;
+    } else {
+        result = GPS_FAILURE;
+    }                
 	return result;
+}
+// 
+// uint8_t gps_disable_nmea() 
+// {
+// 	int i;
+// 	uint8_t         result;
+// 	uint16_t        timeout;
+// 	uint8_t rates[6] = {0,0,0,0,0,0};
+// 	
+// 	/* disable default (NMEA) messages */
+// 	for(i = 0; i < 6; i++) {
+// 		
+// 		timeout = 0;
+// 		result = GPS_FAILURE;
+// 		
+// 		do {
+// 			/* send message disable particular message on all IO ports */
+// 			ubx_buf = getCFG_MSG_RATES(UBXMsgClassNMEA, (UBXMessageId)i, rates);
+// 			if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+//                 if (GPS_SUCCESS == gps_ack()) {
+//                    result = gps_savecfg(0xFFFE);
+//                    //result = gps_ack();;
+//                }
+// 			}
+// 			/* repeat until timeout or successful acknowledge from device */
+// 		} while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT*10);
+//     }        
+// 	
+// 	return result;
+// }
+
+GPS_ERROR gps_init_channels()
+{
+    uint8_t     result  = GPS_FAILURE;
+    uint16_t    timeout = 0;
+    UBXMsg      *msg;
+    /* Hard-coded message to dissable GLONASS while keeping GPS from u-blox */
+    // TODO remove and code in actual satelite configs
+    uint8_t     buf[0x3E] = {0x00,0x00,0x20,0x07,0x00,0x08,
+                             0x10,0x00,0x01,0x00,0x01,0x01,
+                             0x01,0x01,0x03,0x00,0x01,0x00,
+                             0x01,0x01,0x02,0x04,0x08,0x00,
+                             0x00,0x00,0x01,0x01,0x03,0x08,
+                             0x10,0x00,0x00,0x00,0x01,0x01,
+                             0x04,0x00,0x08,0x00,0x00,0x00,
+                             0x01,0x01,0x05,0x00,0x03,0x00,
+                             0x01,0x00,0x01,0x01,0x06,0x08,
+                             0x0E,0x00,0x00,0x00,0x01,0x01, 0x2e, 0x85};
+    
+    UBXCFG_GNSS_PART part[7];
+
+    ubx_buf = getCFG_GNSS(0,0,32,7,part);
+    msg = (UBXMsg*)ubx_buf.data;
+    memcpy(&ubx_buf.data[6], (char*)buf, msg->hdr.length + 2);
+    do {
+        /* send message disable particular message on all IO ports */
+        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+            if (GPS_SUCCESS == gps_ack()) {
+               /* result = gps_savecfg(0xFFFE);*/
+                result = GPS_SUCCESS;
+            } else {
+                result = GPS_FAILURE;
+            }                
+            	
+        }
+        /* repeat until timeout or successful acknowledge from device */
+    } while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT);
+    
+    return result;
 }
 
 uint8_t gps_init_msgs()
 {
 	uint8_t         result  = GPS_FAILURE;
-	uint16_t        timeout = 0;
-	
-	/* set default 1Hz rate */
-	do {
-		/* send message disable particular message on all IO ports */
-		ubx_buf = getCFG_RATE(10000,1,0);
-		if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
-            if (GPS_FAILURE == gps_savecfg()) {
-                return GPS_FAILURE;
-            }
-			result = gps_ack();
-		}
-		/* repeat until timeout or successful acknowledge from device */
-	} while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
-	
-	if (GPS_FAILURE == result) {
-		return GPS_FAILURE;
-	}
-	result = GPS_FAILURE;
-	timeout = 0;
-	
+	uint16_t        timeout = 0;	
+
 	/* set up NAV messages */
 	do {
 		/* send message disable particular message on all IO ports */
 		ubx_buf = getCFG_MSG_RATE(UBXMsgClassNAV,UBXMsgIdNAV_PVT,1);
 		if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
-            if (GPS_FAILURE == gps_savecfg()) {
-                return GPS_FAILURE;
-            }
-			result = gps_ack();
-		}
+            if (GPS_SUCCESS == gps_ack()) {
+                result = gps_savecfg(0xFFFF);
+               // result = GPS_SUCCESS;
+            } else {
+                result = GPS_FAILURE;
+		    }         
+        }            
 		/* repeat until timeout or successful acknowledge from device */
-	} while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
+	} while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT);
 	
 	return result;
 }
@@ -152,19 +298,20 @@ uint8_t gps_cfgprt(const UBXMsg MSG)
 		/* send message to configure the DDC serial port and verify */
 		ubx_buf = setCFG_PRT(MSG.payload.CFG_PRT);
 		if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
-            if (GPS_FAILURE == gps_savecfg()) {
-                return GPS_FAILURE;
+            if (GPS_SUCCESS == gps_ack()) {
+                //result = gps_savecfg(0xFFFF);
+                 result = GPS_SUCCESS;
             }
-			result = gps_ack();
 		}
 		/* repeat until timeout or successful acknowledge from device */
-	} while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
+	} while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT);
 	
 	return result;
 }
 
 uint8_t gps_readfifo()
 {
+    int32_t ret;
 	uint16_t timeout = 0;
 
     /* set up the i2c packet */
@@ -174,10 +321,12 @@ uint8_t gps_readfifo()
     gps_i2c_msg.buffer  = GPS_FIFO;
 
     /* send, repeat until successful or timeout */
-    while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
-        if (timeout++ == I2C_TIMEOUT*4) {
+    ret = _i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg);
+    while (ret) {
+        if (timeout++ == GPS_I2C_TIMEOUT*4) {
             return GPS_FAILURE;
         }
+        ret = _i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg);
     }
 	
     return GPS_SUCCESS;
@@ -196,7 +345,7 @@ uint8_t gps_write_i2c(const uint8_t *DATA, const uint16_t SIZE)
 	
     /* send, repeat until successful or timeout */
 	while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
-		if (timeout++ == I2C_TIMEOUT) {
+		if (timeout++ == GPS_I2C_TIMEOUT) {
 			return GPS_FAILURE;
 		}
 	}
@@ -216,7 +365,7 @@ uint8_t gps_read_i2c(uint8_t *data, const uint16_t SIZE)
 
     /* send, repeat until successful or timeout */
     while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
-        if (timeout++ == I2C_TIMEOUT) {
+        if (timeout++ == GPS_I2C_TIMEOUT) {
             return GPS_FAILURE;
         }
     }
@@ -235,17 +384,18 @@ uint8_t gps_read_i2c_poll(uint8_t *data, const uint16_t SIZE)
 	
 	do { /* attempt reads until the data returned is not 0xFF (no data) */
 		while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
-			if (timeout++ == I2C_TIMEOUT) {
+			if (timeout++ == GPS_I2C_TIMEOUT) {
            		_i2c_m_sync_send_stop(&gps_i2c_desc.device);
 				return GPS_FAILURE;
 			}
 		}
-	} while (data[0] == 0xFF && timeout++ < CFG_TIMEOUT);
+	} while (data[0] == 0xFF && timeout++ < GPS_CFG_TIMEOUT);
 
-	if (data[0] != 0xB5) {
-		_i2c_m_sync_send_stop(&gps_i2c_desc.device);
-		return GPS_FAILURE;
+	if (data[0] != 0xB5 && GPS_FAILURE == gps_read_i2c_clear()) {
+		_i2c_m_sync_send_stop(&gps_i2c_desc.device); 
+		return GPS_INVALID;
 	}
+    
 	/* set up the remaining i2c packet */
     timeout             = 0;
 	gps_i2c_msg.addr    = M8Q_SLAVE_ADDR;
@@ -255,12 +405,35 @@ uint8_t gps_read_i2c_poll(uint8_t *data, const uint16_t SIZE)
 
 	/* send, repeat until successful or timeout */
 	while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
-		if (timeout++ == I2C_TIMEOUT) {
+		if (timeout++ == GPS_I2C_TIMEOUT) {
 			return GPS_FAILURE;
 		}
 	}
 
 	return GPS_SUCCESS;
+}
+
+uint8_t gps_read_i2c_clear()
+{
+    uint8_t  data[2];
+    uint16_t timeout = 0;
+	
+	/* set up the first i2c packet */
+	gps_i2c_msg.addr    = M8Q_SLAVE_ADDR;
+	gps_i2c_msg.len     = 1;
+	gps_i2c_msg.flags   = I2C_M_RD;
+	gps_i2c_msg.buffer  = data;
+	
+	do { /* attempt reads until the data returned is not 0xFF (no data) */
+		while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
+			if (timeout++ == GPS_I2C_TIMEOUT) {
+           		_i2c_m_sync_send_stop(&gps_i2c_desc.device);
+				return GPS_FAILURE;
+			}
+		}
+	} while (data[0] != 0xFF && timeout++ < GPS_MAX_MESSAGE);
+    
+    return timeout < GPS_MAX_MESSAGE ? GPS_SUCCESS : GPS_FAILURE;
 }
 
 uint8_t gps_parsefifo(gps_log_t *log, const uint16_t LOG_SIZE)
@@ -340,26 +513,29 @@ GPS_ERROR gps_verifyprt()
 	/* poll the device for port configuration */
 	ubx_buf = getCFG_PRT_POLL_OPT(UBXPRTDDC);
 	if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+       // gps_ack();
 		ubx_buf = getCFG_PRT();
-		while (GPS_FAILURE == gps_read_i2c_poll((uint8_t*)ubx_buf.data, ubx_buf.size)) {
-            if(timeout++ == CFG_TIMEOUT) {
-                return GPS_FAILURE;
-            }
-        }                            
-		msg = (UBXMsg*)ubx_buf.data;
-	} else {
-		return GPS_FAILURE;
-	}
+        do 
+        {
+            ack = gps_read_i2c((uint8_t*)ubx_buf.data, ubx_buf.size);
+            msg = (UBXMsg*)ubx_buf.data;
+        } while (msg->hdr.msgId != UBXMsgIdCFG_PRT && timeout++ < GPS_CFG_TIMEOUT);
+	} 
+    
+    if(timeout >= GPS_CFG_TIMEOUT) {
+        return GPS_FAILURE;
+    }        
 	
 	/* verify the FIFO and watermark settings */
-	if ((msg->payload.CFG_PRT.txReady.en    == 1U			) &&
-		(msg->payload.CFG_PRT.txReady.pol   == M8Q_TXR_POL	) &&
-		(msg->payload.CFG_PRT.txReady.pin   == M8Q_TXR_PIO	) &&
+	if ((msg->payload.CFG_PRT.flags & UBXPRTExtendedTxTimeout) &&
+        (msg->payload.CFG_PRT.txReady.en    == 1U			 ) &&
+		(msg->payload.CFG_PRT.txReady.pol   == M8Q_TXR_POL	 ) &&
+		(msg->payload.CFG_PRT.txReady.pin   == M8Q_TXR_PIO	 ) &&
 		(msg->payload.CFG_PRT.txReady.thres == (M8Q_TXR_CNT >> 3))) 
 	{
 		ack = GPS_SUCCESS;
 	} else {
-		ack = GPS_FAILURE;
+		ack = GPS_INVALID;
 	}
 	
 	return ack;
@@ -381,7 +557,7 @@ int32_t gps_checkfifo()
 
 	/* send, repeat until successful or timeout */
 	while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
-		if (timeout++ == I2C_TIMEOUT) {
+		if (timeout++ == GPS_I2C_TIMEOUT) {
             _i2c_m_sync_send_stop(&gps_i2c_desc.device);
 			return -GPS_FAILURE;
 		}
@@ -395,7 +571,7 @@ int32_t gps_checkfifo()
 	
 	/* send, repeat until successful or timeout */
 	while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
-		if (timeout++ == I2C_TIMEOUT) {
+		if (timeout++ == GPS_I2C_TIMEOUT) {
 			return -GPS_FAILURE;
 		}
 	}
@@ -410,7 +586,7 @@ int32_t gps_checkfifo()
 
 	/* send, repeat until successful or timeout */
 	while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
-		if (timeout++ == I2C_TIMEOUT) {
+		if (timeout++ == GPS_I2C_TIMEOUT) {
        		_i2c_m_sync_send_stop(&gps_i2c_desc.device);
 			return -GPS_FAILURE;
 		}
@@ -424,7 +600,7 @@ int32_t gps_checkfifo()
 		
 	/* send, repeat until successful or timeout */
 	while (_i2c_m_sync_transfer(&gps_i2c_desc.device, &gps_i2c_msg)) {
-		if (timeout++ == I2C_TIMEOUT) {
+		if (timeout++ == GPS_I2C_TIMEOUT) {
 			return -GPS_FAILURE;
 		}
 	}
@@ -434,15 +610,58 @@ int32_t gps_checkfifo()
 	return retval;
 }
 
+GPS_ERROR gps_cfgpsmoo_magic(uint32_t period)
+{
+    int32_t result = GPS_FAILURE;
+    uint16_t timeout = 0;
+    uint8_t magic[56] = {0xb5, 0x62, 0x06, 0x3b, 0x30, 0x00, 0x02, 0x06,
+                         0x0a, 0x00, 0x20, 0x91, 0x40, 0x01, 0x30, 0x75,
+                         0x00, 0x00, 0x60, 0xea, 0x00, 0x00, 0x00, 0x00,
+                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x01,
+                         0x00, 0x00, 0x4f, 0xc1, 0x03, 0x00, 0x87, 0x02,
+                         0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x64, 0x40,
+                         0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0xd1, 0x48};
+                         
+//     uint8_t magic[52] = {0xb5, 0x62, 0x06, 0x3b, 0x2c, 0x00, 0x01, 0x06,
+//                         0x0a, 0x00, 0x0e, 0x91, 0x42, 0x01, 0x10, 0x27,
+//                         0x00, 0x00, 0x20, 0x4e, 0x00, 0x00, 0x00, 0x00,
+//                         0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x2c, 0x01,
+//                         0x00, 0x00, 0x4f, 0xc1, 0x03, 0x00, 0x87, 0x02,
+//                         0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x64, 0x40,
+//                         0x01, 0x00, 0x74, 0xbe};
+                
+  
+
+    do {
+        /* build the UBX message  */
+ //       ubx_buf = getCFG_PM2(ubx_msg.payload.CFG_PM2);
+
+        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)magic, 52)) {
+            if (GPS_SUCCESS == gps_ack()) {
+               // result = gps_savecfg(0xFFFE);
+               return GPS_SUCCESS;
+            } else {
+               return GPS_FAILURE;
+            }
+        }
+        /* repeat until timeout or successful acknowledge from device */
+    } while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT*2);
+
+    return result;
+}
+
 GPS_ERROR gps_cfgpsmoo(uint32_t period)
 {
     GPS_ERROR       result  = GPS_FAILURE;
     uint16_t        timeout = 0;
 
-    memset(&ubx_msg, 0x00, sizeof(ubx_msg));
+    memset(ubx_buf.data, 0x00, 210);
     /* set the power mode variables for UBX protocol v18 */
     ubx_msg.payload.CFG_PM2.version = 0x02; 
-    ubx_msg.payload.CFG_PM2.maxStartupStateDur = 15;
+    ubx_msg.payload.CFG_PM2.maxStartupStateDur = 0;
+    ubx_msg.payload.CFG_PM2.reserved1 = 0x06;
+    ubx_msg.payload.CFG_PM2.flags.blank2 = 0x04;
+    ubx_msg.payload.CFG_PM2.flags.blank3 = 0x28;
 
     /* set the power mode flags for minimal ON/OFF operation */
     ubx_msg.payload.CFG_PM2.flags.mode = UBXPM2OnOffOperation;
@@ -451,31 +670,34 @@ GPS_ERROR gps_cfgpsmoo(uint32_t period)
     ubx_msg.payload.CFG_PM2.flags.extIntBackup  = 0;
     ubx_msg.payload.CFG_PM2.flags.extIntInactive= 0;
     ubx_msg.payload.CFG_PM2.flags.limitPeakCurr = UBXPM2LimitCurrentEnabled;
-    ubx_msg.payload.CFG_PM2.flags.waitTimeFix   = 1; /* need time fix before starting */
-    ubx_msg.payload.CFG_PM2.flags.updateRTC     = 0;
+    ubx_msg.payload.CFG_PM2.flags.waitTimeFix   = 1; /* TODO need time fix before starting */
+    ubx_msg.payload.CFG_PM2.flags.updateRTC     = 1;
+    ubx_msg.payload.CFG_PM2.flags.updateEPH     = 1;
     ubx_msg.payload.CFG_PM2.flags.doNotEnterOff = 0;
 
     /* set the power mode timing variables */
     ubx_msg.payload.CFG_PM2.updatePeriod    = (UBXU4_t)(period);
-    ubx_msg.payload.CFG_PM2.searchPeriod    = (UBXU4_t)(period/GPS_SEARCH_DIV);
+    ubx_msg.payload.CFG_PM2.searchPeriod    = (UBXU4_t)(period*GPS_SEARCH_MUL);
     ubx_msg.payload.CFG_PM2.gridOffset      = 0;
-    ubx_msg.payload.CFG_PM2.onTime          = 0;
-    ubx_msg.payload.CFG_PM2.minAcqTime      = 0;
-    ubx_msg.payload.CFG_PM2.extintInactivityMs = 0;
+    ubx_msg.payload.CFG_PM2.onTime          = 10;
+    ubx_msg.payload.CFG_PM2.minAcqTime      = 10;
+    ubx_msg.payload.CFG_PM2.extintInactivityMs = period;
   
+
     do {
         /* build the UBX message  */
-       // clearUBXMsgBuffer(&ubx_buf);
         ubx_buf = getCFG_PM2(ubx_msg.payload.CFG_PM2);
 
         if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
-            if (GPS_FAILURE == gps_savecfg()) {
-                return GPS_FAILURE;
+            if (GPS_SUCCESS == gps_ack()) {
+               // result = gps_savecfg(0xFFFE);
+               result = GPS_SUCCESS;
+            } else {
+               result = GPS_FAILURE;
             }
-            result = gps_ack();
         }
         /* repeat until timeout or successful acknowledge from device */
-    } while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
+    } while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT);
 
     return result;
 }
@@ -498,105 +720,161 @@ GPS_ERROR gps_cfgpsmoo_18(uint32_t period)
         ubx_buf = setCFG_PMS(ubx_msg.payload.CFG_PMS);
 
         if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
-            if (GPS_FAILURE == gps_savecfg()) {
-                return GPS_FAILURE;
+            if (GPS_SUCCESS == gps_ack()) {
+                result = gps_savecfg(0xFFFE);
             }
-            result = gps_ack();
         }
         /* repeat until timeout or successful acknowledge from device */
-    } while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
+    } while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT);
         
     if (GPS_SUCCESS != result) {
         return GPS_FAILURE;
     }
-    
-    timeout = 0;
-    result = GPS_FAILURE;
-    
-    memset(&ubx_msg, 0x00, sizeof(ubx_msg));
-
-    do {
-        /* build the UBX message  */
-        ubx_buf = getCFG_RXM(UBXRXMPowerSaveMode);
-
-        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
-            if (GPS_FAILURE == gps_savecfg()) {
-                return GPS_FAILURE;
-            }
-            result = gps_ack();
-        }
-        /* repeat until timeout or successful acknowledge from device */
-    } while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
 
     return result;
 }
 
-GPS_ERROR gps_savecfg()
+GPS_ERROR gps_savecfg(const uint16_t MASK)
+{
+    GPS_ERROR       result  = GPS_FAILURE;
+    uint16_t        timeout = 0;
+   
+    do {
+        /* build the UBX message  */
+        ubx_buf = getCFG_CFG_OPT(0, (UBXX4_t)((uint32_t)MASK & 0x0000FFFF), 0,7);
+//        ubx_buf = getCFG_CFG_OPT(0, (UBXX4_t)(0xFFFFFFFF), 0,7);
+
+        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+            result = gps_ack();
+        }
+        /* repeat until timeout or successful acknowledge from device */
+    } while (GPS_SUCCESS != result&& timeout++ < GPS_CFG_TIMEOUT);
+    
+    return result;
+}
+
+GPS_ERROR gps_loadcfg(const uint16_t MASK)
 {
     GPS_ERROR       result  = GPS_FAILURE;
     uint16_t        timeout = 0;
     
     do {
         /* build the UBX message  */
-        ubx_buf = getCFG_CFG(0x00000000, 0x0000FFFF, 0x00000000);
+        ubx_buf = getCFG_CFG_OPT(0, 0, (UBXX4_t)((uint32_t)MASK & 0x0000FFFF), 7);
 
         if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
             result = gps_ack();
         }
         /* repeat until timeout or successful acknowledge from device */
-    } while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
+    } while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT);
     
     return result;
 }
 
-GPS_ERROR gps_clearcfg()
+GPS_ERROR gps_clearcfg(const uint16_t MASK)
 {
     GPS_ERROR       result  = GPS_FAILURE;
     uint16_t        timeout = 0;
     
     do {
         /* build the UBX message  */
-        ubx_buf = getCFG_CFG(0x0000FFFF, 0x00000000, 0x00000000);
+        ubx_buf = getCFG_CFG_OPT((UBXX4_t)((uint32_t)MASK & 0x0000FFFF), 0, 0, 7);
 
         if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
             result = gps_ack();
         }
         /* repeat until timeout or successful acknowledge from device */
-    } while (result == GPS_FAILURE && timeout++ < CFG_TIMEOUT);
+    } while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT);
     
     return result;
 }
 
 GPS_ERROR gps_ack()
 {
-//     UBXMsg*         ack_msg;
-//     UBXMsgBuffer    ack_buf;
-//     char            ack_data[10];
-    GPS_ERROR       result = GPS_FAILURE;
-    
-// 	/* get acknowledge message and verify */
-// 	ubx_buf = getACK_ACK();
-// 	if (GPS_SUCCESS == gps_read_i2c_poll((uint8_t*)ubx_buf.data, ubx_buf.size)) {
-// 					
-// 		/* check that the receiver configured successfully */
-// 		ack_msg = (UBXMsg*)ubx_buf.data;
-// 		if (ack_msg->hdr.msgId == UBXMsgIdACK_ACK) {
-// 			result = GPS_SUCCESS;
-// 		}
-// 	}
-    
-    result = GPS_SUCCESS;
+    UBXMsg*     ack_msg;
+    GPS_ERROR   result = GPS_FAILURE;
+
+    ack_buf = getACK_ACK();
+    if (GPS_SUCCESS == gps_read_i2c_poll((uint8_t*)ack_buf.data, ack_buf.size)) {
+        ack_msg = (UBXMsg*)ack_buf.data;
+        if (ack_msg != NULL && ack_msg->hdr.msgClass == UBXMsgClassACK) {
+            result = ack_msg->hdr.msgId == UBXMsgIdACK_ACK ? GPS_SUCCESS : GPS_INVALID;
+        }
+    }
+
     return result;
 }
 
 GPS_ERROR gps_setrate(const uint32_t period)
 {
-    /* configure the power sampling scheme */
-    if (GPS_FAILURE == gps_cfgpsmoo(period)) {
-        return GPS_FAILURE;
-    }
-    
-    // TODO verify rate and change message rate to match
-    
-    return GPS_SUCCESS;
+    uint8_t     result  = GPS_FAILURE;
+    uint16_t    timeout = 0;
+        
+    /* set default 1Hz rate */
+    do {
+        /* send message disable particular message on all IO ports */
+        ubx_buf = getCFG_RATE(1000,1,0);
+        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+                result = gps_ack();
+        }
+        /* repeat until timeout or successful acknowledge from device */
+    } while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT);
+
+    return result;
+}
+
+GPS_ERROR gps_enablepsm() 
+{
+    GPS_ERROR       result  = GPS_FAILURE;
+    uint16_t        timeout = 0;
+
+    do {
+        /* build the UBX message  */
+        ubx_buf = getCFG_RXM(UBXRXMPowerSaveMode);
+
+        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+            if (GPS_SUCCESS == gps_ack()) {
+                result = gps_savecfg(0xFFFF);
+            } else {
+                result = GPS_FAILURE;
+            }
+        }
+        /* repeat until timeout or successful acknowledge from device */
+    } while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT*2);
+
+    return result;
+}
+
+
+GPS_ERROR gps_sleep()
+{
+    /* controlled GNSS stop */
+    ubx_buf = getCFG_RST(0x08, 0);
+    return gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
+}
+
+GPS_ERROR gps_wake()
+{
+    /* controlled GNSS stop */
+    ubx_buf = getCFG_RST(0x09, 0);
+    return gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size);
+}
+
+GPS_ERROR gps_nap(uint32_t ms)
+{
+    GPS_ERROR       result  = GPS_FAILURE;
+    uint16_t        timeout = 0;
+
+    do {
+        /* build the UBX message  */
+        
+        ubx_buf = getRXM_PMREQ((UBXU4_t)ms, UBXPMREQBackup);
+        if (GPS_SUCCESS == gps_write_i2c((const uint8_t*)ubx_buf.data, ubx_buf.size)) {
+            result = GPS_SUCCESS;
+        }
+        /* repeat until timeout or successful acknowledge from device */
+    } while (GPS_SUCCESS != result && timeout++ < GPS_CFG_TIMEOUT*2);
+
+    return result;
+
 }
