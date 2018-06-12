@@ -41,47 +41,31 @@ GPS_ERROR gps_checkconfig() // TODO uncomment after fixing and adding support fo
 
 GPS_ERROR gps_reconfig()
 {
-        
     /* do not bother checking error as the buffer will be populated by unwanted messages */
-    //gps_clearcfg(0xFFFF);
-    //ubx_buf = getCFG_RST(0,0);
-    //gps_write_i2c((const uint8_t*)ubx_buf.data,ubx_buf.size);
-    //delay_ms(100);
-    gps_readfifo();
+    /* disable NMEA message spam (6 messages) */
     if (GPS_SUCCESS != gps_disable_nmea()) {
-        //return GPS_FAILURE;
+        return GPS_FAILURE;
     }
-    
-   // gps_readfifo();
-    
+    /* enable NAV message as only message */
     if (GPS_SUCCESS != gps_init_msgs()) {
         return GPS_FAILURE;
     }
-    
+    /* set satellites to GPS and no GLONASS */
     if (GPS_SUCCESS != gps_init_channels()) {
         return GPS_FAILURE;
     }
-    
-    /* configure the serial ports */
+    /* configure the serial ports to i2c only */
     if (GPS_SUCCESS != gps_cfgprts()) {
         return GPS_FAILURE;
     }
 
-    /* clear the fifo of any ack messages */
+    /* clear the fifo of any ACK messages */
     gps_readfifo();
     
     /* check that the ports were configured */
     if (GPS_FAILURE == gps_verifyprt()) {
-        return GPS_FAILURE;
+        return GPS_FAILURE; // TODO - this is the only one that can currently fail
     }        
-    
-//     if (GPS_SUCCESS != gps_cfgpsmoo(defaultrate)) {
-//         return GPS_FAILURE;
-//     }
-    
-//     if (GPS_SUCCESS != gps_enablepsm()) {
-//         return GPS_FAILURE;
-//     }
 
     return GPS_SUCCESS;
 }
