@@ -1342,14 +1342,16 @@ UBXMsgBuffer getRXM_EPH_POLL_OPT(UBXU1_t svid)
     return buffer;
 }
 
-UBXMsgBuffer getRXM_PMREQ(UBXU4_t duration, UBXX4_t flags)
+UBXMsgBuffer getRXM_PMREQ(UBXU4_t duration, UBXX4_t flags, UBXX4_t sources)
 {
     int payloadSize = sizeof(UBXRXM_PMREQ);
     UBXMsgBuffer buffer = createBuffer(payloadSize);
     UBXMsg* msg = (UBXMsg*)buffer.data;
     initMsg(msg, payloadSize, UBXMsgClassRXM, UBXMsgIdRXM_PMREQ);
+    msg->payload.RXM_PMREQ.version = 0x00;
     msg->payload.RXM_PMREQ.duration = duration;
     msg->payload.RXM_PMREQ.flags = flags;
+    msg->payload.RXM_PMREQ.wakeupSources = sources;
     completeMsg(&buffer, payloadSize);
     return buffer;
 }

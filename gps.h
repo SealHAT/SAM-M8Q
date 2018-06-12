@@ -73,7 +73,7 @@ GPS_ERROR gps_init_i2c(struct i2c_m_sync_desc* const I2C_DESC);
  *  loaded. reconfigures the device from scratch if the settings
  *  are not available
  */
-GPS_ERROR gps_reconfig(uint32_t defaultrate);
+GPS_ERROR gps_reconfig();
 
 /**
  * gps_disable_nmea
