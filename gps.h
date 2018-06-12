@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-#define GPS_FIFOSIZE	(208)
+#define GPS_FIFOSIZE	(256)
 
 #define GPS_INVALID_LAT	(-1)
 #define GPS_INVALID_LON	(-1)
