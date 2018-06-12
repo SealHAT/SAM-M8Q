@@ -727,8 +727,17 @@ typedef enum
 
 typedef enum
 {
-    UBXPMREQBackup = 1 << 1
+    UBXPMREQBackup = 1 << 1,
+    UBXPMREQForce  = 1 << 2
 } UBXPMREQFlags;
+
+typedef enum
+{    
+    UBXPMREQUartRx  = 1 << 3,
+    UBXPMREQExtint0 = 1 << 5,
+    UBXPMREQExtint1 = 1 << 6,
+    UBXPMREQSpics   = 1 << 7
+} UBXPMREQWakeupSources;
 
 typedef enum
 {
@@ -1956,10 +1965,18 @@ typedef struct {
     UBXU4_t sf3d[8];
 } UBXRXM_EPH_OPT;
 
+// typedef struct {
+//     UBXU4_t duration;
+//     UBXX4_t flags; //See UBXPMREQFlags to fill this field
+// } UBXRXM_PMREQ;
+
 typedef struct {
+    UBXU1_t version;
+    UBXU1_t reserved1[3];
     UBXU4_t duration;
     UBXX4_t flags; //See UBXPMREQFlags to fill this field
-} UBXRXM_PMREQ;
+    UBXX4_t wakeupSources; //See UBXPMREQWakeupSources to fill this field
+} UBXRXM_PMREQ; /* for version 18 */
 
 typedef struct {
     UBXI4_t rcvTow;
